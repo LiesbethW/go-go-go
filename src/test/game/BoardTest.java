@@ -25,19 +25,14 @@ public class BoardTest {
 		assertNotNull(board);
 		assertEquals(Stone.NONE, board.stoneAt(0,0));
 		assertEquals(Stone.NONE, board.stoneAt(8,8));
+		assertEquals(null, board.stoneAt(-1, 0));
 	}
 	
 	@Test
 	public void testIndices() {
 		int rowsize = 9;
-		int boardsize = rowsize*rowsize;
 		Board smallBoard = new Board(rowsize);
-		assertEquals(rowsize, smallBoard.size());
-		assertEquals(boardsize, smallBoard.indexSize());
-		assertTrue(smallBoard.onBoard(0));
-		assertTrue(smallBoard.onBoard(boardsize - 1));
-		assertFalse(smallBoard.onBoard(boardsize));
-		
+		assertEquals(rowsize, smallBoard.size());	
 		assertTrue(smallBoard.onBoard(5,5));
 		assertFalse(smallBoard.onBoard(rowsize + 1, 0));
 	}
@@ -56,8 +51,8 @@ public class BoardTest {
 	
 	@Test(expected = InvalidMoveException.class)
 	public void placeStoneDoubleTest() throws InvalidMoveException {
-		board.layStone(Stone.BLACK, 3);
-		board.layStone(Stone.WHITE, 3);
+		board.layStone(Stone.BLACK, 3, 3);
+		board.layStone(Stone.WHITE, 3, 3);
 	}
 	
 	@Test
@@ -71,8 +66,8 @@ public class BoardTest {
 	
 	@Test(expected = InvalidMoveException.class) 
 	public void cannotRemoveNonexistingStone() throws InvalidMoveException {
-		assertFalse(board.anyStoneAt(6));
-		board.removeStone(6);
+		assertFalse(board.anyStoneAt(6, 1));
+		board.removeStone(6, 1);
 	}
 	
 }
