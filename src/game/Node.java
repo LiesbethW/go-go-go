@@ -1,7 +1,9 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import exceptions.InvalidMoveException;
 
@@ -36,6 +38,14 @@ public class Node {
 	}
 	
 	/**
+	 * Is this Node free? (No stone on it).
+	 * @return true if no stone is on this node
+	 */
+	public Boolean free() {
+		return getStone() == Stone.NONE;
+	}
+	
+	/**
 	 * Get the Stone on this Node.
 	 * @return WHITE, BLACK or NONE
 	 */
@@ -63,11 +73,20 @@ public class Node {
 		this.stone = Stone.NONE;
 	}
 	
+	/**
+	 * Liberties of the group this stone
+	 * belongs to. Not guaranteed to give a sensible
+	 * result if this Node is free.
+	 * @return The number of free adjacent nodes.
+	 */
 	public int liberties() {
-		
-		return 0;
+		return freeAdjacentNodes().size();
 	}
 	
+	/**
+	 * The adjacent nodes of this node.
+	 * @return a list of Nodes.
+	 */
 	public List<Node> neighbours() {
 		if (neighbours == null) {
 			neighbours = new ArrayList<Node>();
@@ -86,6 +105,55 @@ public class Node {
 		} 
 		
 		return neighbours;
+	}
+	
+	/**
+	 * The size of the group this stone
+	 * belongs to.
+	 * @return
+	 */
+	public int groupSize() {
+		return group().size();
+	}
+	
+	/**
+	 * The group that this node belongs to.
+	 * @return
+	 */
+	public Set<Node> group() {
+		Set<Node> myGroup = new HashSet<Node>();
+		myGroup.add(this);
+		return group(myGroup);
+	}
+
+	/**
+	 * For each of this nodes neighbours, add
+	 * that neighbour to the group if it is the
+	 * same color stone, and then repeat for the
+	 * neighbours of my neighbour.
+	 * @param myGroup
+	 * @return
+	 */
+	private Set<Node> group(Set<Node> myGroup) {
+		for (Node neighbour : neighbours()) {
+			if (!myGroup.contains(neighbour) && neighbour.getStone() == this.getStone()) {
+				myGroup.add(neighbour);
+				myGroup.addAll(neighbour.group(myGroup));
+			}
+		}
+		return myGroup;
+	}
+	
+	private Set<Node> freeAdjacentNodes() {
+		Set<Node> freeAdjacentNodes = new HashSet<Node>();
+		for (Node node : group()) {
+			for (Node neighbour : node.neighbours()) {
+				if (neighbour.free()) {
+					freeAdjacentNodes.add(neighbour);
+				}
+			}
+		}
+		return freeAdjacentNodes;
 	}
 	
 }

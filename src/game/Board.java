@@ -149,6 +149,20 @@ public class Board {
 	}
 	
 	/**
+	 * Return the number of captives for the given
+	 * stone color.
+	 */
+	public int captives(Stone stone) {
+		if (stone == Stone.BLACK) {
+			return blackCaptives;
+		} else if (stone == Stone.WHITE) {
+			return whiteCaptives;
+		} else {
+			return 0;
+		}
+	}
+	
+	/**
 	 * Resets the grid to all 'NONE' stones.
 	 * Resets the captive numbers to 0.
 	 */

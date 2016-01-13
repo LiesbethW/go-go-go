@@ -70,4 +70,31 @@ public class BoardTest {
 		board.removeStone(6, 1);
 	}
 	
+	@Test
+	public void testCopy() throws InvalidMoveException {
+		Board boardCopy = board.deepCopy();
+		boardCopy.layStone(Stone.BLACK, 5, 5);
+		assertTrue(boardCopy.anyStoneAt(5, 5));
+		assertFalse(board.anyStoneAt(5, 5));
+		
+	}
+	
+	@Test
+	public void testCaptives() throws InvalidMoveException {
+		board.layStone(Stone.BLACK, 5, 5);
+		assertEquals(0, board.captives(Stone.BLACK));
+		board.removeStone(5, 5);
+		assertEquals(1, board.captives(Stone.BLACK));
+	}
+	
+	@Test
+	public void testLiberties() throws InvalidMoveException {
+		board.layStone(Stone.BLACK, 5, 5);
+		assertEquals(4, board.liberties(5, 5));
+		board.layStone(Stone.WHITE, 4, 5);
+		assertEquals(3, board.liberties(5, 5));
+		board.layStone(Stone.BLACK, 5, 6);
+		assertEquals(5, board.liberties(5, 5));
+	}
+	
 }
