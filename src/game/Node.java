@@ -29,6 +29,22 @@ public class Node {
 	}
 	
 	/**
+	 * Get the row position of this Node.
+	 * @return row position
+	 */
+	public int getRow() {
+		return row;
+	}
+	
+	/**
+	 * Get the column position of this Node.
+	 * @return col position
+	 */
+	public int getColumn() {
+		return col;
+	}
+	
+	/**
 	 * Is there a stone on this Node?
 	 * @return true if Stone.WHITE or Stone.BLACK
 	 * at this Node.
@@ -58,12 +74,8 @@ public class Node {
 	 * @param stone
 	 * @throws InvalidMoveException if getStone() != NONE
 	 */
-	public void layStone(Stone stone) throws InvalidMoveException {
-		if (this.stone != Stone.NONE) {
-			throw new InvalidMoveException();
-		} else {
-			this.stone = stone;
-		}
+	public void layStone(Stone stone) {
+		this.stone = stone;
 	}
 	
 	/**
@@ -144,6 +156,10 @@ public class Node {
 		return myGroup;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	private Set<Node> freeAdjacentNodes() {
 		Set<Node> freeAdjacentNodes = new HashSet<Node>();
 		for (Node node : group()) {

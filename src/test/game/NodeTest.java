@@ -71,14 +71,14 @@ public class NodeTest {
 	public void testLiberties() throws InvalidMoveException {
 		cornerNode.layStone(Stone.BLACK);
 		assertEquals(2, cornerNode.liberties());
+		
 		edgeNode.layStone(Stone.BLACK);
 		assertEquals(3, edgeNode.liberties());
+		
 		centerNode.layStone(Stone.BLACK);
 		assertEquals(4, centerNode.liberties());
-		
 		board.layStone(Stone.BLACK, row + 1, col);
 		assertEquals(6, centerNode.liberties());
-		
 		board.layStone(Stone.WHITE, row, col + 1);
 		assertEquals(5, centerNode.liberties());
 		

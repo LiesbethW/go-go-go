@@ -7,6 +7,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
   BoardTest.class,
   NodeTest.class,
+  StoneTest.class
 })
 
 public class GameTestSuite {

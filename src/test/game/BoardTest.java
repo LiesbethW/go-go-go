@@ -14,6 +14,8 @@ import game.Stone;
 
 public class BoardTest {	
 	private Board board;
+	private int row = 5;
+	private int col = 5;
 	
 	@Before
 	public void setUp() {
@@ -60,14 +62,14 @@ public class BoardTest {
 		board.layStone(Stone.WHITE, 5, 5);
 		assertEquals(Stone.WHITE, board.stoneAt(5, 5));
 		
-		board.removeStone(5, 5);
+		board.takeCaptive(5, 5);
 		assertFalse(board.anyStoneAt(5, 5));
 	}
 	
 	@Test(expected = InvalidMoveException.class) 
 	public void cannotRemoveNonexistingStone() throws InvalidMoveException {
 		assertFalse(board.anyStoneAt(6, 1));
-		board.removeStone(6, 1);
+		board.takeCaptive(6, 1);
 	}
 	
 	@Test
@@ -83,7 +85,7 @@ public class BoardTest {
 	public void testCaptives() throws InvalidMoveException {
 		board.layStone(Stone.BLACK, 5, 5);
 		assertEquals(0, board.captives(Stone.BLACK));
-		board.removeStone(5, 5);
+		board.takeCaptive(5, 5);
 		assertEquals(1, board.captives(Stone.BLACK));
 	}
 	
@@ -95,6 +97,30 @@ public class BoardTest {
 		assertEquals(3, board.liberties(5, 5));
 		board.layStone(Stone.BLACK, 5, 6);
 		assertEquals(5, board.liberties(5, 5));
+	}
+	
+	@Test
+	public void testCapturing() throws InvalidMoveException {
+		board.layStone(Stone.BLACK, row, col);
+		board.layStone(Stone.WHITE, row - 1, col);
+		board.layStone(Stone.WHITE, row + 1, col);
+		board.layStone(Stone.WHITE, row, col + 1);
+		
+		assertEquals(1, board.liberties(row, col));
+		assertEquals(0, board.captives(Stone.BLACK));
+		board.layStone(Stone.WHITE, row, col - 1);
+		assertFalse(board.anyStoneAt(row, col));
+		assertEquals(1, board.captives(Stone.BLACK));
+	}
+	
+	@Test(expected = InvalidMoveException.class)
+	public void suicideNotAllowedTest() throws InvalidMoveException {
+		board.layStone(Stone.BLACK, row - 1, col);
+		board.layStone(Stone.BLACK, row + 1, col);
+		board.layStone(Stone.BLACK, row, col + 1);
+		board.layStone(Stone.BLACK, row, col - 1);
+		
+		board.layStone(Stone.WHITE, row, col);
 	}
 	
 }

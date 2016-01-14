@@ -1,5 +1,7 @@
 package game;
 
+import java.util.Set;
+
 import exceptions.InvalidMoveException;
 
 public class Board {
@@ -86,7 +88,29 @@ public class Board {
 	 * @throws InvalidMoveException if this point is already taken.
 	 */
 	public void layStone(Stone stone, int row, int col) throws InvalidMoveException {
+		if (anyStoneAt(row, col)) {
+			throw new InvalidMoveException();
+		}
+		
 		grid[row][col].layStone(stone);
+		
+		takeOpponentCaptive(grid[row][col]);
+		
+		if (grid[row][col].liberties() == 0) {
+			throw new InvalidMoveException("Suicide move is not allowed");
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	private void takeOpponentCaptive(Node node) throws InvalidMoveException {
+		for (Node neighbour : node.neighbours()) {
+			if (neighbour.getStone().isOpponent(node.getStone()) && neighbour.liberties() == 0) {
+				takeCaptives(neighbour.group());
+			}
+		}
+		
 	}
 	
 	/**
@@ -97,9 +121,42 @@ public class Board {
 	 * @throws InvalidMoveException if there was no
 	 * stone at that the specified position.
 	 */
-	public void removeStone(int row, int col) throws InvalidMoveException {
-		takeCaptive(grid[row][col].getStone());
+	public void takeCaptive(int row, int col) throws InvalidMoveException {
+		if (!anyStoneAt(row, col)) {
+			throw new InvalidMoveException("Cannot capture a stone that is not there.");
+		}
+		
+		if (grid[row][col].getStone() == Stone.BLACK) {
+			blackCaptives += 1;
+		} else if (grid[row][col].getStone() == Stone.WHITE ) {
+			whiteCaptives += 1;
+		}
+
 		grid[row][col].removeStone();
+	}
+	
+	/**
+	 * Take the stone at a certain Node captive.
+	 * Useful for the captivation of entire groups
+	 * based on the group set.
+	 * @param node
+	 * @throws InvalidMoveException if there is no
+	 * stone at the specified node.
+	 */
+	private void takeCaptive(Node node) throws InvalidMoveException {
+		takeCaptive(node.getRow(), node.getColumn());
+	}
+	
+	/**
+	 * Take this stone captive: add 1 to the
+	 * number of captives of the corresponding
+	 * color.
+	 * @param stone (Stone.BLACK or Stone.WHITE)
+	 */
+	private void takeCaptives(Set<Node> group) throws InvalidMoveException {
+		for (Node node: group) {
+			takeCaptive(node);
+		}
 	}
 	
 	/**
@@ -129,23 +186,6 @@ public class Board {
 	 */
 	public int liberties(int row, int col) {
 		return grid[row][col].liberties();
-	}
-	
-	
-	/**
-	 * Take this stone captive: add 1 to the
-	 * number of captives of the corresponding
-	 * color.
-	 * @param stone (Stone.BLACK or Stone.WHITE)
-	 */
-	private void takeCaptive(Stone stone) throws InvalidMoveException {
-		if (stone == Stone.BLACK) {
-			blackCaptives += 1;
-		} else if (stone == Stone.WHITE ) {
-			whiteCaptives += 1;
-		} else {
-			throw new InvalidMoveException();
-		}
 	}
 	
 	/**
@@ -186,11 +226,7 @@ public class Board {
 		Board copy = new Board(size());
 		for (int i = 0; i < size(); i++) {
 			for (int j = 0; j < size(); j++) {
-				try {
-					copy.grid[i][j].layStone(this.grid[i][j].getStone());
-				} catch (InvalidMoveException e) {
-					//ignore for this special case.
-				}				
+				copy.grid[i][j].layStone(this.grid[i][j].getStone());		
 			}
 		}
 		copy.blackCaptives = this.blackCaptives;
