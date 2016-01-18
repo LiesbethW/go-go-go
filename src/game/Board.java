@@ -1,18 +1,15 @@
 package game;
 
-import java.util.Arrays;
-import java.util.Observable;
+import java.util.Set;
 
-import exceptions.*;
+import exceptions.InvalidMoveException;
 
 public class Board {
 	
 	public static int DEFAULT_BOARD_SIZE = 19;
 	
 	private int boardSize;
-	private Stone[] grid;
-	private GroupHelper groupHelper;
-	private Board backup;
+	private Node[][] grid;
 	private int blackCaptives;
 	private int whiteCaptives;
 	
@@ -23,7 +20,6 @@ public class Board {
 	public Board(int size) {
 		boardSize = size;
 		reset();
-		groupHelper = new GroupHelper(this);
 	}
 	
 	/**
@@ -45,15 +41,6 @@ public class Board {
 	}
 	
 	/**
-	 * Rows times columns, useful to know for determining
-	 * if indices will be out of bounds.
-	 * @return The board size squared
-	 */
-	public int indexSize() {
-		return size()*size();
-	}
-	
-	/**
 	 * Is this combination of row and column
 	 * values on the board?
 	 * @param row
@@ -62,39 +49,23 @@ public class Board {
 	 * if it is not.
 	 */
 	public Boolean onBoard(int row, int col) {
-		return onBoard(gridIndex(row, col));
+		return row >= 0 && row < size() && col >=0 && col < size();
 	}
-	
-	/**
-	 * Is this index a valid index on the board?
-	 * @param gridIndex
-	 * @return True if index is on the board, false
-	 * if it is not.
-	 */
-	public Boolean onBoard(int gridIndex) {
-		return gridIndex >= 0 && gridIndex < size()*size();
-	}	
 	
 	/**
 	 * Get the stone at the given row and column.
 	 * @param row
 	 * @param col
 	 * @return (Enum) Stone, Stone.WHITE or Stone.BLACK,
-	 * or null if the point is empty.
+	 * or Stone.NONE if the point is empty. Returns null
+	 * if the given combination of row and column is
+	 * not on the board.
 	 */
 	public Stone stoneAt(int row, int col) {
-		return stoneAt(gridIndex(row,col));
-	}
-	
-	/**
-	 * Get the stone at a certain grid point.
-	 * @param gridIndex
-	 * @return Stone.WHITE or Stone.BLACK,
-	 * or null if the point is empty.
-	 * @require gridIndex < size()*size()
-	 */
-	public Stone stoneAt(int gridIndex) {
-		return grid[gridIndex];
+		if (!onBoard(row,col)) {
+			return null;
+		}
+		return grid[row][col].getStone();
 	}
 	
 	/**
@@ -106,18 +77,7 @@ public class Board {
 	 * this point is still empty.
 	 */
 	public Boolean anyStoneAt(int row, int col) {
-		return anyStoneAt(gridIndex(row,col));
-	}
-	
-	/**
-	 * Return if there is a stone at the given
-	 * gridIndex.
-	 * @param gridIndex
-	 * @return True if there is a stone, false if
-	 * this point is still empty.
-	 */
-	public Boolean anyStoneAt(int gridIndex) {
-		return stoneAt(gridIndex) != Stone.NONE;
+		return grid[row][col].taken();
 	}
 	
 	/**
@@ -128,62 +88,63 @@ public class Board {
 	 * @throws InvalidMoveException if this point is already taken.
 	 */
 	public void layStone(Stone stone, int row, int col) throws InvalidMoveException {
-		layStone(stone, gridIndex(row,col));
+		if (anyStoneAt(row, col)) {
+			throw new InvalidMoveException();
+		}
+		
+		grid[row][col].layStone(stone);
+		
+		takeOpponentCaptive(grid[row][col]);
+		
+		if (grid[row][col].liberties() == 0) {
+			throw new InvalidMoveException("Suicide move is not allowed");
+		}
 	}
 	
 	/**
-	 * Put a stone at the given point
-	 * @param stone, must be Stone.BLACK or Stone.WHITE
-	 * @param gridIndex
+	 * 
 	 */
-	public void layStone(Stone stone, int gridIndex) throws InvalidMoveException {
-		if (anyStoneAt(gridIndex)) {
-			throw new InvalidMoveException("Point " + gridIndex + " is already occupied");
-		}
-		
-		try {
-			backup = this.deepCopy();
-			grid[gridIndex] = stone;
+	private void takeOpponentCaptive(Node node) throws InvalidMoveException {
+		for (Node neighbour : node.neighbours()) {
+			if (neighbour.getStone().isOpponent(node.getStone()) && neighbour.liberties() == 0) {
+				takeCaptives(neighbour.group());
+			}
 		}
 		
 	}
 	
 	/**
-	 * Remove stone on specified position from board. 
+	 * Remove stone on specified position from board
+	 * and add it to the captives of its color.
 	 * @param row
 	 * @param col
 	 * @throws InvalidMoveException if there was no
 	 * stone at that the specified position.
 	 */
-	public void removeStone(int row, int col) throws InvalidMoveException {
-		removeStone(gridIndex(row, col));
-	}
-	
-	/**
-	 * Remove stone on specified position from board and
-	 * add it to the captives.
-	 * @param gridIndex
-	 * @throws InvalidMoveException if there was no
-	 * stone at that the specified position.
-	 */
-	public void removeStone(int gridIndex) throws InvalidMoveException {
-		if (!anyStoneAt(gridIndex)) {
-			throw new InvalidMoveException("There is no stone at " + gridIndex);
+	public void takeCaptive(int row, int col) throws InvalidMoveException {
+		if (!anyStoneAt(row, col)) {
+			throw new InvalidMoveException("Cannot capture a stone that is not there.");
 		}
 		
-		takeCaptive(stoneAt(gridIndex));
-		grid[gridIndex] = Stone.NONE;
+		if (grid[row][col].getStone() == Stone.BLACK) {
+			blackCaptives += 1;
+		} else if (grid[row][col].getStone() == Stone.WHITE ) {
+			whiteCaptives += 1;
+		}
+
+		grid[row][col].removeStone();
 	}
 	
 	/**
-	 * Calculate the index of the point in the 1-dimensional
-	 * grid array, based on row and column index.
-	 * @param integer row
-	 * @param integer column
-	 * @return The index for the grid array.
+	 * Take the stone at a certain Node captive.
+	 * Useful for the captivation of entire groups
+	 * based on the group set.
+	 * @param node
+	 * @throws InvalidMoveException if there is no
+	 * stone at the specified node.
 	 */
-	private int gridIndex(int row, int col) {
-		return row*size() + col;
+	private void takeCaptive(Node node) throws InvalidMoveException {
+		takeCaptive(node.getRow(), node.getColumn());
 	}
 	
 	/**
@@ -192,13 +153,53 @@ public class Board {
 	 * color.
 	 * @param stone (Stone.BLACK or Stone.WHITE)
 	 */
-	private void takeCaptive(Stone stone) {
-		if (stone == Stone.BLACK) {
-			blackCaptives += 1;
-		} else if (stone == Stone.WHITE ) {
-			whiteCaptives += 1;
+	private void takeCaptives(Set<Node> group) throws InvalidMoveException {
+		for (Node node: group) {
+			takeCaptive(node);
 		}
-		// else throw exception?
+	}
+	
+	/**
+	 * Get Node at a certain point. Necessary for Node
+	 * to find it's neighbours.
+	 * @param row
+	 * @param column
+	 * @return Node 
+	 */
+	public Node node(int row, int col) {
+		if (!onBoard(row, col)) {
+			return null;
+		} else {
+			return grid[row][col];
+		}
+	}
+	
+	/**
+	 * Get the liberties of the group that the
+	 * stone at the given position is part of.
+	 * Not guaranteed to give sensible result
+	 * if there is no stone a the given node.
+	 * @param row
+	 * @param column
+	 * @return The number of liberties (natural
+	 * integer).
+	 */
+	public int liberties(int row, int col) {
+		return grid[row][col].liberties();
+	}
+	
+	/**
+	 * Return the number of captives for the given
+	 * stone color.
+	 */
+	public int captives(Stone stone) {
+		if (stone == Stone.BLACK) {
+			return blackCaptives;
+		} else if (stone == Stone.WHITE) {
+			return whiteCaptives;
+		} else {
+			return 0;
+		}
 	}
 	
 	/**
@@ -206,22 +207,32 @@ public class Board {
 	 * Resets the captive numbers to 0.
 	 */
 	private void reset() {
-		grid = new Stone[size()*size()];
-		Arrays.fill(grid, (Stone.NONE));
+		grid = new Node[size()][size()];
+		for (int i = 0; i < size(); i++) {
+			for (int j = 0; j < size(); j++) {
+				grid[i][j] = new Node(this, i,j);
+			}
+		}
 		blackCaptives = 0;
 		whiteCaptives = 0;
 	}
 	
-	private Board deepCopy() {
-		Board copy = new Board(this.size());
-		System.arraycopy(grid, 0, copy.grid, 0, indexSize());
-		copy.backup = this;
+	/**
+	 * Make a copy of this board.
+	 * @return A new board with new nodes, that
+	 * have the same stones on them.
+	 */
+	public Board deepCopy() {
+		Board copy = new Board(size());
+		for (int i = 0; i < size(); i++) {
+			for (int j = 0; j < size(); j++) {
+				copy.grid[i][j].layStone(this.grid[i][j].getStone());		
+			}
+		}
+		copy.blackCaptives = this.blackCaptives;
+		copy.whiteCaptives = this.whiteCaptives;
+
 		return copy;
 	}
 	
-	private void restore() throws CorruptedStateException {
-		this.grid = backup.grid;
-		this.backup = backup.backup;
-		this.groupHelper = new GroupHelper(this);
-	}
 }
