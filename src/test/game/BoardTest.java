@@ -83,10 +83,10 @@ public class BoardTest {
 	
 	@Test
 	public void testCaptives() throws InvalidMoveException {
-		board.layStone(Stone.BLACK, 5, 5);
-		assertEquals(0, board.captives(Stone.BLACK));
+		board.layStone(Stone.WHITE, 5, 5);
+		assertEquals(0, board.captives(Stone.WHITE));
 		board.takeCaptive(5, 5);
-		assertEquals(1, board.captives(Stone.BLACK));
+		assertEquals(1, board.captives(Stone.WHITE));
 	}
 	
 	@Test

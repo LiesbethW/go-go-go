@@ -45,4 +45,10 @@ public class StoneTest {
 		assertEquals(" ", noStone.toString());
 	}
 	
+	@Test
+	public void nameTest() {
+		assertEquals("WHITE", Stone.WHITE.name());
+		assertEquals("BLACK", Stone.BLACK.name());
+	}
+	
 }
