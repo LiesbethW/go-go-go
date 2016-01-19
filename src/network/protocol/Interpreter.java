@@ -2,7 +2,6 @@ package network.protocol;
 
 import java.util.Scanner;
 
-import exceptions.ArgumentsMissingException;
 import exceptions.GoException;
 import exceptions.UnknownCommandException;
 
@@ -44,16 +43,7 @@ public abstract class Interpreter implements Constants {
 	 * @throws UnknownCommandException
 	 */
 	abstract Boolean commandPartOfProtocol(String command) throws UnknownCommandException;
-		
-	/**
-	 * Execute the command with the given arguments.
-	 * @param command
-	 * @param args
-	 * @throws ArgumentsMissingException if more arguments
-	 * were expected than given.
-	 */
-	abstract void checkFormat(String command, String[] args) throws ArgumentsMissingException;
-	
+
 	/**
 	 * Construct an appropriate message from
 	 * this exception.

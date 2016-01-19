@@ -78,6 +78,7 @@ public interface Constants {
     public static final String WAITFOROPPONENT = "WAITFOROPPONENT";
     public static final String GAMESTART = "GAMESTART";
     public static final String MOVE = "MOVE";
+    public static final String PASS = "PASS";
     public static final String GETBOARD = "GETBOARD";
     public static final String BOARD = "BOARD";
     public static final String QUIT = "QUIT";

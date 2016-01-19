@@ -1,7 +1,10 @@
 package test.network.protocol;
 
+import static network.protocol.Constants.ARGUMENTSMISSING;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -16,6 +19,7 @@ import exceptions.UnknownCommandException;
 import network.Client;
 import network.ClientCommunicator;
 import network.Server;
+import network.protocol.CommandSet;
 import network.protocol.Message;
 import network.protocol.ServerSideInterpreter;
 import test.network.TestServer;
@@ -58,26 +62,33 @@ public class ServerSideInterpreterTest {
 		
 		String message3 = "CHAT Hee hallo, hoe gaat het? Heeft er iemand zin"
 				+ "om een spelletje Go met mij te spelen?";
+		assertEquals(message3, interpreter.digest(message3).toString());
 	}
 	
 	@Test
-	public void testCommandPartOfProtocol() {
-		// TODO
+	public void testCommandPartOfProtocol() throws UnknownCommandException {
+		assertTrue(interpreter.commandPartOfProtocol("PLAY"));
+		assertTrue(interpreter.commandPartOfProtocol("WHITE"));
+		assertTrue(interpreter.commandPartOfProtocol("UnknownCommand"));
 	}
 	
 	@Test(expected = UnknownCommandException.class)
 	public void testCommandNotPartOfProtocol() throws UnknownCommandException {
-		
+		assertFalse(interpreter.commandPartOfProtocol("Hellloooo"));
 	}
 	
 	@Test
-	public void testCheckFormat() {
-		
-	}
-	
-	@Test(expected = ArgumentsMissingException.class)
-	public void testMissingArguments() throws ArgumentsMissingException {
-		
+	public void printException() {
+		try {
+			throw new ArgumentsMissingException();
+		} catch (GoException e) {
+			assertEquals("exceptions.ArgumentsMissingException", e.toString());
+			assertTrue(e.toString().contains("ArgumentsMissing"));
+			assertTrue(CommandSet.errorSet().stream().anyMatch(s -> e.toString().contains(s)));
+			assertEquals("ArgumentsMissing", 
+					CommandSet.errorSet().stream().filter(s -> e.toString().contains(s)).
+					findFirst().get());
+		}
 	}
 	
 	@Test
@@ -86,6 +97,7 @@ public class ServerSideInterpreterTest {
 		try {
 			throw new ArgumentsMissingException();
 		} catch (GoException e) {
+			assertEquals(ARGUMENTSMISSING, CommandSet.exceptionCommand(e));
 			exceptionMessage = interpreter.exceptionMessage(e);
 		}
 		assertEquals("FAILURE ArgumentsMissing", exceptionMessage.toString());

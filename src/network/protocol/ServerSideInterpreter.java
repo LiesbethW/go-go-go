@@ -1,6 +1,5 @@
 package network.protocol;
 
-import exceptions.ArgumentsMissingException;
 import exceptions.GoException;
 import exceptions.UnknownCommandException;
 import network.ClientCommunicator;
@@ -23,7 +22,6 @@ public class ServerSideInterpreter extends Interpreter {
 		parse(message);
 		try {
 			commandPartOfProtocol(command);
-			checkFormat(command, args);
 			return new Message(command, args);
 		} catch (GoException e) {
 			client.handleException(e);
@@ -33,18 +31,16 @@ public class ServerSideInterpreter extends Interpreter {
 
 	@Override
 	public Boolean commandPartOfProtocol(String command) throws UnknownCommandException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void checkFormat(String command, String[] args) throws ArgumentsMissingException {
-		// TODO Auto-generated method stub
+		Boolean partOfProtocol = CommandSet.contains(command);
+		if (!partOfProtocol) {
+			throw new UnknownCommandException(command);
+		}
+		return partOfProtocol;
 	}
 
 	@Override
 	public Message exceptionMessage(GoException e) {
-		return new Message(FAILURE, e.toString().replaceAll("[exceptions.]", "").replaceAll("Exception", ""));
+		return new Message(FAILURE, CommandSet.exceptionCommand(e));
 	}
 
 }

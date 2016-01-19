@@ -19,9 +19,9 @@ public class ClientSideInterpreter extends Interpreter {
 	}
 
 	@Override
-	void commandPartOfProtocol(String command) throws UnknownCommandException {
+	Boolean commandPartOfProtocol(String command) throws UnknownCommandException {
 		// TODO Auto-generated method stub
-
+		return false;
 	}
 
 	@Override
