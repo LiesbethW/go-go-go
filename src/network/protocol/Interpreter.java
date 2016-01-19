@@ -4,16 +4,15 @@ import java.util.Scanner;
 
 import exceptions.ArgumentsMissingException;
 import exceptions.GoException;
-import exceptions.NotApplicableCommandException;
 import exceptions.UnknownCommandException;
 
 public abstract class Interpreter implements Constants {
-	private Scanner input;
-	private String command;
-	private String[] args;
+	protected Scanner input;
+	protected String command;
+	protected String[] args;
 	
 	public Interpreter() {
-	
+		
 	}
 	
 	/**
@@ -23,17 +22,7 @@ public abstract class Interpreter implements Constants {
 	 * that is so.
 	 * @param message
 	 */
-	public void digest(String message) {
-		parse(message);
-		try {
-			commandPartOfProtocol(command);
-			commandApplicableForState(command);
-			execute(command, args);
-		} catch (GoException e) {
-			handleException(e);
-		}
-		
-	}
+	public abstract Message digest(String message);
 	
 	/**
 	 * Separate the message into command and
@@ -42,18 +31,10 @@ public abstract class Interpreter implements Constants {
 	 */
 	public void parse(String message) {
 		reset();
-		input = new Scanner(message);
-		if (input.hasNext()) {
-			command = input.next();
-		} else {
-			// Should this throw an exception?
-			return;
-		}
-		int argIndex = 0;
-		while (input.hasNext()) {
-			args[argIndex] = input.next();
-			argIndex++;
-		}
+		String[] words = message.split(DELIMITER);
+		command = words[0];
+		args = new String[words.length - 1];
+		System.arraycopy(words, 1, args, 0, words.length - 1);
 	}
 	
 	/**
@@ -62,16 +43,8 @@ public abstract class Interpreter implements Constants {
 	 * @param command
 	 * @throws UnknownCommandException
 	 */
-	abstract void commandPartOfProtocol(String command) throws UnknownCommandException;
-	
-	/**
-	 * Check if the command has meaning in the current
-	 * situation (as represented by the ClientState).
-	 * @param command
-	 * @throws NotApplicableCommandException
-	 */
-	abstract void commandApplicableForState(String command) throws NotApplicableCommandException;
-	
+	abstract Boolean commandPartOfProtocol(String command) throws UnknownCommandException;
+		
 	/**
 	 * Execute the command with the given arguments.
 	 * @param command
@@ -79,14 +52,14 @@ public abstract class Interpreter implements Constants {
 	 * @throws ArgumentsMissingException if more arguments
 	 * were expected than given.
 	 */
-	abstract void execute(String command, String[] args) throws ArgumentsMissingException;
+	abstract void checkFormat(String command, String[] args) throws ArgumentsMissingException;
 	
 	/**
-	 * Handle the exception: if applicable, send it
-	 * as a failure message to the other party.
-	 * @param e
+	 * Construct an appropriate message from
+	 * this exception.
+	 * @param GoException
 	 */
-	abstract void handleException(GoException e);
+	public abstract Message exceptionMessage(GoException e);
 	
 	/**
 	 * Reset the input scanner and parsed command
@@ -95,7 +68,7 @@ public abstract class Interpreter implements Constants {
 	private void reset() {
 		input = null;
 		command = null;
-		args = null;
+		args = new String[]{};
 	}
 
 }

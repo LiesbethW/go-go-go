@@ -66,7 +66,7 @@ public class Server extends Thread {
 	
 	private int port;
 	private ServerSocket serverSocket;
-	private List<ClientHandler> clients;
+	private List<ClientCommunicator> clients;
 	private int boardSize;
 	
 	public Server(int port, int boardSize) {
@@ -78,23 +78,27 @@ public class Server extends Thread {
 			System.out.println("ERROR: could not create a server socket on port " + port);
 			System.exit(0);
 		}
-		clients = new ArrayList<ClientHandler>();
+		clients = new ArrayList<ClientCommunicator>();
 	}
 	
 	public void run() {
 		while (true) {
-			for (ClientHandler client : clients) {
+			for (ClientCommunicator client : clients) {
 				
 			}
 		}
 	}
 	
+	public int getPort() {
+		return serverSocket.getLocalPort();
+	}
+	
 	public void waitForConnectingClients() {
 		while(true) {
 			try {
-				ClientHandler newClient = new ClientHandler(this, serverSocket.accept());
+				ClientCommunicator newClient = new ClientCommunicator(this, serverSocket.accept());
 				newClient.start();
-				addHandler(newClient);
+				addClient(newClient);
 			} catch (IOException e) {
 				System.out.println("An error occured while waiting for a connection");
 				System.exit(0);
@@ -102,11 +106,15 @@ public class Server extends Thread {
 		}
 	}
 	
-	public void addHandler(ClientHandler handler) {
-		clients.add(handler);
+	public List<ClientCommunicator> clients() {
+		return clients;
 	}
 	
-	public void removeHandler(ClientHandler handler) {
-		clients.remove(handler);
+	public void addClient(ClientCommunicator client) {
+		clients.add(client);
+	}
+	
+	public void removeClient(ClientCommunicator client) {
+		clients.remove(client);
 	}
 }
