@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.junit.Before;
@@ -22,7 +21,7 @@ import network.Server;
 import network.protocol.CommandSet;
 import network.protocol.Message;
 import network.protocol.ServerSideInterpreter;
-import test.network.TestServer;
+import test.network.TestNetworkSetup;
 
 public class ServerSideInterpreterTest {
 	private Server server;
@@ -32,14 +31,10 @@ public class ServerSideInterpreterTest {
 	
 	@Before
 	public void setUp() throws UnknownHostException, IOException {
-		server = TestServer.newServer();
-		client = new Client(InetAddress.getByName("localhost"), server.getPort());
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			
-		}
-		clientCommunicator = server.clients().get(0);
+		TestNetworkSetup network = TestNetworkSetup.newNetwork();
+		server = network.server();
+		client = network.client();
+		clientCommunicator = network.clientCommunicator();
 		interpreter = new ServerSideInterpreter(clientCommunicator);
 	}
 	

@@ -1,6 +1,5 @@
 package network.protocol;
 
-import exceptions.ArgumentsMissingException;
 import exceptions.GoException;
 import exceptions.UnknownCommandException;
 import network.Client;
@@ -22,12 +21,6 @@ public class ClientSideInterpreter extends Interpreter {
 	Boolean commandPartOfProtocol(String command) throws UnknownCommandException {
 		// TODO Auto-generated method stub
 		return false;
-	}
-
-	@Override
-	void checkFormat(String command, String[] args) throws ArgumentsMissingException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
