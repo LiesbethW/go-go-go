@@ -1,8 +1,11 @@
-package controllers.states;
+package controllers.states.clientside;
 
 import java.util.HashMap;
 
-public class NewClient extends AbstractState {
+import controllers.states.AbstractClientState;
+import controllers.states.State;
+
+public class NewClient extends AbstractClientState {
 	private static HashMap<String, State> transitionMap = new HashMap<>();
 	static 
 	{

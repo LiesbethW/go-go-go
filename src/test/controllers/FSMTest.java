@@ -13,8 +13,8 @@ import org.junit.Test;
 
 import controllers.ClientSideClientController;
 import controllers.FSM;
-import controllers.states.NewClient;
-import controllers.states.ReadyToPlay;
+import controllers.states.clientside.NewClient;
+import controllers.states.clientside.ReadyToPlay;
 import exceptions.NotApplicableCommandException;
 import network.Client;
 import network.protocol.Message;

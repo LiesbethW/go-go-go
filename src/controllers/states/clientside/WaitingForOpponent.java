@@ -1,8 +1,11 @@
-package controllers.states;
+package controllers.states.clientside;
 
 import java.util.HashMap;
 
-public class WaitingForOpponent extends AbstractState {
+import controllers.states.AbstractClientState;
+import controllers.states.State;
+
+public class WaitingForOpponent extends AbstractClientState {
 	private static HashMap<String, State> transitionMap = new HashMap<String, State>();
 	static {
 		transitionMap.put(GAMESTART, new Playing());

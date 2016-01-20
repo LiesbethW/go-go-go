@@ -1,7 +1,7 @@
 package controllers;
 
-import controllers.states.NewClient;
 import controllers.states.State;
+import controllers.states.clientside.NewClient;
 import exceptions.NotApplicableCommandException;
 import network.Client;
 import network.protocol.Message;

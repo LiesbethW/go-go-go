@@ -4,9 +4,9 @@ import java.util.HashMap;
 
 import exceptions.NotApplicableCommandException;
 
-public abstract class AbstractState implements State, network.protocol.Constants {
+public abstract class AbstractClientState implements State, network.protocol.Constants {
 	
-	public AbstractState() {
+	public AbstractClientState() {
 		// TODO Auto-generated constructor stub
 	}
 

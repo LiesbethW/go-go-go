@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import exceptions.BoardSizeException;
+import network.protocol.Message;
 
 public class Server extends Thread {
 	private static final String USAGE 
@@ -68,6 +70,7 @@ public class Server extends Thread {
 	private ServerSocket serverSocket;
 	private List<ClientCommunicator> clients;
 	private int boardSize;
+	private ConcurrentLinkedQueue<Message> commandQueue;
 	
 	public Server(int port, int boardSize) {
 		this.port = port;
@@ -79,14 +82,27 @@ public class Server extends Thread {
 			System.exit(0);
 		}
 		clients = new ArrayList<ClientCommunicator>();
+		commandQueue = new ConcurrentLinkedQueue<Message>();
 	}
 	
 	public void run() {
 		while (true) {
-			for (ClientCommunicator client : clients) {
-				
+			if (commandQueue.peek() != null) {
+				process(commandQueue.poll());
 			}
 		}
+	}
+	
+	public void process(Message message) {
+		// TODO
+		if (!clients().contains(message.author())) {
+			System.out.println("Client has been disconnected");
+		}
+		System.out.println(message);
+	}
+	
+	public void enqueue(Message message) {
+		commandQueue.add(message);
 	}
 	
 	public int getPort() {

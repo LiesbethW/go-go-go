@@ -20,7 +20,7 @@ public class Message {
 	
 	public Message(String command, String[] args, ClientCommunicator author) {
 		this(command, args);
-		this.author = author;
+		setAuthor(author);
 	}
 	
 	public String command() {
@@ -33,6 +33,10 @@ public class Message {
 	
 	public ClientCommunicator author() {
 		return author;
+	}
+	
+	public void setAuthor(ClientCommunicator author) {
+		this.author = author;
 	}
 	
 	public String toString() {

@@ -7,7 +7,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+import controllers.ServerSideClientController;
 import exceptions.GoException;
+import exceptions.NotApplicableCommandException;
 import network.protocol.Interpreter;
 import network.protocol.Message;
 import network.protocol.ServerSideInterpreter;
@@ -18,6 +20,7 @@ public class ClientCommunicator extends Thread {
 	private BufferedReader in;
 	private BufferedWriter out;
 	private Interpreter interpreter;
+	private ServerSideClientController controller;
 	
 	public ClientCommunicator(Server server, Socket socket) throws IOException {
 		this.server = server;
@@ -27,16 +30,17 @@ public class ClientCommunicator extends Thread {
 		out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 		
 		interpreter = new ServerSideInterpreter(this);
+		controller = new ServerSideClientController(this, server);
 	}
 	
 	public void run() {
 		while (true) {
-			String message;
+			String messageString;
 			try {
 				{
-					message = in.readLine();
-				} while (message != null);
-				handle(message);
+					messageString = in.readLine();
+				} while (messageString != null);
+				handle(messageString);
 			} catch (IOException e) {
 				System.err.println(e.getMessage());
 				shutdown();
@@ -44,10 +48,14 @@ public class ClientCommunicator extends Thread {
 		}
 	}
 	
-	public void handle(String message) {
-		Message event = interpreter.digest(message);
+	public void handle(String messageString) {
+		Message message = interpreter.digest(messageString);
+		try {
+			controller.digest(message);
+		} catch (NotApplicableCommandException e) {
+			handleException(e);
+		}
 		
-		System.out.println(event);
 	}
 	
 	public void handleException(GoException e) {
@@ -62,6 +70,10 @@ public class ClientCommunicator extends Thread {
 		} catch (IOException e) {
 			shutdown();
 		}
+	}
+	
+	public String name() {
+		return controller.name();
 	}
 	
 	private void shutdown() {
