@@ -21,7 +21,7 @@ public abstract class Interpreter implements Constants {
 	 * that is so.
 	 * @param message
 	 */
-	public abstract Message digest(String message);
+	public abstract Message digest(String message) throws UnknownCommandException;
 	
 	/**
 	 * Separate the message into command and

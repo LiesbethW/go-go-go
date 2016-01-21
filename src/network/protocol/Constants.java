@@ -30,13 +30,14 @@ package network.protocol;
  * At this moment, we end the game if two players consecutively pass. How to deal with an appropriate game ending has to
  * be further elaborated.
  *
+ * @author ron.weikamp
  * @author liesbeth.wijers
- * @version 0.3
+ * @version 0.6
  */
 
 public interface Constants {
     // General
-    public static final String VERSION = "VERSION 0.4";
+    public static final String VERSION = "VERSION 0.6";
     public static final int SERVER_PORT = 1929;
     public static final int TIMEOUTSECONDS = 60;
 
@@ -62,6 +63,8 @@ public interface Constants {
      * - Server -> Server:  GAMESTART Jan 9 BLACK           (name, boardsize, clientcolor)
      * - Client -> Server:  MOVE 3 4                        (x, y:  0 <= x && x <= boardsize)
      * - Server -> Client:  MOVE BLACK 3 4
+     * - Client -> Server:  MOVE PASS
+     * - Server -> Client:  MOVE BLACK PASS
      * - Client -> Server:  GETBOARD
      * - Server -> Client:  BOARD EEEEEEBEEWWEE... 3 16     (board repr., black captives, white captives)
      * - Client -> Server:  QUIT
@@ -181,6 +184,13 @@ public interface Constants {
      * Command is part of the protocol, but is not supported by the server.
      */
     public static final String NOTSUPPORTEDCOMMAND = "NotSupportedCommand";
+
+    /**
+     * If a client is non-responsive for more than the agreed TIMEOUTSECONDS, the server broadcasts this failure to
+     * the clients and shuts down the game. We define a client as non-responsive if it does not respond for
+     * TIMEOUTSECONDS while reaction is expected (e.g. when client is expected to move).
+     */
+    public static final String TIMEOUTEXCEEDED = "TimeOutExceeded";
 
     public static final String INVALIDNAME = "InvalidName";
     public static final String NAMETAKEN = "NameTaken";

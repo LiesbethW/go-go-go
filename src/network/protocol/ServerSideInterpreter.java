@@ -2,31 +2,23 @@ package network.protocol;
 
 import exceptions.GoException;
 import exceptions.UnknownCommandException;
-import network.ClientCommunicator;
 
 public class ServerSideInterpreter extends Interpreter {
-	private ClientCommunicator client;
 
 	/**
 	 * Create a new ServerSideInterpreter for the 
 	 * given ClientCommunicator.
 	 * @param client
 	 */
-	public ServerSideInterpreter(ClientCommunicator client) {
+	public ServerSideInterpreter() {
 		super();
-		this.client = client;
 	}
 
 	@Override
-	public Message digest(String message) {
+	public Message digest(String message) throws UnknownCommandException {
 		parse(message);
-		try {
-			commandPartOfProtocol(command);
-			return new Message(command, args);
-		} catch (GoException e) {
-			client.handleException(e);
-			return null;
-		}
+		commandPartOfProtocol(command);
+		return new Message(command, args);
 	}
 
 	@Override

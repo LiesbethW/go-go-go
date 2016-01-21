@@ -11,22 +11,22 @@ import java.net.Socket;
 import controllers.ClientSideClientController;
 import exceptions.GoException;
 import exceptions.NotApplicableCommandException;
-import network.protocol.ClientSideInterpreter;
+import exceptions.UnknownCommandException;
 import network.protocol.Message;
+import network.protocol.Presenter;
+import network.protocol.StaticInterpreter;
 
 public class Client extends Thread {
 	
 	private Socket socket;
 	private BufferedReader in;
 	private BufferedWriter out;
-	private ClientSideInterpreter interpreter;
 	private ClientSideClientController controller;
 
 	public Client(InetAddress host, int port) throws IOException {
 		socket = new Socket(host, port);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-		interpreter = new ClientSideInterpreter(this);
 		controller = new ClientSideClientController(this);
 	}
 	
@@ -47,17 +47,17 @@ public class Client extends Thread {
 	}
 	
 	public void handle(String messageString) {
-		Message message = interpreter.digest(messageString);
 		try {
+			Message message = StaticInterpreter.digest(messageString);
 			controller.digest(message);
-		} catch (NotApplicableCommandException e) {
+		} catch (UnknownCommandException | NotApplicableCommandException e) {
 			handleException(e);
 		}
 		
 	}
 	
 	public void handleException(GoException e) {
-		send(interpreter.exceptionMessage(e));
+		send(Presenter.exceptionMessage(e));
 	}
 	
 	public void send(Message message) {

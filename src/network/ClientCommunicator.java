@@ -10,9 +10,12 @@ import java.net.Socket;
 import controllers.ServerSideClientController;
 import exceptions.GoException;
 import exceptions.NotApplicableCommandException;
+import exceptions.UnknownCommandException;
 import network.protocol.Interpreter;
 import network.protocol.Message;
+import network.protocol.Presenter;
 import network.protocol.ServerSideInterpreter;
+import network.protocol.StaticInterpreter;
 
 public class ClientCommunicator extends Thread {
 	private Server server;
@@ -29,7 +32,7 @@ public class ClientCommunicator extends Thread {
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 		
-		interpreter = new ServerSideInterpreter(this);
+		interpreter = new ServerSideInterpreter();
 		controller = new ServerSideClientController(this, server);
 	}
 	
@@ -49,17 +52,17 @@ public class ClientCommunicator extends Thread {
 	}
 	
 	public void handle(String messageString) {
-		Message message = interpreter.digest(messageString);
 		try {
+			Message message = StaticInterpreter.digest(messageString);
 			controller.process(message);
-		} catch (NotApplicableCommandException e) {
+		} catch (UnknownCommandException | NotApplicableCommandException e) {
 			handleException(e);
 		}
 		
 	}
 	
 	public void handleException(GoException e) {
-		send(interpreter.exceptionMessage(e));
+		send(Presenter.exceptionMessage(e));
 	}
 	
 	public void send(Message message) {

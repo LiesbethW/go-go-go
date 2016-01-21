@@ -13,9 +13,21 @@ public class Message {
 		this.command = command;
 		this.args = args;
 	}
+
+	public Message(String command) {
+		this(command, "");
+	}
 	
 	public Message(String command, String arg) {
 		this(command, new String[]{arg});
+	}
+	
+	public Message(String command, String arg1, String arg2) {
+		this(command, new String[]{arg1, arg2});
+	}
+	
+	public Message(String command, String arg1, String arg2, String arg3) {
+		this(command, new String[]{arg1, arg2, arg3});
 	}
 	
 	public Message(String command, String[] args, ClientCommunicator author) {
@@ -27,8 +39,8 @@ public class Message {
 		return command;
 	}
 	
-	public String args() {
-		return args();
+	public String[] args() {
+		return args;
 	}
 	
 	public ClientCommunicator author() {

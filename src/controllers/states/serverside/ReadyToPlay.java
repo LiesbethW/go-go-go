@@ -2,6 +2,7 @@ package controllers.states.serverside;
 
 import controllers.ServerSideClientController;
 import controllers.states.AbstractServerSideClientState;
+import network.protocol.Message;
 
 public class ReadyToPlay extends AbstractServerSideClientState {
 
@@ -10,7 +11,12 @@ public class ReadyToPlay extends AbstractServerSideClientState {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void enter() { }
-	public void leave() { }
+	public void enter(Message message) { 
+		enter();
+	}
+	
+	public void leave(Message message) { 
+		leave();
+	}
 
 }

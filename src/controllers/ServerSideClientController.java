@@ -66,6 +66,10 @@ public class ServerSideClientController implements FSM, network.protocol.Constan
 		this.gameController = gameController;
 	}
 	
+	public void send(Message message) {
+		clientCommunicator.send(message);
+	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}

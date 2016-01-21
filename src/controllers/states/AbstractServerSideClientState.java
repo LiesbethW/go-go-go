@@ -7,7 +7,8 @@ import controllers.ServerSideClientController;
 import exceptions.NotApplicableCommandException;
 import network.protocol.Message;
 
-public abstract class AbstractServerSideClientState implements State {
+public abstract class AbstractServerSideClientState implements 
+								State, network.protocol.Constants {
 	protected HashMap<String, State> transitionMap;
 	protected HashSet<String> applicableCommands;
 	protected ServerSideClientController client;
@@ -26,9 +27,13 @@ public abstract class AbstractServerSideClientState implements State {
 		return transitionMap.get(message.command());
 	}
 	
-	public abstract void enter();
+	public abstract void enter(Message message);
 	
-	public abstract void leave();
+	public void enter() {}
+	
+	public abstract void leave(Message message);
+	
+	public void leave() {}
 	
 	public boolean reachableState(State state) {
 		return reachableStates().stream().anyMatch(s -> s.equals(state));

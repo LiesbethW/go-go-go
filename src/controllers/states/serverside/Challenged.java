@@ -2,6 +2,8 @@ package controllers.states.serverside;
 
 import controllers.ServerSideClientController;
 import controllers.states.AbstractServerSideClientState;
+import network.protocol.Message;
+
 
 public class Challenged extends AbstractServerSideClientState {
 
@@ -10,8 +12,13 @@ public class Challenged extends AbstractServerSideClientState {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void enter() { }
-	public void leave() { }
+	public void enter(Message message) { 
+		enter();
+	}
+	
+	public void leave(Message message) { 
+		leave();
+	}
 
 
 }

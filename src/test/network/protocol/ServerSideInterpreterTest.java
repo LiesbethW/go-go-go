@@ -35,7 +35,7 @@ public class ServerSideInterpreterTest {
 		server = network.server();
 		client = network.client();
 		clientCommunicator = network.clientCommunicator();
-		interpreter = new ServerSideInterpreter(clientCommunicator);
+		interpreter = new ServerSideInterpreter();
 	}
 	
 	@Test
@@ -48,7 +48,7 @@ public class ServerSideInterpreterTest {
 	}
 	
 	@Test
-	public void testDigest() {
+	public void testDigest() throws UnknownCommandException {
 		String message = "NEWPLAYER Jan";
 		assertEquals(message, interpreter.digest(message).toString());
 		
