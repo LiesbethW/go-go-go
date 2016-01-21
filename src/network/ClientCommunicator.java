@@ -11,18 +11,15 @@ import controllers.ServerSideClientController;
 import exceptions.GoException;
 import exceptions.NotApplicableCommandException;
 import exceptions.UnknownCommandException;
-import network.protocol.Interpreter;
 import network.protocol.Message;
 import network.protocol.Presenter;
-import network.protocol.ServerSideInterpreter;
-import network.protocol.StaticInterpreter;
+import network.protocol.Interpreter;
 
 public class ClientCommunicator extends Thread {
 	private Server server;
 	private Socket socket;
 	private BufferedReader in;
 	private BufferedWriter out;
-	private Interpreter interpreter;
 	private ServerSideClientController controller;
 	
 	public ClientCommunicator(Server server, Socket socket) throws IOException {
@@ -32,7 +29,6 @@ public class ClientCommunicator extends Thread {
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 		
-		interpreter = new ServerSideInterpreter();
 		controller = new ServerSideClientController(this, server);
 	}
 	
@@ -53,7 +49,7 @@ public class ClientCommunicator extends Thread {
 	
 	public void handle(String messageString) {
 		try {
-			Message message = StaticInterpreter.digest(messageString);
+			Message message = Interpreter.digest(messageString);
 			controller.process(message);
 		} catch (UnknownCommandException | NotApplicableCommandException e) {
 			handleException(e);

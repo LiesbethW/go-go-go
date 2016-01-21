@@ -14,7 +14,7 @@ import exceptions.NotApplicableCommandException;
 import exceptions.UnknownCommandException;
 import network.protocol.Message;
 import network.protocol.Presenter;
-import network.protocol.StaticInterpreter;
+import network.protocol.Interpreter;
 
 public class Client extends Thread {
 	
@@ -48,7 +48,7 @@ public class Client extends Thread {
 	
 	public void handle(String messageString) {
 		try {
-			Message message = StaticInterpreter.digest(messageString);
+			Message message = Interpreter.digest(messageString);
 			controller.digest(message);
 		} catch (UnknownCommandException | NotApplicableCommandException e) {
 			handleException(e);

@@ -1,64 +1,46 @@
 package network.protocol;
 
-import java.util.Scanner;
-
-import exceptions.GoException;
+import exceptions.InvalidArgumentException;
 import exceptions.UnknownCommandException;
+import game.Stone;
 
-public abstract class Interpreter implements Constants {
-	protected Scanner input;
-	protected String command;
-	protected String[] args;
-	
-	public Interpreter() {
-		
-	}
-	
-	/**
-	 * Read the incoming message, check if it
-	 * is part of the protocol, applicable in
-	 * the current state, and execute it if 
-	 * that is so.
-	 * @param message
-	 */
-	public abstract Message digest(String message) throws UnknownCommandException;
-	
-	/**
-	 * Separate the message into command and
-	 * arguments.
-	 * @param message
-	 */
-	public void parse(String message) {
-		reset();
+public class Interpreter implements Constants {
+
+	public static Message digest(String message) throws UnknownCommandException {
 		String[] words = message.split(DELIMITER);
-		command = words[0];
-		args = new String[words.length - 1];
+		String command = words[0];
+		String[] args = new String[words.length - 1];
 		System.arraycopy(words, 1, args, 0, words.length - 1);
-	}
-	
-	/**
-	 * Check if the read command is a part of the
-	 * protocol.
-	 * @param command
-	 * @throws UnknownCommandException
-	 */
-	abstract Boolean commandPartOfProtocol(String command) throws UnknownCommandException;
 
-	/**
-	 * Construct an appropriate message from
-	 * this exception.
-	 * @param GoException
-	 */
-	public abstract Message exceptionMessage(GoException e);
-	
-	/**
-	 * Reset the input scanner and parsed command
-	 * and args back to null.
-	 */
-	private void reset() {
-		input = null;
-		command = null;
-		args = new String[]{};
+		commandPartOfProtocol(command);
+		return new Message(command, args);
 	}
 
+	public static Boolean commandPartOfProtocol(String command) throws UnknownCommandException {
+		Boolean partOfProtocol = CommandSet.contains(command);
+		if (!partOfProtocol) {
+			throw new UnknownCommandException(command);
+		}
+		return partOfProtocol;
+	}
+	
+	public static Stone color(String string) throws InvalidArgumentException {
+		if (string.equals(WHITE)) {
+			return Stone.WHITE;
+		} else if (string.equals(BLACK)) {
+			return Stone.BLACK;
+		} else {
+			throw new InvalidArgumentException();
+		}
+	}
+	
+	public static int coordinate(String string) throws InvalidArgumentException {
+		try {
+			return Integer.parseInt(string);
+		} catch (NumberFormatException e) {
+			throw new InvalidArgumentException(
+					String.format("A number was expected, %s was given", string));
+		}
+	}
+	
 }

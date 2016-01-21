@@ -6,7 +6,7 @@ import exceptions.InvalidArgumentException;
 import game.Stone;
 import network.protocol.Message;
 import network.protocol.Presenter;
-import network.protocol.StaticInterpreter;
+import network.protocol.Interpreter;
 
 public class Playing extends AbstractServerSideClientState {
 	public String opponent;
@@ -21,8 +21,8 @@ public class Playing extends AbstractServerSideClientState {
 	public void enter(Message message) {
 		opponent = message.args()[0];
 		try {
-			boardSize = StaticInterpreter.coordinate(message.args()[1]);
-			color = StaticInterpreter.color(message.args()[2]);
+			boardSize = Interpreter.coordinate(message.args()[1]);
+			color = Interpreter.color(message.args()[2]);
 		} catch (InvalidArgumentException e) {
 			System.err.println("ABSOLUTELY FORBIDDEN: the server sends this message to itself!");
 		}
