@@ -7,7 +7,8 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
   test.game.GameTestSuite.class,
   test.controllers.ControllerTestSuite.class,
-  test.network.NetworkTestSuite.class
+  test.network.NetworkTestSuite.class,
+  test.userinterface.UserInterfaceTestSuite.class
 })
 
 

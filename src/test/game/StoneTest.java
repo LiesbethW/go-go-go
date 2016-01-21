@@ -42,7 +42,7 @@ public class StoneTest {
 	public void toStringTest() {
 		assertEquals("X", stone.toString());
 		assertEquals("O", Stone.WHITE.toString());
-		assertEquals(" ", noStone.toString());
+		assertEquals("+", noStone.toString());
 	}
 	
 	@Test

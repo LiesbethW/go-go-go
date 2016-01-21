@@ -1,14 +1,14 @@
 package userinterface;
 
-import java.io.BufferedWriter;
+import java.io.PrintStream;
 import java.util.HashSet;
 
 import game.Board;
 
 public class TUIView implements View {
-	private BufferedWriter out;
+	private PrintStream out;
 	
-	public TUIView(BufferedWriter out) {
+	public TUIView(PrintStream out) {
 		this.out = out;
 	}
 	
@@ -21,11 +21,15 @@ public class TUIView implements View {
 	}
 	
 	public void showMessage(String message) {
-		//TODO		
+		show(message);		
 	}
 	
 	public void showBoard(Board board) {
-		out(BoardView(board).render());
+		show((new BoardView(board)).render());
+	}
+	
+	private void show(String string) {
+		out.println(string);
 	}
 
 }
