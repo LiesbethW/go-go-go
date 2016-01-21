@@ -2,6 +2,7 @@ package test.game;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -79,6 +80,17 @@ public class BoardTest {
 		assertTrue(boardCopy.anyStoneAt(5, 5));
 		assertFalse(board.anyStoneAt(5, 5));
 		
+	}
+	
+	@Test
+	public void testEquals() throws InvalidMoveException {
+		Board board1 = new Board();
+		Board board2 = new Board();
+		assertEquals(board1, board2);
+		board1.layStone(Stone.BLACK, row, col);
+		assertNotEquals(board1, board2);
+		board2.layStone(Stone.BLACK, row, col);
+		assertEquals(board1, board2);
 	}
 	
 	@Test
