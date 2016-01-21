@@ -88,7 +88,7 @@ public class Board {
 	 * @throws InvalidMoveException if this point is already taken.
 	 */
 	public void layStone(Stone stone, int row, int col) throws InvalidMoveException {
-		if (anyStoneAt(row, col)) {
+		if (!onBoard(row, col) || anyStoneAt(row, col)) {
 			throw new InvalidMoveException();
 		}
 		
@@ -233,6 +233,34 @@ public class Board {
 		copy.whiteCaptives = this.whiteCaptives;
 
 		return copy;
+	}
+	
+	/**
+	 * Compares two Boards. Boards are considered
+	 * equal if the Stone on each field is the same,
+	 * and the number of captives of each color is
+	 * the same.
+	 */
+	public boolean equals(Object o) {
+		if (!(o instanceof Board)) {
+			return false;
+		}
+		Board other = (Board) o;
+		if (other.size() != this.size()) {
+			return false;
+		} else if (other.captives(Stone.BLACK) != this.captives(Stone.BLACK)) {
+			return false;
+		} else if (other.captives(Stone.WHITE) != this.captives(Stone.WHITE)) {
+			return false;
+		}
+		for (int i = 0; i < size(); i++) {
+			for (int j = 0; j < size(); j++) {
+				if (other.grid[i][j].getStone() != this.grid[i][j].getStone()) {
+					return false;
+				}
+			}
+		}		
+		return true;
 	}
 	
 }

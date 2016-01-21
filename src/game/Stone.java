@@ -44,7 +44,7 @@ public enum Stone {
 		} else if (this == BLACK) {
 			return "X";
 		} else {
-			return " ";
+			return "+";
 		}
 	}
 	
