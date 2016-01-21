@@ -25,6 +25,9 @@ public class ReadyToPlay extends AbstractClientState {
 	protected HashMap<String, State> transitionMap() {
 		return transitionMap;
 	}
+	
+	public void enter() { }
+	public void leave() { }
 
 }
  

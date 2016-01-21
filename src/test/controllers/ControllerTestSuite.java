@@ -5,7 +5,8 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  FSMTest.class
+  FSMTest.class,
+  ServerSideClientControllerTest.class
 })
 
 public class ControllerTestSuite {

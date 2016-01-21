@@ -3,6 +3,7 @@ package controllers.states;
 import java.util.HashMap;
 
 import exceptions.NotApplicableCommandException;
+import network.protocol.Message;
 
 public abstract class AbstractClientState implements State, network.protocol.Constants {
 	
@@ -11,11 +12,11 @@ public abstract class AbstractClientState implements State, network.protocol.Con
 	}
 
 	@Override
-	public State accept(String command) throws NotApplicableCommandException {
-		if (!applicable(command)) {
+	public State accept(Message message) throws NotApplicableCommandException {
+		if (!applicable(message.command())) {
 			throw new NotApplicableCommandException();
 		}
-		return transitionMap().get(command);
+		return transitionMap().get(message.command());
 	}
 
 	@Override

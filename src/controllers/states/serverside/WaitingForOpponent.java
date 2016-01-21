@@ -3,9 +3,9 @@ package controllers.states.serverside;
 import controllers.ServerSideClientController;
 import controllers.states.AbstractServerSideClientState;
 
-public class Playing extends AbstractServerSideClientState {
+public class WaitingForOpponent extends AbstractServerSideClientState {
 
-	public Playing(ServerSideClientController client) {
+	public WaitingForOpponent(ServerSideClientController client) {
 		super(client);
 		// TODO Auto-generated constructor stub
 	}

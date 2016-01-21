@@ -21,14 +21,8 @@ public class ClientSideClientController implements FSM {
 
 	@Override
 	public void digest(Message message) throws NotApplicableCommandException {
-		currentState = currentState.accept(message.command());
+		currentState = currentState.accept(message);
 	}
-
-//	@Override
-//	public void dispatch(Message message) throws NotApplicableCommandException {
-//		// TODO Auto-generated method stub
-//
-//	}
 
 	@Override
 	public State currentState() {

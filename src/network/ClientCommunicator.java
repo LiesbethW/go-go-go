@@ -51,7 +51,7 @@ public class ClientCommunicator extends Thread {
 	public void handle(String messageString) {
 		Message message = interpreter.digest(messageString);
 		try {
-			controller.digest(message);
+			controller.process(message);
 		} catch (NotApplicableCommandException e) {
 			handleException(e);
 		}
@@ -85,6 +85,11 @@ public class ClientCommunicator extends Thread {
 			System.err.println(e.getMessage());
 		}
 		server.removeClient(this);
+	}
+	
+	// For testing purposes
+	public ServerSideClientController controller() {
+		return controller;
 	}
 	
 }
