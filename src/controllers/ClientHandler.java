@@ -36,6 +36,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	
 	public ClientHandler(Server server, Socket socket) throws IOException {
 		this.clientCommunicator = new ClientCommunicator(this, socket);
+		clientCommunicator.start();
 		alive = true;
 		this.server = server;
 		initializeStates();
@@ -106,11 +107,11 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	}
 	
 	/**
-	 * Package private: clientcommunicator or Server can
+	 * Clientcommunicator or Server can
 	 * mark this ClientHandler as dead for graceful
 	 * execution.
 	 */
-	void kill() {
+	public void kill() {
 		alive = false;
 	}
 	
