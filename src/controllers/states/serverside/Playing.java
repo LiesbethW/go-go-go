@@ -1,6 +1,6 @@
 package controllers.states.serverside;
 
-import controllers.ServerSideClientController;
+import controllers.ClientHandler;
 import controllers.states.AbstractServerSideClientState;
 import exceptions.InvalidArgumentException;
 import game.Stone;
@@ -13,7 +13,7 @@ public class Playing extends AbstractServerSideClientState {
 	public Stone color;
 	public int boardSize;
 	
-	public Playing(ServerSideClientController client) {
+	public Playing(ClientHandler client) {
 		super(client);
 		// TODO Auto-generated constructor stub
 	}

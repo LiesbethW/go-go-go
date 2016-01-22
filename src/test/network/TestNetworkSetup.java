@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import controllers.ClientHandler;
 import network.Client;
-import network.ClientCommunicator;
 import network.Server;
 
 public class TestNetworkSetup extends Thread {
 	private Server server;
 	private Client client;
-	private ClientCommunicator clientCommunicator;
+	private ClientHandler clientHandler;
 	
 	public static Server newServer() {
 		TestNetworkSetup testServer = new TestNetworkSetup();
@@ -28,7 +28,7 @@ public class TestNetworkSetup extends Thread {
 		} catch (InterruptedException e) {
 			
 		}
-		testServer.clientCommunicator = testServer.server.clients().get(0);
+		testServer.clientHandler = testServer.server.clients().get(0);
 		return testServer;
 	}
 	
@@ -53,8 +53,8 @@ public class TestNetworkSetup extends Thread {
 		return client;
 	}
 	
-	public ClientCommunicator clientCommunicator() {
-		return clientCommunicator;
+	public ClientHandler clientHandler() {
+		return clientHandler;
 	}
 
 }

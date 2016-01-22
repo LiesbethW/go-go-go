@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import controllers.ClientHandler;
 import exceptions.BoardSizeException;
 import network.protocol.Message;
 
@@ -68,7 +69,7 @@ public class Server extends Thread {
 	
 	private int port;
 	private ServerSocket serverSocket;
-	private List<ClientCommunicator> clients;
+	private List<ClientHandler> clients;
 	private int boardSize;
 	private ConcurrentLinkedQueue<Message> commandQueue;
 	
@@ -81,7 +82,7 @@ public class Server extends Thread {
 			System.out.println("ERROR: could not create a server socket on port " + port);
 			System.exit(0);
 		}
-		clients = new ArrayList<ClientCommunicator>();
+		clients = new ArrayList<ClientHandler>();
 		commandQueue = new ConcurrentLinkedQueue<Message>();
 	}
 	
@@ -112,8 +113,7 @@ public class Server extends Thread {
 	public void waitForConnectingClients() {
 		while(true) {
 			try {
-				ClientCommunicator newClient = new ClientCommunicator(this, serverSocket.accept());
-				newClient.start();
+				ClientHandler newClient = new ClientHandler(this, serverSocket.accept());
 				addClient(newClient);
 			} catch (IOException e) {
 				System.out.println("An error occured while waiting for a connection");
@@ -122,15 +122,16 @@ public class Server extends Thread {
 		}
 	}
 	
-	public List<ClientCommunicator> clients() {
+	public List<ClientHandler> clients() {
 		return clients;
 	}
 	
-	public void addClient(ClientCommunicator client) {
+	public void addClient(ClientHandler client) {
 		clients.add(client);
 	}
 	
-	public void removeClient(ClientCommunicator client) {
+	public void removeClient(ClientHandler client) {
 		clients.remove(client);
 	}
+
 }

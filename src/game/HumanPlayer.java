@@ -1,11 +1,11 @@
 package game;
 
-import controllers.ServerSideClientController;
+import controllers.ClientHandler;
 
 public class HumanPlayer extends Player {
-	private ServerSideClientController client;
+	private ClientHandler client;
 
-	public HumanPlayer(ServerSideClientController client) {
+	public HumanPlayer(ClientHandler client) {
 		super(client.name());
 		this.client = client;
 	}

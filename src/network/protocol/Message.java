@@ -2,10 +2,10 @@ package network.protocol;
 
 import static network.protocol.Constants.DELIMITER;
 
-import network.ClientCommunicator;
+import controllers.ClientHandler;
 
 public class Message {
-	private ClientCommunicator author;
+	private ClientHandler author;
 	private String command;
 	private String[] args;
 	
@@ -30,7 +30,7 @@ public class Message {
 		this(command, new String[]{arg1, arg2, arg3});
 	}
 	
-	public Message(String command, String[] args, ClientCommunicator author) {
+	public Message(String command, String[] args, ClientHandler author) {
 		this(command, args);
 		setAuthor(author);
 	}
@@ -43,11 +43,11 @@ public class Message {
 		return args;
 	}
 	
-	public ClientCommunicator author() {
+	public ClientHandler author() {
 		return author;
 	}
 	
-	public void setAuthor(ClientCommunicator author) {
+	public void setAuthor(ClientHandler author) {
 		this.author = author;
 	}
 	

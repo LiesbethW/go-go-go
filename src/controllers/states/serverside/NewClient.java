@@ -1,13 +1,13 @@
 package controllers.states.serverside;
 
-import controllers.ServerSideClientController;
+import controllers.ClientHandler;
 import controllers.states.AbstractServerSideClientState;
 import network.protocol.Message;
 import network.protocol.Presenter;
 
 public class NewClient extends AbstractServerSideClientState {
 
-	public NewClient(ServerSideClientController client) {
+	public NewClient(ClientHandler client) {
 		super(client);
 		// TODO Auto-generated constructor stub
 	}

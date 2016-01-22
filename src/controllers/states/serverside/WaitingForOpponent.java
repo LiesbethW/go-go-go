@@ -1,13 +1,13 @@
 package controllers.states.serverside;
 
-import controllers.ServerSideClientController;
+import controllers.ClientHandler;
 import controllers.states.AbstractServerSideClientState;
 import network.protocol.Message;
 import network.protocol.Presenter;
 
 public class WaitingForOpponent extends AbstractServerSideClientState {
 
-	public WaitingForOpponent(ServerSideClientController client) {
+	public WaitingForOpponent(ClientHandler client) {
 		super(client);
 	}
 
