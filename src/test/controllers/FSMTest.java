@@ -13,12 +13,10 @@ import org.junit.Test;
 
 import controllers.ClientSideClientController;
 import controllers.FSM;
-import controllers.ServerSideClientController;
 import controllers.states.clientside.NewClient;
 import controllers.states.clientside.ReadyToPlay;
 import exceptions.NotApplicableCommandException;
 import network.Client;
-import network.ClientCommunicator;
 import network.Server;
 import network.protocol.Message;
 import test.network.TestNetworkSetup;
@@ -27,16 +25,14 @@ public class FSMTest {
 	private FSM stateMachine;
 	private FSM stateMachine2;
 	private Client client;
-	private ClientCommunicator clientCommunicator;
 	
 	@Before
 	public void setUp() throws UnknownHostException, IOException {
 		TestNetworkSetup network = TestNetworkSetup.newNetwork();
 		Server server = network.server();
 		client = network.client();
-		clientCommunicator = network.clientCommunicator();
 		stateMachine = new ClientSideClientController(client);
-		stateMachine2 = new ServerSideClientController(clientCommunicator, server);
+		stateMachine2 = network.clientHandler();
 	}
 	
 	@Test

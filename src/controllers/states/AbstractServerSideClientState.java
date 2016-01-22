@@ -3,7 +3,7 @@ package controllers.states;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import controllers.ServerSideClientController;
+import controllers.ClientHandler;
 import exceptions.NotApplicableCommandException;
 import network.protocol.Message;
 
@@ -11,9 +11,9 @@ public abstract class AbstractServerSideClientState implements
 								State, network.protocol.Constants {
 	protected HashMap<String, State> transitionMap;
 	protected HashSet<String> applicableCommands;
-	protected ServerSideClientController client;
+	protected ClientHandler client;
 	
-	public AbstractServerSideClientState(ServerSideClientController client) {
+	public AbstractServerSideClientState(ClientHandler client) {
 		this.client = client;
 		applicableCommands = new HashSet<String>();
 		transitionMap = new HashMap<String, State>();

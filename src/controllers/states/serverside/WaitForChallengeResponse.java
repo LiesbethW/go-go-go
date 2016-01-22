@@ -1,6 +1,6 @@
 package controllers.states.serverside;
 
-import controllers.ServerSideClientController;
+import controllers.ClientHandler;
 import controllers.states.AbstractServerSideClientState;
 import network.protocol.Message;
 import network.protocol.Presenter;
@@ -8,7 +8,7 @@ import network.protocol.Presenter;
 public class WaitForChallengeResponse extends AbstractServerSideClientState {
 	private String challengedOpponent;
 	
-	public WaitForChallengeResponse(ServerSideClientController client) {
+	public WaitForChallengeResponse(ClientHandler client) {
 		super(client);
 		// TODO Auto-generated constructor stub
 	}

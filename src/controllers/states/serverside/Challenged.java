@@ -1,13 +1,13 @@
 package controllers.states.serverside;
 
-import controllers.ServerSideClientController;
+import controllers.ClientHandler;
 import controllers.states.AbstractServerSideClientState;
 import network.protocol.Message;
 
 
 public class Challenged extends AbstractServerSideClientState {
 
-	public Challenged(ServerSideClientController client) {
+	public Challenged(ClientHandler client) {
 		super(client);
 		// TODO Auto-generated constructor stub
 	}

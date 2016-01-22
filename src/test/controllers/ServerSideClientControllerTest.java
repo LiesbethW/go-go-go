@@ -8,19 +8,19 @@ import java.net.UnknownHostException;
 import org.junit.Before;
 import org.junit.Test;
 
-import controllers.ServerSideClientController;
+import controllers.ClientHandler;
 import network.Server;
 import test.network.TestNetworkSetup;
 
 public class ServerSideClientControllerTest {
 	private Server server;
-	private ServerSideClientController controller;
+	private ClientHandler controller;
 	
 	@Before
 	public void setUp() throws UnknownHostException, IOException {
 		TestNetworkSetup network = TestNetworkSetup.newNetwork();
 		server = network.server();
-		controller = network.clientCommunicator().controller();
+		controller = network.clientHandler();
 	}
 	
 	@Test
