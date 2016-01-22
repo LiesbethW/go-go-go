@@ -1,5 +1,10 @@
 package network.protocol;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
 import exceptions.InvalidArgumentException;
 import exceptions.UnknownCommandException;
 import game.Stone;
@@ -41,6 +46,18 @@ public class Interpreter implements Constants {
 			throw new InvalidArgumentException(
 					String.format("A number was expected, %s was given", string));
 		}
+	}
+	
+	public static HashMap<String, Boolean> options(Message message) {
+		List<String> options = new ArrayList<String>(Arrays.asList(CHAT, 
+				CHALLENGE, OBSERVER, COMPUTERPLAYER));
+		HashMap<String, Boolean> optionMap = new HashMap<String, Boolean>();
+		for (String optionString : message.args()) {
+			if (options.stream().anyMatch(s -> s.equals(optionString))) {
+				optionMap.put(optionString, true);
+			}
+		}
+		return optionMap;
 	}
 	
 }

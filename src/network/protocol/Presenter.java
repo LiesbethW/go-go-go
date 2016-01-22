@@ -1,6 +1,8 @@
 package network.protocol;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import exceptions.GoException;
 import game.Board;
@@ -8,8 +10,14 @@ import game.Stone;
 
 public class Presenter implements Constants {
 
+	// Messages
+	
 	public static Message exceptionMessage(GoException e) {
 		return new Message(FAILURE, CommandSet.exceptionCommand(e));
+	}
+	
+	public static Message newPlayer(String name) {
+		return new Message(NEWPLAYER, name);
 	}
 	
 	public static Message newPlayerAccepted() {
@@ -67,6 +75,38 @@ public class Presenter implements Constants {
 		return new Message(YOUVECHALLENGED, opponent);
 	}
 	
+	public static Message askOptions() {
+		return new Message(GETOPTIONS);
+	}
+	
+	public static Message options(HashMap<String, Boolean> optionMap) {
+		List<String> options = new ArrayList<String>();
+		for (String key : optionMap.keySet()) {
+			if (optionMap.get(key) == true) {
+				options.add(key);
+			}
+		}
+		return new Message(OPTIONS, options.toArray(new String[]{}));
+	}
+	
+	// Single terms from the protocol
+	
+	public static String chatOpt() {
+		return CHAT;
+	}
+	
+	public static String challengeOpt() {
+		return CHALLENGE;
+	}
+	
+	public static String observerOpt() {
+		return OBSERVER;
+	}
+	
+	public static String AIOpt() {
+		return COMPUTERPLAYER;
+	}
+	
 	public static String board(Board board) {
 		HashMap<Stone, String> protocolStoneRepr = new HashMap<>();
 		protocolStoneRepr.put(Stone.BLACK, B);
@@ -79,7 +119,7 @@ public class Presenter implements Constants {
 			}
 		}
 		return String.join("", nodes);
-	}	
+	}
 
 	public static String color(Stone stone) {
 		return stone.name();
