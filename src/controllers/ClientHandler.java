@@ -3,6 +3,7 @@ package controllers;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import controllers.states.AbstractServerSideClientState;
@@ -14,19 +15,24 @@ import controllers.states.serverside.ReadyToPlay;
 import controllers.states.serverside.WaitForChallengeResponse;
 import controllers.states.serverside.WaitingForOpponent;
 import exceptions.CorruptedAuthorException;
+import exceptions.GoException;
 import exceptions.NotApplicableCommandException;
 import network.ClientCommunicator;
 import network.Server;
 import network.protocol.Message;
+import network.protocol.Presenter;
 
-public class ClientHandler implements FSM, network.protocol.Constants {
+
+public class ClientHandler implements FSM, network.protocol.Constants {	
 	private ClientCommunicator clientCommunicator;
-	private AbstractServerSideClientState state;
+	private State state;
 	private Server server;
 	private GameController gameController;
 	private String name;
+	private HashMap<String, Boolean> options;
 	private boolean alive;
 	
+	// The states
 	private AbstractServerSideClientState newClient;
 	private AbstractServerSideClientState readyToPlay;
 	private AbstractServerSideClientState waitingForOpponent;
@@ -35,9 +41,11 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	private AbstractServerSideClientState playing;
 	
 	public ClientHandler(Server server, Socket socket) throws IOException {
+		alive = true;
+		name = null;
+		options = new HashMap<String, Boolean>();
 		this.clientCommunicator = new ClientCommunicator(this, socket);
 		clientCommunicator.start();
-		alive = true;
 		this.server = server;
 		initializeStates();
 		state = newClient;
@@ -50,7 +58,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 */
 	public void process(Message message) throws NotApplicableCommandException {
 		if (!state.applicable(message.command())) {
-			throw new NotApplicableCommandException();
+			throw new NotApplicableCommandException(message.command());
 		}
 		message.setAuthor(this);
 		if (state.equals(playing) && gameController != null) {
@@ -64,12 +72,42 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		}
 	}
 	
-	public void digest(Message message) {
-		
+	public void digest(Message message) throws NotApplicableCommandException {
+		currentState().leave(message);
+		state = currentState().accept(message);
+		currentState().accept(message);
+	}
+	
+	public void handleException(GoException e) {
+		clientCommunicator.handleException(e);
 	}
 	
 	public State currentState() {
 		return state;
+	}
+	
+	public boolean newClient() {
+		return currentState().equals(newClient);
+	}
+	
+	public boolean readyToPlay() {
+		return currentState().equals(readyToPlay);
+	}
+	
+	public boolean waitingForOpponent() {
+		return currentState().equals(waitingForOpponent);
+	}
+	
+	public boolean waitingForChallengeResponse() {
+		return currentState().equals(waitForChallengeResponse);
+	}
+	
+	public boolean isChallenged() {
+		return currentState().equals(challenged);
+	}
+	
+	public boolean isPlaying() {
+		return currentState().equals(playing);
 	}
 	
 	/**
@@ -104,6 +142,48 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 */
 	public String name() {
 		return name;
+	}
+	
+	/**
+	 * Gets this client's options.
+	 * @return
+	 */
+	public HashMap<String, Boolean> getOptions() {
+		return options;
+	}
+	
+	/**
+	 * Set this client's options.
+	 * @param options
+	 */
+	public void setOptions(HashMap<String, Boolean> options) {
+		this.options = options;
+	}
+	
+	/**
+	 * Does this client have the option to chat
+	 * @return
+	 */
+	public boolean canChat() {
+		return options.containsKey(Presenter.chatOpt()) && options.get(Presenter.chatOpt());
+	}
+	
+	/**
+	 * Does this client have the option to challenge
+	 * @return
+	 */
+	public boolean canChallenge() {
+		return options.containsKey(Presenter.challengeOpt()) && options.get(Presenter.challengeOpt());
+	}
+	
+	
+	
+	/**
+	 * The 'living' status of this client.
+	 * @return
+	 */
+	public boolean alive() {
+		return alive;
 	}
 	
 	/**

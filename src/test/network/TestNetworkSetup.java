@@ -22,14 +22,20 @@ public class TestNetworkSetup extends Thread {
 	public static TestNetworkSetup newNetwork() throws UnknownHostException, IOException {
 		TestNetworkSetup testServer = new TestNetworkSetup();
 		testServer.start();
-		testServer.client = new Client(InetAddress.getByName("localhost"), testServer.server().getPort());
+		testServer.client = testServer.addClient();
+		testServer.clientHandler = testServer.server.clients().get(0);
+		return testServer;
+	}
+
+	public Client addClient() throws UnknownHostException, IOException {
+		Client newClient = new Client(InetAddress.getByName("localhost"), server().getPort());
 		try {
-			Thread.sleep(100);
+			Thread.sleep(200);
 		} catch (InterruptedException e) {
 			
 		}
-		testServer.clientHandler = testServer.server.clients().get(0);
-		return testServer;
+		newClient.start();
+		return newClient;
 	}
 	
 	public TestNetworkSetup() {

@@ -16,7 +16,8 @@ public class ReadyToPlay extends AbstractClientState {
 		transitionMap.put(CHAT, new ReadyToPlay());
 		transitionMap.put(OPTIONS, new ReadyToPlay());
 		transitionMap.put(GETOPTIONS, new ReadyToPlay());
-		transitionMap.put(QUIT, new ReadyToPlay());	
+		transitionMap.put(FAILURE, new ReadyToPlay());
+		transitionMap.put(QUIT, new ReadyToPlay());
 	}
 	
 	public ReadyToPlay() {

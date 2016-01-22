@@ -3,23 +3,31 @@ package network;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 import controllers.ClientHandler;
+import controllers.CommandHandler;
 import exceptions.BoardSizeException;
 import network.protocol.Message;
+import network.protocol.Presenter;
 
 public class Server extends Thread {
 	private static final String USAGE 
 		= "usage: " + Server.class.getName() + " <port> [<boardsize>]";	
-	public static final Boolean CHAT = false;
-	public static final Boolean CHALLENGE = false;
-	public static final Boolean OBSERVER = false;
-	public static final Boolean COMPUTERPLAYER = false;
 	public static final int BOARDSIZE = 9;
 	public static final int MIN_BOARDSIZE = 3;
 	public static final int MAX_BOARDSIZE = 19; 
+	
+	public static final HashMap<String, Boolean> OPTIONS = new HashMap<>();
+	static {
+		OPTIONS.put(Presenter.chatOpt(), true);
+		OPTIONS.put(Presenter.challengeOpt(), true);
+		OPTIONS.put(Presenter.observerOpt(), false);
+		OPTIONS.put(Presenter.AIOpt(), false);
+	}
 	
 	/**
 	 * Start a new Go! server.
@@ -72,6 +80,7 @@ public class Server extends Thread {
 	private List<ClientHandler> clients;
 	private int boardSize;
 	private ConcurrentLinkedQueue<Message> commandQueue;
+	private CommandHandler commandHandler;
 	
 	public Server(int port, int boardSize) {
 		this.port = port;
@@ -84,22 +93,11 @@ public class Server extends Thread {
 		}
 		clients = new ArrayList<ClientHandler>();
 		commandQueue = new ConcurrentLinkedQueue<Message>();
+		commandHandler = new CommandHandler(this, commandQueue);
 	}
 	
 	public void run() {
-		while (true) {
-			if (commandQueue.peek() != null) {
-				process(commandQueue.poll());
-			}
-		}
-	}
-	
-	public void process(Message message) {
-		// TODO
-		if (!clients().contains(message.author())) {
-			System.out.println("Client has been disconnected");
-		}
-		System.out.println(message);
+		commandHandler.start();
 	}
 	
 	public void enqueue(Message message) {
@@ -132,6 +130,29 @@ public class Server extends Thread {
 	
 	public void removeClient(ClientHandler client) {
 		clients.remove(client);
+	}
+	
+	public List<ClientHandler> clientsThatCanChat() {
+		return clients.stream().filter(c -> c.canChat()).collect(Collectors.toList());
+	}
+	
+	public List<ClientHandler> clientsThatCanBeChallenged() {
+		return clients.stream().filter(c -> c.readyToPlay() && c.canChallenge()).collect(Collectors.toList());
+	}
+	
+	/**
+	 * Find clientHandler by client name.
+	 * @param name
+	 * @return The clientHandler of a client that
+	 * has this name, if there is no client by
+	 * that name, return null.
+	 */
+	public ClientHandler findClientByName(String name) {
+		if (clients.isEmpty()) {
+			return null;
+		}
+		return clients.stream().filter(c -> !(c.name() == null) 
+				&& c.name().equals(name)).findAny().orElse(null);
 	}
 
 }

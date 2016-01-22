@@ -12,9 +12,9 @@ import controllers.ClientSideClientController;
 import exceptions.GoException;
 import exceptions.NotApplicableCommandException;
 import exceptions.UnknownCommandException;
+import network.protocol.Interpreter;
 import network.protocol.Message;
 import network.protocol.Presenter;
-import network.protocol.Interpreter;
 
 public class Client extends Thread {
 	
@@ -38,6 +38,7 @@ public class Client extends Thread {
 				if (messageString == null) {
 					throw new IOException();
 				}
+				System.out.println("Client received: " + messageString);
 				handle(messageString);
 			} catch(IOException e) {
 				System.out.println("Could not read incoming messages.");
@@ -62,6 +63,7 @@ public class Client extends Thread {
 	
 	public void send(Message message) {
 		try {
+			System.out.println("Client sends: " + message.toString());
 			out.write(message.toString());
 			out.newLine();
 			out.flush();

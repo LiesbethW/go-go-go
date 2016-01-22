@@ -13,7 +13,7 @@ public class Presenter implements Constants {
 	// Messages
 	
 	public static Message exceptionMessage(GoException e) {
-		return new Message(FAILURE, CommandSet.exceptionCommand(e));
+		return new Message(FAILURE, CommandSet.exceptionCommand(e), e.getMessage());
 	}
 	
 	public static Message newPlayer(String name) {
@@ -23,6 +23,23 @@ public class Presenter implements Constants {
 	public static Message newPlayerAccepted() {
 		return new Message(NEWPLAYERACCEPTED);
 	}
+	
+	public static Message play() {
+		return new Message(PLAY);
+	}
+	
+	public static Message chat(String author, String[] chatArgs) {
+		String chatMessage = String.join(DELIMITER, chatArgs);
+		return new Message(CHAT, author + ":", chatMessage);
+	}
+	
+	public static Message chat(String chatMessage) {
+		return new Message(CHAT, chatMessage);
+	}
+
+	public static Message chat(String[] chatMessage) {
+		return new Message(CHAT, chatMessage);
+	}	
 	
 	public static Message waitForOpponent() {
 		return new Message(WAITFOROPPONENT);
