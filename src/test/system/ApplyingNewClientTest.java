@@ -68,19 +68,23 @@ public class ApplyingNewClientTest {
 	
 	@Test
 	public void testSendingTakenName() throws IOException {
+		//Client 1 sends name
 		client1.send(Presenter.newPlayer(name1));
 		SystemTestSuite.waitForProcessing();
 		
 		assertEquals(name1, handler1.name());
 		
+		//Make second client
 		client2 = network.addClient();
 		client2.send(Presenter.newPlayer(name1));
 		SystemTestSuite.waitForProcessing();
 		
+		//Client 2 tries to send the same name
 		handler2 = server.clients().get(1);		
 		assertNotEquals(handler2.name(), name1);
 		assertTrue(handler2.newClient());
 		
+		//Client 2 does a second trial with another name
 		client2.send(Presenter.newPlayer(name2));
 		SystemTestSuite.waitForProcessing();
 		assertEquals(handler2, server.findClientByName(name2));

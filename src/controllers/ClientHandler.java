@@ -75,7 +75,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	public void digest(Message message) throws NotApplicableCommandException {
 		currentState().leave(message);
 		state = currentState().accept(message);
-		currentState().accept(message);
+		currentState().enter(message);
 	}
 	
 	public void handleException(GoException e) {

@@ -1,6 +1,8 @@
 package test.system;
 
+
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -47,11 +49,15 @@ public class ChatTest {
 	}
 	
 	@Test
-	public void testChat() {
+	public void testChatDoesNotChangeState() {
 		letClientsSendNames();
 		handler1 = server.findClientByName(name1);
 		handler2 = server.findClientByName(name2);
+		assertTrue(handler1.readyToPlay());
+		assertTrue(handler2.readyToPlay());
 		client1.send(Presenter.chat("Hallo Piet, hoe is het?"));
+		assertTrue(handler1.readyToPlay());
+		assertTrue(handler2.readyToPlay());
 	}
 
 }
