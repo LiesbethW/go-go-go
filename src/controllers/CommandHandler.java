@@ -43,7 +43,7 @@ public class CommandHandler extends Thread implements Constants {
 		try {
 			if (!methodMap.containsKey(message.command())) {
 				System.err.printf("CommandHandler tries to process %s, but that seems"
-						+ "to not be implemented.%n", message.command());
+						+ " to not be implemented.%n", message.command());
 				throw new NotSupportedCommandException(message.command());
 			}
 			methodMap.get(message.command()).runCommand(message);
@@ -78,6 +78,12 @@ public class CommandHandler extends Thread implements Constants {
         methodMap.put(OPTIONS, new Command() {
         	public void runCommand(Message message) throws GoException {
         		message.author().setOptions(Interpreter.options(message));
+        	}
+        });
+        
+        methodMap.put(GETOPTIONS, new Command() {
+        	public void runCommand(Message message) throws GoException {
+        		message.author().send(Presenter.options(server.OPTIONS));
         	}
         });
 		
