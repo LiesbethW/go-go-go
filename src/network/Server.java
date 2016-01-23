@@ -3,7 +3,7 @@ package network;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
@@ -21,13 +21,8 @@ public class Server extends Thread {
 	public static final int MIN_BOARDSIZE = 3;
 	public static final int MAX_BOARDSIZE = 19; 
 	
-	public static final HashMap<String, Boolean> OPTIONS = new HashMap<>();
-	static {
-		OPTIONS.put(Presenter.chatOpt(), true);
-		OPTIONS.put(Presenter.challengeOpt(), true);
-		OPTIONS.put(Presenter.observerOpt(), false);
-		OPTIONS.put(Presenter.AIOpt(), false);
-	}
+	public static final List<String> OPTIONS = new ArrayList<String>(
+			Arrays.asList(Presenter.chatOpt(), Presenter.challengeOpt()));
 	
 	/**
 	 * Start a new Go! server.

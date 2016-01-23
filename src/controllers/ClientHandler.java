@@ -2,9 +2,10 @@ package controllers;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import controllers.states.AbstractServerSideClientState;
 import controllers.states.State;
@@ -29,7 +30,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	private Server server;
 	private GameController gameController;
 	private String name;
-	private HashMap<String, Boolean> options;
+	private List<String> options;
 	private boolean alive;
 	
 	// The states
@@ -43,7 +44,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	public ClientHandler(Server server, Socket socket) throws IOException {
 		alive = true;
 		name = null;
-		options = new HashMap<String, Boolean>();
+		options = new ArrayList<String>();
 		this.clientCommunicator = new ClientCommunicator(this, socket);
 		clientCommunicator.start();
 		this.server = server;
@@ -148,7 +149,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * Gets this client's options.
 	 * @return
 	 */
-	public HashMap<String, Boolean> getOptions() {
+	public List<String> getOptions() {
 		return options;
 	}
 	
@@ -156,8 +157,13 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * Set this client's options.
 	 * @param options
 	 */
-	public void setOptions(HashMap<String, Boolean> options) {
-		this.options = options;
+	public void setOptions(List<String> options) {
+		if (options.contains(Presenter.chatOpt())) {
+			enableChat();
+		}
+		if (options.contains(Presenter.challengeOpt())) {
+			enableChallenge();
+		}
 	}
 	
 	/**
@@ -165,7 +171,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * @return
 	 */
 	public boolean canChat() {
-		return options.containsKey(Presenter.chatOpt()) && options.get(Presenter.chatOpt());
+		return options.contains(Presenter.chatOpt());
 	}
 	
 	/**
@@ -173,7 +179,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * @return
 	 */
 	public boolean canChallenge() {
-		return options.containsKey(Presenter.challengeOpt()) && options.get(Presenter.challengeOpt());
+		return options.contains(Presenter.challengeOpt());
 	}
 	
 	
@@ -222,7 +228,6 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		
 		activeStates.stream().forEach(state -> state.addCommand(GETOPTIONS));
 		activeStates.stream().forEach(state -> state.addCommand(OPTIONS));
-		activeStates.stream().forEach(state -> state.addCommand(CHAT));
 		
 		HashSet<AbstractServerSideClientState> allStates = new HashSet<>(activeStates);
 		allStates.add(newClient);
@@ -233,14 +238,34 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		newClient.addCommand(NEWPLAYER);
 		newClient.addTransition(NEWPLAYER, readyToPlay);
 		
-		readyToPlay.addCommand(CHALLENGE);
 		readyToPlay.addCommand(PLAY);
 		readyToPlay.addTransition(PLAY, waitingForOpponent);
-		readyToPlay.addTransition(YOUVECHALLENGED, waitForChallengeResponse);
-		readyToPlay.addTransition(YOURECHALLENGED, challenged);
 		
 		waitingForOpponent.addTransition(PLAY, playing);
 		waitingForOpponent.addTransition(QUIT, readyToPlay);
+		
+		playing.addCommand(MOVE);
+		playing.addCommand(GETBOARD);
+		playing.addCommand(TERRITORYSCORING);
+		playing.addTransition(QUIT, readyToPlay);
+	}
+	
+	public void enableChat() {
+		options.add(Presenter.chatOpt());
+		
+		HashSet<AbstractServerSideClientState> activeStates = new HashSet<>();
+		activeStates.addAll(Arrays.asList(readyToPlay, waitingForOpponent, 
+				waitForChallengeResponse, challenged, playing));	
+		
+		activeStates.stream().forEach(state -> state.addCommand(CHAT));
+	}
+	
+	public void enableChallenge() {
+		options.add(Presenter.challengeOpt());
+		
+		readyToPlay.addCommand(CHALLENGE);
+		readyToPlay.addTransition(YOUVECHALLENGED, waitForChallengeResponse);
+		readyToPlay.addTransition(YOURECHALLENGED, challenged);
 		
 		waitForChallengeResponse.addTransition(CHALLENGEACCEPTED, playing);
 		waitForChallengeResponse.addTransition(CHALLENGEDENIED, readyToPlay);
@@ -249,11 +274,6 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		challenged.addCommand(CHALLENGEDENIED);
 		challenged.addTransition(CHALLENGEACCEPTED, playing);
 		challenged.addTransition(CHALLENGEDENIED, readyToPlay);
-		
-		playing.addCommand(MOVE);
-		playing.addCommand(GETBOARD);
-		playing.addCommand(TERRITORYSCORING);
-		playing.addTransition(QUIT, readyToPlay);
 	}
 	
 }

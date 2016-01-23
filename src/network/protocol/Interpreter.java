@@ -2,7 +2,6 @@ package network.protocol;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import exceptions.InvalidArgumentException;
@@ -48,16 +47,16 @@ public class Interpreter implements Constants {
 		}
 	}
 	
-	public static HashMap<String, Boolean> options(Message message) {
-		List<String> options = new ArrayList<String>(Arrays.asList(CHAT, 
+	public static List<String> options(Message message) {
+		List<String> possibleOptions = new ArrayList<String>(Arrays.asList(CHAT, 
 				CHALLENGE, OBSERVER, COMPUTERPLAYER));
-		HashMap<String, Boolean> optionMap = new HashMap<String, Boolean>();
+		List<String> options = new ArrayList<String>();
 		for (String optionString : message.args()) {
-			if (options.stream().anyMatch(s -> s.equals(optionString))) {
-				optionMap.put(optionString, true);
+			if (possibleOptions.stream().anyMatch(s -> s.equals(optionString))) {
+				options.add(optionString);
 			}
 		}
-		return optionMap;
+		return options;
 	}
 	
 }

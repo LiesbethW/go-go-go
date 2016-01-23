@@ -7,6 +7,7 @@ import exceptions.GoException;
 import exceptions.NameTakenException;
 import network.Server;
 import network.protocol.Constants;
+import network.protocol.Interpreter;
 import network.protocol.Message;
 import network.protocol.Presenter;
 
@@ -66,6 +67,12 @@ public class CommandHandler extends Thread implements Constants {
             		client.send(Presenter.chat(message.author().name(), message.args()));
             	}
             };
+        });
+        
+        methodMap.put(OPTIONS, new Command() {
+        	public void runCommand(Message message) throws GoException {
+        		message.author().setOptions(Interpreter.options(message));
+        	}
         });
 		
 	}

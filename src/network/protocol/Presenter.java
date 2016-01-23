@@ -1,6 +1,5 @@
 package network.protocol;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -96,14 +95,8 @@ public class Presenter implements Constants {
 		return new Message(GETOPTIONS);
 	}
 	
-	public static Message options(HashMap<String, Boolean> optionMap) {
-		List<String> options = new ArrayList<String>();
-		for (String key : optionMap.keySet()) {
-			if (optionMap.get(key) == true) {
-				options.add(key);
-			}
-		}
-		return new Message(OPTIONS, options.toArray(new String[]{}));
+	public static Message options(List<String> optionList) {
+		return new Message(OPTIONS, optionList.toArray(new String[]{}));
 	}
 	
 	// Single terms from the protocol
