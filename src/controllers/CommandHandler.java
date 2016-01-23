@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import exceptions.GoException;
 import exceptions.NameTakenException;
+import exceptions.NotSupportedCommandException;
 import network.Server;
 import network.protocol.Constants;
 import network.protocol.Interpreter;
@@ -40,6 +41,11 @@ public class CommandHandler extends Thread implements Constants {
 			System.out.println("Client has been disconnected");
 		}
 		try {
+			if (!methodMap.containsKey(message.command())) {
+				System.err.printf("CommandHandler tries to process %s, but that seems"
+						+ "to not be implemented.%n", message.command());
+				throw new NotSupportedCommandException(message.command());
+			}
 			methodMap.get(message.command()).runCommand(message);
 		} catch (GoException e) {
 			message.author().handleException(e);
