@@ -32,6 +32,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	private String name;
 	private List<String> options;
 	private boolean alive;
+	private ClientHandler opponent;
 	
 	// The states
 	private AbstractServerSideClientState newClient;
@@ -120,6 +121,10 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		this.gameController = gameController;
 	}
 	
+	public void removeGameController() {
+		gameController = null;
+	}
+	
 	/**
 	 * Send a message to the client.
 	 * @param message
@@ -143,6 +148,18 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 */
 	public String name() {
 		return name;
+	}
+	
+	public ClientHandler getOpponent() {
+		return opponent;
+	}
+	
+	public void setOpponent(String name) {
+		opponent = server.findClientByName(name);
+	}
+	
+	public void removeOpponent() {
+		opponent = null;
 	}
 	
 	/**
@@ -247,7 +264,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		playing.addCommand(MOVE);
 		playing.addCommand(GETBOARD);
 		playing.addCommand(TERRITORYSCORING);
-		playing.addTransition(QUIT, readyToPlay);
+		playing.addTransition(GAMEOVER, readyToPlay);
 	}
 	
 	public void enableChat() {

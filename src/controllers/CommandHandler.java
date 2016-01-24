@@ -1,11 +1,14 @@
 package controllers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import exceptions.GoException;
 import exceptions.NameTakenException;
+import exceptions.NotApplicableCommandException;
 import exceptions.NotSupportedCommandException;
+import exceptions.PlayerNotAvailableException;
 import network.Server;
 import network.protocol.Constants;
 import network.protocol.Interpreter;
@@ -86,6 +89,41 @@ public class CommandHandler extends Thread implements Constants {
         		message.author().send(Presenter.options(server.OPTIONS));
         	}
         });
+        
+        methodMap.put(CHALLENGE, new Command() {
+        	public void runCommand(Message message) throws GoException {
+        		if (message.args().length == 0) {
+        			List<ClientHandler> opponents = server.clientsThatCanBeChallenged();
+        			opponents.remove(message.author());
+        			if (opponents.size() == 0) {
+        				throw new PlayerNotAvailableException();
+        			} else {
+        				message.author().send(Presenter.challengableOpponentsList(opponents));
+        			}
+        		} else {
+        			ClientHandler opponent = server.findClientByName(message.args()[0]);
+        			if (opponent != null && opponent.canChallenge() && opponent.readyToPlay() && opponent != message.author()) {
+        				message.author().digest(Presenter.youveChallenged(opponent.name()));
+        				opponent.digest(Presenter.youreChallenged(message.author().name()));	
+        			} else {
+        				throw new PlayerNotAvailableException();
+        			}
+        		}
+        	}
+        });
+        
+        methodMap.put(CHALLENGEACCEPTED, new Command() {
+        	public void runCommand(Message message) throws NotApplicableCommandException {
+        		message.author().digest(message);
+        		server.startNewGame(message.author(), message.author().getOpponent());
+        	}
+        });
+        
+        methodMap.put(CHALLENGEDENIED, new Command() {
+        	public void runCommand(Message message) throws NotApplicableCommandException {
+        		message.author().digest(message);
+        	}
+        });       
 		
 	}
 }

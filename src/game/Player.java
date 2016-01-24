@@ -1,5 +1,7 @@
 package game;
 
+import network.protocol.Message;
+
 public abstract class Player {
 	private String name;
 	private Stone color;
@@ -20,6 +22,8 @@ public abstract class Player {
 	public String getName() {
 		return name;
 	}
+	
+	public abstract void send(Message message);
 	
 	public abstract void takeTurn(Game game);
 	

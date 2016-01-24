@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import controllers.ClientHandler;
 import controllers.CommandHandler;
+import controllers.GameController;
 import exceptions.BoardSizeException;
 import network.protocol.Message;
 import network.protocol.Presenter;
@@ -128,7 +129,7 @@ public class Server extends Thread {
 	}
 	
 	public List<ClientHandler> clientsThatCanChat() {
-		return clients.stream().filter(c -> c.canChat()).collect(Collectors.toList());
+		return clients.stream().filter(c -> c.canChat() && !c.isPlaying()).collect(Collectors.toList());
 	}
 	
 	public List<ClientHandler> clientsThatCanBeChallenged() {
@@ -148,6 +149,11 @@ public class Server extends Thread {
 		}
 		return clients.stream().filter(c -> !(c.name() == null) 
 				&& c.name().equals(name)).findAny().orElse(null);
+	}
+	
+	public void startNewGame(ClientHandler client1, ClientHandler client2) {
+		GameController gameController = new GameController(client1, client2, BOARDSIZE);
+		gameController.start();
 	}
 
 }

@@ -2,7 +2,9 @@ package network.protocol;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import controllers.ClientHandler;
 import exceptions.GoException;
 import game.Board;
 import game.Stone;
@@ -71,6 +73,23 @@ public class Presenter implements Constants {
 		return new Message(MOVE, PASS);
 	}
 	
+	public static Message victory() {
+		return new Message(GAMEOVER, VICTORY);
+	}
+	
+	public static Message defeat() {
+		return new Message(GAMEOVER, DEFEAT);
+	}
+	
+	public static Message draw() {
+		return new Message(GAMEOVER, "DRAW");
+	}
+	
+	public static Message challengableOpponentsList(List<ClientHandler> clients) {
+		String[] players = clients.stream().map(c -> c.name()).collect(Collectors.toList()).toArray(new String[]{});
+		return new Message(AVAILABLEPLAYERS, players);
+	}
+	
 	public static Message challengeAccepted() {
 		return new Message(CHALLENGEACCEPTED);
 	}
@@ -89,6 +108,10 @@ public class Presenter implements Constants {
 	
 	public static Message youveChallenged(String opponent) {
 		return new Message(YOUVECHALLENGED, opponent);
+	}
+	
+	public static Message youreChallenged(String opponent) {
+		return new Message(YOURECHALLENGED, opponent);
 	}
 	
 	public static Message askOptions() {
