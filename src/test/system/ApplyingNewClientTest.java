@@ -56,7 +56,7 @@ public class ApplyingNewClientTest {
 	public void testSendName() {
 		client1.send(Presenter.newPlayer(name1));
 		try {
-			Thread.sleep(100);
+			Thread.sleep(200);
 		} catch (InterruptedException e) {
 			
 		}
