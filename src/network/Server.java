@@ -12,6 +12,7 @@ import controllers.ClientHandler;
 import controllers.CommandHandler;
 import controllers.GameController;
 import exceptions.BoardSizeException;
+import exceptions.CorruptedStateException;
 import network.protocol.Message;
 import network.protocol.Presenter;
 
@@ -94,6 +95,18 @@ public class Server extends Thread {
 	
 	public void run() {
 		commandHandler.start();
+		while(true) {
+			try {
+				checkForGamesToStart();
+			} catch (CorruptedStateException e) {
+				System.err.println(e.getMessage());
+			}
+			try {
+				Thread.sleep(300);
+			} catch (InterruptedException e) {
+				
+			}
+		}
 	}
 	
 	public void enqueue(Message message) {
@@ -129,11 +142,19 @@ public class Server extends Thread {
 	}
 	
 	public List<ClientHandler> clientsThatCanChat() {
-		return clients.stream().filter(c -> c.canChat() && !c.isPlaying()).collect(Collectors.toList());
+		return clients().stream().filter(c -> c.canChat() && !c.isPlaying()).collect(Collectors.toList());
 	}
 	
 	public List<ClientHandler> clientsThatCanBeChallenged() {
-		return clients.stream().filter(c -> c.readyToPlay() && c.canChallenge()).collect(Collectors.toList());
+		return clients().stream().filter(c -> c.readyToPlay() && c.canChallenge()).collect(Collectors.toList());
+	}
+	
+	public List<ClientHandler> clientsWaitingForOpponent() {
+		return clients().stream().filter(c -> c.waitingForOpponent()).collect(Collectors.toList());
+	}
+	
+	public List<ClientHandler> clientsThatCanStartPlaying() {
+		return clients().stream().filter(c -> c.canStartPlaying()).collect(Collectors.toList());
 	}
 	
 	/**
@@ -151,9 +172,30 @@ public class Server extends Thread {
 				&& c.name().equals(name)).findAny().orElse(null);
 	}
 	
+	public void checkForGamesToStart() throws CorruptedStateException {
+		if (clientsThatCanStartPlaying().size() >= 2) {
+			ClientHandler client1 = clientsThatCanStartPlaying().get(0);
+			ClientHandler client2 = client1.getOpponent();
+			if (client2.getOpponent() != client1) {
+				throw new CorruptedStateException();
+			} else {
+				startNewGame(client1, client2);
+				removeClient(client1);
+				removeClient(client2);
+			}
+		}
+	}
+	
 	public void startNewGame(ClientHandler client1, ClientHandler client2) {
-		GameController gameController = new GameController(client1, client2, BOARDSIZE);
+		GameController gameController = new GameController(client1, client2, this, BOARDSIZE);
+		client1.setGameController(gameController);
+		client2.setGameController(gameController);
 		gameController.start();
+	}
+	
+	public void endGame(ClientHandler client1, ClientHandler client2) {
+		addClient(client1);
+		addClient(client2);
 	}
 
 }

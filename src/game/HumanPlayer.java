@@ -3,7 +3,6 @@ package game;
 import controllers.ClientHandler;
 import exceptions.NotApplicableCommandException;
 import network.protocol.Message;
-import network.protocol.Presenter;
 
 public class HumanPlayer extends Player {
 	private ClientHandler client;
@@ -20,17 +19,21 @@ public class HumanPlayer extends Player {
 	}
 	
 	public void send(Message message) {
-		if (message.command() == Presenter.GAMEOVER) {
-			try {
-				client.digest(message);
-			} catch (NotApplicableCommandException e) {
-				System.err.printf("The server sent a non-applicable command %s "
-						+ "to player with state %s%n", e.getMessage(), 
-						client.currentState().toString());
-			}
-		} else {
-			client.send(message);
-		}
+		client.send(message);
+	}
+	
+	public void digest(Message message) {
+		try {
+			client.digest(message);
+		} catch (NotApplicableCommandException e) {
+			System.err.printf("The server sent a non-applicable command %s "
+					+ "to player with state %s%n", e.getMessage(), 
+					client.currentState().toString());
+		}		
+	}
+	
+	public ClientHandler client() {
+		return client;
 	}
 
 }

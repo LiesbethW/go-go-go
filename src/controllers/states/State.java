@@ -13,4 +13,8 @@ public interface State {
 	
 	public void leave(Message message);
 	
+	public void addCommand(String command);
+	
+	public void addTransition(String command, State state);
+	
 }

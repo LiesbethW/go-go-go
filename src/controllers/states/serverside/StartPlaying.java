@@ -4,21 +4,23 @@ import controllers.ClientHandler;
 import controllers.states.AbstractServerSideClientState;
 import network.protocol.Message;
 
-public class Playing extends AbstractServerSideClientState {
+public class StartPlaying extends AbstractServerSideClientState {
 
-	public Playing(ClientHandler client) {
+	public StartPlaying(ClientHandler client) {
 		super(client);
 		// TODO Auto-generated constructor stub
 	}
-	
+
+	@Override
 	public void enter(Message message) {
-		client.send(message);
+		// TODO Auto-generated method stub
+
 	}
-	
-	public void leave(Message message) { 
-		client.send(message); // Is GAMEOVER Message
-		client.removeGameController();
+
+	@Override
+	public void leave(Message message) {
+		// TODO Auto-generated method stub
+
 	}
-	
 
 }

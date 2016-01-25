@@ -7,12 +7,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import controllers.states.AbstractServerSideClientState;
 import controllers.states.State;
 import controllers.states.serverside.Challenged;
 import controllers.states.serverside.NewClient;
 import controllers.states.serverside.Playing;
 import controllers.states.serverside.ReadyToPlay;
+import controllers.states.serverside.StartPlaying;
 import controllers.states.serverside.WaitForChallengeResponse;
 import controllers.states.serverside.WaitingForOpponent;
 import exceptions.CorruptedAuthorException;
@@ -35,12 +35,13 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	private ClientHandler opponent;
 	
 	// The states
-	private AbstractServerSideClientState newClient;
-	private AbstractServerSideClientState readyToPlay;
-	private AbstractServerSideClientState waitingForOpponent;
-	private AbstractServerSideClientState waitForChallengeResponse;
-	private AbstractServerSideClientState challenged;
-	private AbstractServerSideClientState playing;
+	private State newClient;
+	private State readyToPlay;
+	private State waitingForOpponent;
+	private State waitForChallengeResponse;
+	private State challenged;
+	private State startPlaying;
+	private State playing;
 	
 	public ClientHandler(Server server, Socket socket) throws IOException {
 		alive = true;
@@ -76,7 +77,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	
 	public void digest(Message message) throws NotApplicableCommandException {
 		currentState().leave(message);
-		state = currentState().accept(message);
+		setState(currentState().accept(message));
 		currentState().enter(message);
 	}
 	
@@ -86,6 +87,10 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	
 	public State currentState() {
 		return state;
+	}
+	
+	private void setState(State state) {
+		this.state = state;
 	}
 	
 	public boolean newClient() {
@@ -106,6 +111,10 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	
 	public boolean isChallenged() {
 		return currentState().equals(challenged);
+	}
+	
+	public boolean canStartPlaying() {
+		return currentState().equals(startPlaying);
 	}
 	
 	public boolean isPlaying() {
@@ -155,7 +164,11 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	}
 	
 	public void setOpponent(String name) {
-		opponent = server.findClientByName(name);
+		setOpponent(server.findClientByName(name));
+	}
+	
+	public void setOpponent(ClientHandler client) {
+		opponent = client;
 	}
 	
 	public void removeOpponent() {
@@ -237,16 +250,17 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		waitingForOpponent = new WaitingForOpponent(this);
 		waitForChallengeResponse = new WaitForChallengeResponse(this);
 		challenged = new Challenged(this);
+		startPlaying = new StartPlaying(this);
 		playing = new Playing(this);
 		
-		HashSet<AbstractServerSideClientState> activeStates = new HashSet<>();
+		HashSet<State> activeStates = new HashSet<>();
 		activeStates.addAll(Arrays.asList(readyToPlay, waitingForOpponent, 
-				waitForChallengeResponse, challenged, playing));
+				waitForChallengeResponse, challenged, startPlaying, playing));
 		
 		activeStates.stream().forEach(state -> state.addCommand(GETOPTIONS));
 		activeStates.stream().forEach(state -> state.addCommand(OPTIONS));
 		
-		HashSet<AbstractServerSideClientState> allStates = new HashSet<>(activeStates);
+		HashSet<State> allStates = new HashSet<>(activeStates);
 		allStates.add(newClient);
 		
 		allStates.stream().forEach(state -> state.addCommand(FAILURE));
@@ -258,8 +272,10 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		readyToPlay.addCommand(PLAY);
 		readyToPlay.addTransition(PLAY, waitingForOpponent);
 		
-		waitingForOpponent.addTransition(PLAY, playing);
+		waitingForOpponent.addTransition(PLAY, startPlaying);
 		waitingForOpponent.addTransition(QUIT, readyToPlay);
+		
+		startPlaying.addTransition(GAMESTART, playing);
 		
 		playing.addCommand(MOVE);
 		playing.addCommand(GETBOARD);
@@ -270,7 +286,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	public void enableChat() {
 		options.add(Presenter.chatOpt());
 		
-		HashSet<AbstractServerSideClientState> activeStates = new HashSet<>();
+		HashSet<State> activeStates = new HashSet<>();
 		activeStates.addAll(Arrays.asList(readyToPlay, waitingForOpponent, 
 				waitForChallengeResponse, challenged, playing));	
 		
@@ -284,12 +300,12 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		readyToPlay.addTransition(YOUVECHALLENGED, waitForChallengeResponse);
 		readyToPlay.addTransition(YOURECHALLENGED, challenged);
 		
-		waitForChallengeResponse.addTransition(CHALLENGEACCEPTED, playing);
+		waitForChallengeResponse.addTransition(CHALLENGEACCEPTED, startPlaying);
 		waitForChallengeResponse.addTransition(CHALLENGEDENIED, readyToPlay);
 		
 		challenged.addCommand(CHALLENGEACCEPTED);
 		challenged.addCommand(CHALLENGEDENIED);
-		challenged.addTransition(CHALLENGEACCEPTED, playing);
+		challenged.addTransition(CHALLENGEACCEPTED, startPlaying);
 		challenged.addTransition(CHALLENGEDENIED, readyToPlay);
 	}
 	

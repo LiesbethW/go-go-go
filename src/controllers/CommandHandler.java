@@ -35,6 +35,11 @@ public class CommandHandler extends Thread implements Constants {
 			if (commandQueue.peek() != null) {
 				process(commandQueue.poll());
 			}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				
+			}
 		}
 	}
 	
@@ -59,38 +64,35 @@ public class CommandHandler extends Thread implements Constants {
 	public void initializeMethodMap() {
 		methodMap = new HashMap<String, Command>();
 		
-		methodMap.put(NEWPLAYER, new Command() {
-            public void runCommand(Message message) throws GoException { 
-            		if (server.findClientByName(message.args()[0]) != null) {
-            			throw new NameTakenException();
-            		} else {
-            			System.out.println("Digesting..");
-            			message.author().digest(message);
-            		}
-            	};
-        });
+		methodMap.put(NEWPLAYER, newPlayerCommand());
+        methodMap.put(CHAT, chatCommand());
+        methodMap.put(OPTIONS, optionsCommand());
+        methodMap.put(GETOPTIONS, getOptionsCommand());
+        methodMap.put(PLAY, playCommand());
+        methodMap.put(CHALLENGE, challengeCommand());
+        methodMap.put(CHALLENGEACCEPTED, challengeAcceptedCommand());   
+        methodMap.put(CHALLENGEDENIED, challengeDeniedCommand());       
+		
+	}
 
-        methodMap.put(CHAT, new Command() {
-            public void runCommand(Message message) throws GoException { 
-            	for (ClientHandler client : server.clientsThatCanChat()) {
-            		client.send(Presenter.chat(message.author().name(), message.args()));
-            	}
-            };
-        });
-        
-        methodMap.put(OPTIONS, new Command() {
-        	public void runCommand(Message message) throws GoException {
-        		message.author().setOptions(Interpreter.options(message));
+	protected Command challengeDeniedCommand() {
+		return new Command() {
+        	public void runCommand(Message message) throws NotApplicableCommandException {
+        		message.author().digest(message);
         	}
-        });
-        
-        methodMap.put(GETOPTIONS, new Command() {
-        	public void runCommand(Message message) throws GoException {
-        		message.author().send(Presenter.options(server.OPTIONS));
+        };
+	}
+
+	protected Command challengeAcceptedCommand() {
+		return new Command() {
+        	public void runCommand(Message message) throws NotApplicableCommandException {
+        		message.author().digest(message);
         	}
-        });
-        
-        methodMap.put(CHALLENGE, new Command() {
+        };
+	}
+
+	protected Command challengeCommand() {
+		return new Command() {
         	public void runCommand(Message message) throws GoException {
         		if (message.args().length == 0) {
         			List<ClientHandler> opponents = server.clientsThatCanBeChallenged();
@@ -110,20 +112,62 @@ public class CommandHandler extends Thread implements Constants {
         			}
         		}
         	}
-        });
-        
-        methodMap.put(CHALLENGEACCEPTED, new Command() {
-        	public void runCommand(Message message) throws NotApplicableCommandException {
+        };
+	}
+
+	protected Command playCommand() {
+		return new Command() {
+        	public void runCommand(Message message) throws GoException {
         		message.author().digest(message);
-        		server.startNewGame(message.author(), message.author().getOpponent());
+        		System.out.println(message.author().currentState().toString());
+        		if (server.clientsWaitingForOpponent().size() >= 2) {
+        			ClientHandler client1 = server.clientsWaitingForOpponent().get(0);
+        			ClientHandler client2 = server.clientsWaitingForOpponent().get(1);
+        			client1.setOpponent(client2);
+        			client2.setOpponent(client1);
+        			client1.digest(Presenter.play());
+        			client2.digest(Presenter.play());
+        		}
         	}
-        });
-        
-        methodMap.put(CHALLENGEDENIED, new Command() {
-        	public void runCommand(Message message) throws NotApplicableCommandException {
-        		message.author().digest(message);
+        };
+	}
+
+	protected Command getOptionsCommand() {
+		return new Command() {
+        	public void runCommand(Message message) throws GoException {
+        		message.author().send(Presenter.options(server.OPTIONS));
         	}
-        });       
-		
+        };
+	}
+
+	protected Command optionsCommand() {
+		return new Command() {
+        	public void runCommand(Message message) throws GoException {
+        		message.author().setOptions(Interpreter.options(message));
+        	}
+        };
+	}
+
+	protected Command chatCommand() {
+		return new Command() {
+            public void runCommand(Message message) throws GoException { 
+            	for (ClientHandler client : server.clientsThatCanChat()) {
+            		client.send(Presenter.chat(message.author().name(), message.args()));
+            	}
+            };
+        };
+	}
+
+	protected Command newPlayerCommand() {
+		return new Command() {
+            public void runCommand(Message message) throws GoException { 
+            		if (server.findClientByName(message.args()[0]) != null) {
+            			throw new NameTakenException();
+            		} else {
+            			System.out.println("Digesting..");
+            			message.author().digest(message);
+            		}
+            	};
+        };
 	}
 }

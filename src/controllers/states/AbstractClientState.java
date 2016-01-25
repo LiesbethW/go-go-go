@@ -30,5 +30,9 @@ public abstract class AbstractClientState implements State, network.protocol.Con
 	}
 	
 	protected abstract HashMap<String, State> transitionMap();
+	
+	public void addCommand(String command) { }
+	
+	public void addTransition(String command, State state) { }
 
 }
