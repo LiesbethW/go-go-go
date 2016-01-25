@@ -124,8 +124,8 @@ public class GameController extends Thread implements Constants {
         		if (message.equals(Presenter.clientPass())) {
         			game.pass(getPlayer(message));
         		} else {
-        			game.makeMove(getPlayer(message), Interpreter.coordinate(message.args()[0]), 
-        					Interpreter.coordinate(message.args()[1]));
+        			game.makeMove(getPlayer(message), Interpreter.integer(message.args()[0]), 
+        					Interpreter.integer(message.args()[1]));
         		}
         	}
         });

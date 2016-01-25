@@ -7,9 +7,13 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import exceptions.InvalidArgumentException;
+import exceptions.InvalidMoveException;
 import exceptions.UnknownCommandException;
+import game.Board;
 import game.Stone;
 import network.protocol.Interpreter;
+import network.protocol.Message;
+import network.protocol.Presenter;
 
 public class InterpreterTest {
 
@@ -50,9 +54,20 @@ public class InterpreterTest {
 	}
 	
 	@Test
-	public void coordinateTest() throws InvalidArgumentException {
-		assertEquals(4, Interpreter.coordinate("4"));
-		assertEquals(0, Interpreter.coordinate("0"));
+	public void integerTest() throws InvalidArgumentException {
+		assertEquals(4, Interpreter.integer("4"));
+		assertEquals(0, Interpreter.integer("0"));
+	}
+	
+	@Test
+	public void boardFromStringTest() throws InvalidMoveException, InvalidArgumentException {
+		Board board = new Board(2);
+		board.layStone(Stone.BLACK, 1, 0);
+		board.layStone(Stone.WHITE, 0, 1);
+		Message message = Presenter.boardMessage(board);
+		assertEquals("EWBE", message.args()[0]);
+		Board boardFromMessage = Interpreter.board(message);
+		assertEquals(board, boardFromMessage);
 	}
 
 }

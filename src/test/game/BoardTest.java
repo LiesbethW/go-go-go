@@ -135,4 +135,19 @@ public class BoardTest {
 		board.layStone(Stone.WHITE, row, col);
 	}
 	
+	@Test
+	public void createBoardFromStoneArrayTest() {
+		Stone[][] stones = new Stone[2][2];
+		stones[0][0] = Stone.BLACK;
+		stones[0][1] = Stone.BLACK;
+		stones[1][0] = Stone.WHITE;
+		stones[1][1] = Stone.NONE;
+		
+		Board boardFromArray = new Board(stones, 5, 6);
+		assertEquals(Stone.BLACK, boardFromArray.stoneAt(0, 0));
+		assertEquals(Stone.WHITE, boardFromArray.stoneAt(1, 0));
+		assertEquals(5, boardFromArray.captives(Stone.BLACK));
+		assertEquals(6, boardFromArray.captives(Stone.WHITE));
+	}
+	
 }
