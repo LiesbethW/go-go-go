@@ -4,6 +4,10 @@ import java.util.HashMap;
 
 import controllers.states.AbstractClientState;
 import controllers.states.State;
+import exceptions.InvalidArgumentException;
+import game.Stone;
+import network.protocol.Interpreter;
+import network.protocol.Message;
 
 public class Playing extends AbstractClientState {
 	private static HashMap<String, State> transitionMap = new HashMap<String, State>();
@@ -17,6 +21,10 @@ public class Playing extends AbstractClientState {
 		transitionMap.put(OPTIONS, new Playing());
 		transitionMap.put(FAILURE, new Playing());	
 	}
+
+	public String opponent;
+	public Stone color;
+	public int boardSize;
 	
 	public Playing() {
 
@@ -26,7 +34,16 @@ public class Playing extends AbstractClientState {
 		return transitionMap;
 	}
 	
-	public void enter() { }
-	public void leave() { }
+	public void enter(Message message) {
+		opponent = message.args()[0];
+		try {
+			boardSize = Interpreter.integer(message.args()[1]);
+			color = Interpreter.color(message.args()[2]);
+		} catch (InvalidArgumentException e) {
+			System.err.println(e.getMessage());
+		}
+	}
+	
+	public void leave(Message message) { }
 
 }

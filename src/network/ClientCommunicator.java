@@ -7,47 +7,42 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-import controllers.ServerSideClientController;
+import controllers.ClientHandler;
 import exceptions.GoException;
 import exceptions.NotApplicableCommandException;
 import exceptions.UnknownCommandException;
+import network.protocol.Interpreter;
 import network.protocol.Message;
 import network.protocol.Presenter;
-import network.protocol.Interpreter;
 
 public class ClientCommunicator extends Thread {
-	private Server server;
 	private Socket socket;
 	private BufferedReader in;
 	private BufferedWriter out;
-	private ServerSideClientController controller;
+	private ClientHandler controller;
 	
-	public ClientCommunicator(Server server, Socket socket) throws IOException {
-		this.server = server;
+	public ClientCommunicator(ClientHandler controller, Socket socket) throws IOException {
 		this.socket = socket;
+		this.controller = controller;
 		
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-		
-		controller = new ServerSideClientController(this, server);
 	}
 	
 	public void run() {
-		while (true) {
-			String messageString;
-			try {
-				{
-					messageString = in.readLine();
-				} while (messageString != null);
-				handle(messageString);
-			} catch (IOException e) {
-				System.err.println(e.getMessage());
-				shutdown();
-			}
-		}
+    	String messageString;
+        try {
+        	while ((messageString = in.readLine()) != null) {
+        		handle(messageString);
+        	}
+        } catch (IOException e) {
+        	System.err.println(e.getMessage());
+        	shutdown();
+        }
 	}
 	
 	public void handle(String messageString) {
+		System.out.println("ClientCommunicator: received " + messageString);
 		try {
 			Message message = Interpreter.digest(messageString);
 			controller.process(message);
@@ -83,12 +78,7 @@ public class ClientCommunicator extends Thread {
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 		}
-		server.removeClient(this);
-	}
-	
-	// For testing purposes
-	public ServerSideClientController controller() {
-		return controller;
+		controller.kill();
 	}
 	
 }

@@ -1,6 +1,9 @@
 package network.protocol;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import exceptions.InvalidArgumentException;
 import exceptions.UnknownCommandException;
@@ -66,8 +69,19 @@ public class Interpreter implements Constants {
 				index++;
 			}
 		}
-		
 		return new Board(stones, blackCaptives, whiteCaptives);
+	}
+
+	public static List<String> options(Message message) {
+		List<String> possibleOptions = new ArrayList<String>(Arrays.asList(CHAT, 
+				CHALLENGE, OBSERVER, COMPUTERPLAYER));
+		List<String> options = new ArrayList<String>();
+		for (String optionString : message.args()) {
+			if (possibleOptions.stream().anyMatch(s -> s.equals(optionString))) {
+				options.add(optionString);
+			}
+		}
+		return options;
 	}
 	
 }

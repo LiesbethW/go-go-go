@@ -24,7 +24,9 @@ public class Game {
 	 */
 	public Game(Player player1, Player player2, int boardSize) {
 		black = player1;
+		player1.setColor(Stone.BLACK);
 		white = player2;
+		player2.setColor(Stone.WHITE);
 		board = new Board(boardSize);
 		gameOver = false;
 		playerOnTurn = black;
@@ -129,6 +131,10 @@ public class Game {
 		}
 	}
 	
+	public Board getBoard() {
+		return board.deepCopy();
+	}
+
 	public void determineWinner() {
 //		board.getTerritories();
 	}

@@ -9,8 +9,12 @@ public interface State {
 	
 	public boolean applicable(String command);
 	
-	public void enter();
+	public void enter(Message message);
 	
-	public void leave();
+	public void leave(Message message);
+	
+	public void addCommand(String command);
+	
+	public void addTransition(String command, State state);
 	
 }
