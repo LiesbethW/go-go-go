@@ -8,7 +8,8 @@ import org.junit.runners.Suite;
   test.game.GameTestSuite.class,
   test.controllers.ControllerTestSuite.class,
   test.network.NetworkTestSuite.class,
-  test.userinterface.UserInterfaceTestSuite.class
+  test.userinterface.UserInterfaceTestSuite.class,
+  test.system.SystemTestSuite.class
 })
 
 

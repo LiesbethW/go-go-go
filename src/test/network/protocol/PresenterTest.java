@@ -2,6 +2,7 @@ package test.network.protocol;
 
 import static network.protocol.Constants.ARGUMENTSMISSING;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -25,7 +26,7 @@ public class PresenterTest {
 			assertEquals(ARGUMENTSMISSING, CommandSet.exceptionCommand(e));
 			exceptionMessage = Presenter.exceptionMessage(e);
 		}
-		assertEquals("FAILURE ArgumentsMissing", exceptionMessage.toString());		
+		assertTrue(exceptionMessage.toString().startsWith("FAILURE ArgumentsMissing"));		
 	}
 	
 	@Test

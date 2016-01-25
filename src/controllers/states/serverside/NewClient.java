@@ -13,14 +13,11 @@ public class NewClient extends AbstractServerSideClientState {
 	}
 	
 	public void enter(Message message) { 
-		enter();
+
 	}
 	
 	public void leave(Message message) { 
-		leave();
-	}	
-	
-	public void leave() { 
+		client.setName(message.args()[0]);
 		client.send(Presenter.newPlayerAccepted());
 	}
 

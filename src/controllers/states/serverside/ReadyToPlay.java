@@ -12,11 +12,11 @@ public class ReadyToPlay extends AbstractServerSideClientState {
 	}
 	
 	public void enter(Message message) { 
-		enter();
+		client.removeOpponent();
 	}
 	
 	public void leave(Message message) { 
-		leave();
+		
 	}
 
 }

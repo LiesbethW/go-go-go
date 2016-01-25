@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import controllers.states.AbstractClientState;
 import controllers.states.State;
+import network.protocol.Message;
 
 public class Challenged extends AbstractClientState {
 	private static HashMap<String, State> transitionMap = new HashMap<String, State>();
@@ -24,7 +25,7 @@ public class Challenged extends AbstractClientState {
 		return transitionMap;
 	}
 	
-	public void enter() { }
-	public void leave() { }
+	public void enter(Message message) { }
+	public void leave(Message message) { }
 
 }

@@ -2,42 +2,53 @@ package controllers;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
-import controllers.states.AbstractServerSideClientState;
 import controllers.states.State;
 import controllers.states.serverside.Challenged;
 import controllers.states.serverside.NewClient;
 import controllers.states.serverside.Playing;
 import controllers.states.serverside.ReadyToPlay;
+import controllers.states.serverside.StartPlaying;
 import controllers.states.serverside.WaitForChallengeResponse;
 import controllers.states.serverside.WaitingForOpponent;
 import exceptions.CorruptedAuthorException;
+import exceptions.GoException;
 import exceptions.NotApplicableCommandException;
 import network.ClientCommunicator;
 import network.Server;
 import network.protocol.Message;
+import network.protocol.Presenter;
 
-public class ClientHandler implements FSM, network.protocol.Constants {
+
+public class ClientHandler implements FSM, network.protocol.Constants {	
 	private ClientCommunicator clientCommunicator;
-	private AbstractServerSideClientState state;
+	private State state;
 	private Server server;
 	private GameController gameController;
 	private String name;
+	private List<String> options;
 	private boolean alive;
+	private ClientHandler opponent;
 	
-	private AbstractServerSideClientState newClient;
-	private AbstractServerSideClientState readyToPlay;
-	private AbstractServerSideClientState waitingForOpponent;
-	private AbstractServerSideClientState waitForChallengeResponse;
-	private AbstractServerSideClientState challenged;
-	private AbstractServerSideClientState playing;
+	// The states
+	private State newClient;
+	private State readyToPlay;
+	private State waitingForOpponent;
+	private State waitForChallengeResponse;
+	private State challenged;
+	private State startPlaying;
+	private State playing;
 	
 	public ClientHandler(Server server, Socket socket) throws IOException {
+		alive = true;
+		name = null;
+		options = new ArrayList<String>();
 		this.clientCommunicator = new ClientCommunicator(this, socket);
 		clientCommunicator.start();
-		alive = true;
 		this.server = server;
 		initializeStates();
 		state = newClient;
@@ -50,7 +61,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 */
 	public void process(Message message) throws NotApplicableCommandException {
 		if (!state.applicable(message.command())) {
-			throw new NotApplicableCommandException();
+			throw new NotApplicableCommandException(message.command());
 		}
 		message.setAuthor(this);
 		if (state.equals(playing) && gameController != null) {
@@ -64,12 +75,50 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		}
 	}
 	
-	public void digest(Message message) {
-		
+	public void digest(Message message) throws NotApplicableCommandException {
+		currentState().leave(message);
+		setState(currentState().accept(message));
+		currentState().enter(message);
+	}
+	
+	public void handleException(GoException e) {
+		clientCommunicator.handleException(e);
 	}
 	
 	public State currentState() {
 		return state;
+	}
+	
+	private void setState(State state) {
+		this.state = state;
+	}
+	
+	public boolean newClient() {
+		return currentState().equals(newClient);
+	}
+	
+	public boolean readyToPlay() {
+		return currentState().equals(readyToPlay);
+	}
+	
+	public boolean waitingForOpponent() {
+		return currentState().equals(waitingForOpponent);
+	}
+	
+	public boolean waitingForChallengeResponse() {
+		return currentState().equals(waitForChallengeResponse);
+	}
+	
+	public boolean isChallenged() {
+		return currentState().equals(challenged);
+	}
+	
+	public boolean canStartPlaying() {
+		return currentState().equals(startPlaying);
+	}
+	
+	public boolean isPlaying() {
+		return currentState().equals(playing);
 	}
 	
 	/**
@@ -79,6 +128,10 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 */
 	public void setGameController(GameController gameController) {
 		this.gameController = gameController;
+	}
+	
+	public void removeGameController() {
+		gameController = null;
 	}
 	
 	/**
@@ -104,6 +157,69 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 */
 	public String name() {
 		return name;
+	}
+	
+	public ClientHandler getOpponent() {
+		return opponent;
+	}
+	
+	public void setOpponent(String name) {
+		setOpponent(server.findClientByName(name));
+	}
+	
+	public void setOpponent(ClientHandler client) {
+		opponent = client;
+	}
+	
+	public void removeOpponent() {
+		opponent = null;
+	}
+	
+	/**
+	 * Gets this client's options.
+	 * @return
+	 */
+	public List<String> getOptions() {
+		return options;
+	}
+	
+	/**
+	 * Set this client's options.
+	 * @param options
+	 */
+	public void setOptions(List<String> options) {
+		if (options.contains(Presenter.chatOpt())) {
+			enableChat();
+		}
+		if (options.contains(Presenter.challengeOpt())) {
+			enableChallenge();
+		}
+	}
+	
+	/**
+	 * Does this client have the option to chat
+	 * @return
+	 */
+	public boolean canChat() {
+		return options.contains(Presenter.chatOpt());
+	}
+	
+	/**
+	 * Does this client have the option to challenge
+	 * @return
+	 */
+	public boolean canChallenge() {
+		return options.contains(Presenter.challengeOpt());
+	}
+	
+	
+	
+	/**
+	 * The 'living' status of this client.
+	 * @return
+	 */
+	public boolean alive() {
+		return alive;
 	}
 	
 	/**
@@ -134,17 +250,17 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		waitingForOpponent = new WaitingForOpponent(this);
 		waitForChallengeResponse = new WaitForChallengeResponse(this);
 		challenged = new Challenged(this);
+		startPlaying = new StartPlaying(this);
 		playing = new Playing(this);
 		
-		HashSet<AbstractServerSideClientState> activeStates = new HashSet<>();
+		HashSet<State> activeStates = new HashSet<>();
 		activeStates.addAll(Arrays.asList(readyToPlay, waitingForOpponent, 
-				waitForChallengeResponse, challenged, playing));
+				waitForChallengeResponse, challenged, startPlaying, playing));
 		
 		activeStates.stream().forEach(state -> state.addCommand(GETOPTIONS));
 		activeStates.stream().forEach(state -> state.addCommand(OPTIONS));
-		activeStates.stream().forEach(state -> state.addCommand(CHAT));
 		
-		HashSet<AbstractServerSideClientState> allStates = new HashSet<>(activeStates);
+		HashSet<State> allStates = new HashSet<>(activeStates);
 		allStates.add(newClient);
 		
 		allStates.stream().forEach(state -> state.addCommand(FAILURE));
@@ -153,27 +269,44 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		newClient.addCommand(NEWPLAYER);
 		newClient.addTransition(NEWPLAYER, readyToPlay);
 		
-		readyToPlay.addCommand(CHALLENGE);
 		readyToPlay.addCommand(PLAY);
 		readyToPlay.addTransition(PLAY, waitingForOpponent);
-		readyToPlay.addTransition(YOUVECHALLENGED, waitForChallengeResponse);
-		readyToPlay.addTransition(YOURECHALLENGED, challenged);
 		
-		waitingForOpponent.addTransition(PLAY, playing);
+		waitingForOpponent.addTransition(PLAY, startPlaying);
 		waitingForOpponent.addTransition(QUIT, readyToPlay);
 		
-		waitForChallengeResponse.addTransition(CHALLENGEACCEPTED, playing);
-		waitForChallengeResponse.addTransition(CHALLENGEDENIED, readyToPlay);
-		
-		challenged.addCommand(CHALLENGEACCEPTED);
-		challenged.addCommand(CHALLENGEDENIED);
-		challenged.addTransition(CHALLENGEACCEPTED, playing);
-		challenged.addTransition(CHALLENGEDENIED, readyToPlay);
+		startPlaying.addTransition(GAMESTART, playing);
 		
 		playing.addCommand(MOVE);
 		playing.addCommand(GETBOARD);
 		playing.addCommand(TERRITORYSCORING);
-		playing.addTransition(QUIT, readyToPlay);
+		playing.addTransition(GAMEOVER, readyToPlay);
+	}
+	
+	public void enableChat() {
+		options.add(Presenter.chatOpt());
+		
+		HashSet<State> activeStates = new HashSet<>();
+		activeStates.addAll(Arrays.asList(readyToPlay, waitingForOpponent, 
+				waitForChallengeResponse, challenged, playing));	
+		
+		activeStates.stream().forEach(state -> state.addCommand(CHAT));
+	}
+	
+	public void enableChallenge() {
+		options.add(Presenter.challengeOpt());
+		
+		readyToPlay.addCommand(CHALLENGE);
+		readyToPlay.addTransition(YOUVECHALLENGED, waitForChallengeResponse);
+		readyToPlay.addTransition(YOURECHALLENGED, challenged);
+		
+		waitForChallengeResponse.addTransition(CHALLENGEACCEPTED, startPlaying);
+		waitForChallengeResponse.addTransition(CHALLENGEDENIED, readyToPlay);
+		
+		challenged.addCommand(CHALLENGEACCEPTED);
+		challenged.addCommand(CHALLENGEDENIED);
+		challenged.addTransition(CHALLENGEACCEPTED, startPlaying);
+		challenged.addTransition(CHALLENGEDENIED, readyToPlay);
 	}
 	
 }

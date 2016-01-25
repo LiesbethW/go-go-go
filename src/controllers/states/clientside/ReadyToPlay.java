@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import controllers.states.AbstractClientState;
 import controllers.states.State;
+import network.protocol.Message;
 
 public class ReadyToPlay extends AbstractClientState {
 	private static HashMap<String, State> transitionMap = new HashMap<String, State>();
@@ -15,7 +16,8 @@ public class ReadyToPlay extends AbstractClientState {
 		transitionMap.put(CHAT, new ReadyToPlay());
 		transitionMap.put(OPTIONS, new ReadyToPlay());
 		transitionMap.put(GETOPTIONS, new ReadyToPlay());
-		transitionMap.put(QUIT, new ReadyToPlay());	
+		transitionMap.put(FAILURE, new ReadyToPlay());
+		transitionMap.put(QUIT, new ReadyToPlay());
 	}
 	
 	public ReadyToPlay() {
@@ -26,8 +28,8 @@ public class ReadyToPlay extends AbstractClientState {
 		return transitionMap;
 	}
 	
-	public void enter() { }
-	public void leave() { }
+	public void enter(Message message) { }
+	public void leave(Message message) { }
 
 }
  

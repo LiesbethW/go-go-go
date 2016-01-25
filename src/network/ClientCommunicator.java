@@ -23,27 +23,26 @@ public class ClientCommunicator extends Thread {
 	
 	public ClientCommunicator(ClientHandler controller, Socket socket) throws IOException {
 		this.socket = socket;
+		this.controller = controller;
 		
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 	}
 	
 	public void run() {
-		while (true) {
-			String messageString;
-			try {
-				{
-					messageString = in.readLine();
-				} while (messageString != null);
-				handle(messageString);
-			} catch (IOException e) {
-				System.err.println(e.getMessage());
-				shutdown();
-			}
-		}
+    	String messageString;
+        try {
+        	while ((messageString = in.readLine()) != null) {
+        		handle(messageString);
+        	}
+        } catch (IOException e) {
+        	System.err.println(e.getMessage());
+        	shutdown();
+        }
 	}
 	
 	public void handle(String messageString) {
+		System.out.println("ClientCommunicator: received " + messageString);
 		try {
 			Message message = Interpreter.digest(messageString);
 			controller.process(message);
@@ -80,11 +79,6 @@ public class ClientCommunicator extends Thread {
 			System.err.println(e.getMessage());
 		}
 		controller.kill();
-	}
-	
-	// For testing purposes
-	public ClientHandler controller() {
-		return controller;
 	}
 	
 }
