@@ -50,7 +50,7 @@ public class Client extends Thread {
 	public void handle(String messageString) {
 		try {
 			Message message = Interpreter.digest(messageString);
-			controller.digest(message);
+			controller.process(message);
 		} catch (UnknownCommandException | NotApplicableCommandException e) {
 			handleException(e);
 		}
@@ -58,7 +58,7 @@ public class Client extends Thread {
 	}
 	
 	public void handleException(GoException e) {
-		send(Presenter.exceptionMessage(e));
+		System.err.println(Presenter.exceptionMessage(e));
 	}
 	
 	public void send(Message message) {

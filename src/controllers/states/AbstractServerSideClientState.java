@@ -20,11 +20,11 @@ public abstract class AbstractServerSideClientState implements
 
 	@Override
 	public State accept(Message message) {
-		if (!transitionMap.containsKey(message.command())) {
+		if (!transitionMap().containsKey(message.command())) {
 			System.err.println(String.format("Server should not try to send command "
 					+ "%s to client in state %s", message.command(), this.toString()));
 		}
-		return transitionMap.get(message.command());
+		return transitionMap().get(message.command());
 	}
 	
 	public abstract void enter(Message message);
@@ -66,12 +66,16 @@ public abstract class AbstractServerSideClientState implements
 		applicableCommands.add(command);
 	}
 	
-	protected HashSet<String> applicableCommands() {
+	public HashSet<String> applicableCommands() {
 		return applicableCommands;
 	}
 	
 	protected HashSet<State> reachableStates() {
 		return new HashSet<State>(transitionMap.values());
+	}
+	
+	protected HashMap<String, State> transitionMap() {
+		return transitionMap;
 	}
 
 }

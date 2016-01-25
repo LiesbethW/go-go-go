@@ -20,10 +20,6 @@ public class CommandHandler extends Thread implements Constants {
 	private ConcurrentLinkedQueue<Message> commandQueue;
 	private HashMap<String, Command> methodMap;
 	
-	public interface Command {
-		public void runCommand(Message message) throws GoException;
-	}
-	
 	public CommandHandler(Server server, ConcurrentLinkedQueue<Message> commandQueue) {
 		this.server = server;
 		this.commandQueue = commandQueue;
@@ -73,6 +69,7 @@ public class CommandHandler extends Thread implements Constants {
         methodMap.put(CHALLENGEACCEPTED, challengeAcceptedCommand());   
         methodMap.put(CHALLENGEDENIED, challengeDeniedCommand());       
 		
+        
 	}
 
 	protected Command challengeDeniedCommand() {
@@ -132,15 +129,15 @@ public class CommandHandler extends Thread implements Constants {
         };
 	}
 
-	protected Command getOptionsCommand() {
+	protected static Command getOptionsCommand() {
 		return new Command() {
         	public void runCommand(Message message) throws GoException {
-        		message.author().send(Presenter.options(server.OPTIONS));
+        		message.author().send(Presenter.options(Server.OPTIONS));
         	}
         };
 	}
 
-	protected Command optionsCommand() {
+	protected static Command optionsCommand() {
 		return new Command() {
         	public void runCommand(Message message) throws GoException {
         		message.author().setOptions(Interpreter.options(message));

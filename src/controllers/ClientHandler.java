@@ -60,7 +60,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * @throws NotApplicableCommandException
 	 */
 	public void process(Message message) throws NotApplicableCommandException {
-		if (!state.applicable(message.command())) {
+		if (!currentState().applicable(message.command())) {
 			throw new NotApplicableCommandException(message.command());
 		}
 		message.setAuthor(this);
@@ -264,7 +264,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		allStates.add(newClient);
 		
 		allStates.stream().forEach(state -> state.addCommand(FAILURE));
-		activeStates.stream().forEach(state -> state.addCommand(QUIT));
+		allStates.stream().forEach(state -> state.addCommand(QUIT));
 		
 		newClient.addCommand(NEWPLAYER);
 		newClient.addTransition(NEWPLAYER, readyToPlay);
@@ -284,7 +284,9 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	}
 	
 	public void enableChat() {
-		options.add(Presenter.chatOpt());
+		if (!options.contains(Presenter.chatOpt())) {
+			options.add(Presenter.chatOpt());
+		}
 		
 		HashSet<State> activeStates = new HashSet<>();
 		activeStates.addAll(Arrays.asList(readyToPlay, waitingForOpponent, 
@@ -294,7 +296,9 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	}
 	
 	public void enableChallenge() {
-		options.add(Presenter.challengeOpt());
+		if (!options.contains(Presenter.challengeOpt())) {
+			options.add(Presenter.challengeOpt());
+		}
 		
 		readyToPlay.addCommand(CHALLENGE);
 		readyToPlay.addTransition(YOUVECHALLENGED, waitForChallengeResponse);

@@ -4,6 +4,7 @@ import static network.protocol.Constants.MOVE;
 import static network.protocol.Constants.NEWPLAYERACCEPTED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -14,7 +15,6 @@ import org.junit.Test;
 import controllers.ClientSideClientController;
 import controllers.FSM;
 import controllers.states.clientside.NewClient;
-import controllers.states.clientside.ReadyToPlay;
 import exceptions.NotApplicableCommandException;
 import network.Client;
 import network.Server;
@@ -44,23 +44,23 @@ public class FSMTest {
 	
 	@Test
 	public void testInitialState() {
-		assertEquals(stateMachine.currentState().getClass(), (new NewClient()).getClass());
+		assertEquals(stateMachine.currentState().getClass(), (new NewClient((ClientSideClientController) stateMachine)).getClass());
 	}
 	
 	@Test
 	public void testDigest() throws NotApplicableCommandException {
 		String name = null;
 		Message message = new Message(NEWPLAYERACCEPTED, name);
-		assertEquals(stateMachine.currentState(), new NewClient());
+		assertTrue(((ClientSideClientController) stateMachine).newClient());
 		stateMachine.digest(message);
-		assertEquals(stateMachine.currentState(), new ReadyToPlay());
+		assertTrue(((ClientSideClientController) stateMachine).readyToPlay());
 	}
 	
 	@Test(expected = NotApplicableCommandException.class)
 	public void testNotDigestable() throws NotApplicableCommandException {
 		Message message = new Message(MOVE, new String[]{"3", "4"});
-		assertEquals(new NewClient(), stateMachine.currentState());
-		stateMachine.digest(message);		
+		assertTrue(((ClientSideClientController) stateMachine).newClient());
+		stateMachine.digest(message);
 	}
 
 }

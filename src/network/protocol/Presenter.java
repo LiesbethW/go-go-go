@@ -114,7 +114,7 @@ public class Presenter implements Constants {
 		return new Message(YOURECHALLENGED, opponent);
 	}
 	
-	public static Message askOptions() {
+	public static Message getOptions() {
 		return new Message(GETOPTIONS);
 	}
 	

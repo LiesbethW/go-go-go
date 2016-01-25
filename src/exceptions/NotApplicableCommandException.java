@@ -1,5 +1,7 @@
 package exceptions;
 
+import controllers.states.State;
+
 public class NotApplicableCommandException extends ProtocolException {
 
 	public NotApplicableCommandException() {
@@ -9,6 +11,11 @@ public class NotApplicableCommandException extends ProtocolException {
 	public NotApplicableCommandException(String message) {
 		super(message);
 		// TODO Auto-generated constructor stub
+	}
+	
+	public NotApplicableCommandException(String command, State state) {
+		this(String.format("The command %s is not applicable for client "
+				+ "in state %s", command, state));
 	}
 
 	public NotApplicableCommandException(Throwable cause) {

@@ -1,6 +1,5 @@
 package test.system;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -46,7 +45,6 @@ public class SettingOptionsTest {
 	public void setOptions() {
 		letClientsSendNames();
 		handler1 = server.findClientByName(name1);
-		assertEquals(0, handler1.getOptions().size());
 		
 		client1.send(new Message("OPTIONS", "CHAT", "CHALLENGE"));
 		SystemTestSuite.waitForProcessing();
@@ -58,14 +56,12 @@ public class SettingOptionsTest {
 	public void cannotSetRandomOptions() {
 		letClientsSendNames();
 		handler1 = server.findClientByName(name1);
-		assertEquals(0, handler1.getOptions().size());
 		
 		client1.send(new Message("OPTIONS", "CHAT", "RANDOM", "CHALENGE"));
 		SystemTestSuite.waitForProcessing();
 		assertTrue(handler1.getOptions().contains("CHAT"));
 		assertFalse(handler1.getOptions().contains("RANDOM"));
 		assertFalse(handler1.getOptions().contains("CHALENGE"));
-		assertEquals(1, handler1.getOptions().size());
 	}
 	
 	@Test

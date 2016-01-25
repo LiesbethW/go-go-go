@@ -3,6 +3,7 @@ package controllers;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import exceptions.ArgumentsMissingException;
 import exceptions.CorruptedAuthorException;
 import exceptions.GoException;
 import exceptions.NotSupportedCommandException;
@@ -25,10 +26,6 @@ public class GameController extends Thread implements Constants {
 	
 	private ConcurrentLinkedQueue<Message> commandQueue;
 	private HashMap<String, Command> methodMap;
-	
-	public interface Command {
-		public void runCommand(Message message) throws GoException;
-	}
 	
 	public GameController(ClientHandler client1, ClientHandler client2, Server server, int boardSize) {
 		commandQueue = new ConcurrentLinkedQueue<Message>();
@@ -108,28 +105,61 @@ public class GameController extends Thread implements Constants {
 	private void initializeMethodMap() {
 		methodMap = new HashMap<String, Command>();
 
-        methodMap.put(CHAT, new Command() {
+        methodMap.put(CHAT, chatCommand());
+        methodMap.put(MOVE, moveCommand());
+        methodMap.put(GETBOARD, getBoardCommand());
+        methodMap.put(QUIT, quitCommand());
+        methodMap.put(GETOPTIONS, CommandHandler.getOptionsCommand());
+        methodMap.put(OPTIONS, CommandHandler.optionsCommand());
+
+	}
+	
+	protected Command quitCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				message.author().digest(Presenter.defeat());
+				((HumanPlayer) game.otherPlayer(getPlayer(message))).digest(Presenter.victory());
+				server.endGame(player1.client(), player2.client());
+			}
+		};
+	}
+
+	protected Command chatCommand() {
+		return new Command() {
             public void runCommand(Message message) throws GoException { 
-            		if (!((HumanPlayer) game.otherPlayer(getPlayer(message))).client().canChat()) {
-            			throw new OtherPlayerCannotChatException();
-            		} else {
-            			player1.send(Presenter.chat(message.author().name(), message.args()));
-            			player2.send(Presenter.chat(message.author().name(), message.args()));
-            		}
-            };
-        });
-        
-        methodMap.put(MOVE, new Command() {
+        		if (!((HumanPlayer) game.otherPlayer(getPlayer(message))).client().canChat()) {
+        			throw new OtherPlayerCannotChatException();
+        		} else {
+        			player1.send(Presenter.chat(message.author().name(), message.args()));
+        			player2.send(Presenter.chat(message.author().name(), message.args()));
+        		}
+            }
+        };
+	}
+
+	protected Command moveCommand() {
+		return new Command() {
         	public void runCommand(Message message) throws GoException {
         		if (message.equals(Presenter.clientPass())) {
         			game.pass(getPlayer(message));
         		} else {
-        			game.makeMove(getPlayer(message), Interpreter.integer(message.args()[0]), 
-        					Interpreter.integer(message.args()[1]));
+        			try {
+            			game.makeMove(getPlayer(message), Interpreter.integer(message.args()[0]), 
+            					Interpreter.integer(message.args()[1]));
+        			} catch (IndexOutOfBoundsException e) {
+        				throw new ArgumentsMissingException("USAGE: \"MOVE int int\" or \"MOVE PASS\"");
+        			}
         		}
         	}
-        });
+        };
+	}
 
+	protected Command getBoardCommand() {
+		return new Command() {
+        	public void runCommand(Message message) throws GoException {
+        		message.author().send(Presenter.boardMessage(game.getBoard()));
+        	}
+        };
 	}
 
 }
