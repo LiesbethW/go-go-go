@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -16,7 +17,6 @@ import org.junit.Test;
 import controllers.ClientHandler;
 import network.Client;
 import network.Server;
-import network.protocol.Message;
 import network.protocol.Presenter;
 import test.helperclasses.TestNetworkSetup;
 
@@ -52,8 +52,10 @@ public class ChatTest {
 	}
 	
 	public void letClientsSendOptions() {
-		client1.send(new Message("OPTIONS", "CHAT", "CHALLENGE"));
-		client2.send(new Message("OPTIONS", "CHAT", "CHALLENGE"));
+		client1.send(Presenter.extensions(new ArrayList<String>(Arrays.asList(
+				"CHAT", "CHALLENGE"))));
+		client2.send(Presenter.extensions(new ArrayList<String>(Arrays.asList(
+				"CHAT", "CHALLENGE"))));
 		SystemTestSuite.waitForProcessing();
 		SystemTestSuite.waitForProcessing();
 	}	

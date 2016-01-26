@@ -107,12 +107,12 @@ public class BasicGameTest {
 	
 	@Test
 	public void testGameStart() {
+		// Before playing a game the clients are in the servers client list
 		assertTrue(server.clients().contains(handler1));
 		assertTrue(server.clients().contains(handler2));
 		
 		client1.send(Presenter.play());
 		SystemTestSuite.waitForProcessing();
-		System.out.println(handler1.currentState());
 		assertTrue(handler1.waitingForOpponent());
 		
 		client2.send(Presenter.play());
@@ -121,8 +121,30 @@ public class BasicGameTest {
 		assertTrue(handler1.isPlaying());
 		assertTrue(handler2.isPlaying());
 		
+		// When the players have started a game, they are no longer
+		// in the servers client list.
 		assertFalse(server.clients().contains(handler1));
 		assertFalse(server.clients().contains(handler2));
+		
+		// After one of the clients ends the game, both clients are
+		// back on the servers client list and ready to play a new
+		// game
+		client1.send(Presenter.stopGame());
+		SystemTestSuite.waitForProcessing();
+		assertTrue(server.clients().contains(handler1));
+		assertTrue(server.clients().contains(handler2));
+		assertTrue(handler1.readyToPlay());
+		assertTrue(handler2.readyToPlay());		
+	}
+	
+	@Test
+	public void cancelWaitingForOpponentTest() {
+		client1.send(Presenter.play());
+		SystemTestSuite.waitForProcessing();
+		assertTrue(handler1.waitingForOpponent());
+		client1.send(Presenter.cancel());
+		SystemTestSuite.waitForProcessing();
+		assertTrue(handler1.readyToPlay());
 	}
 	
 	@Test

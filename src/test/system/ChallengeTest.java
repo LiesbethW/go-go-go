@@ -46,7 +46,7 @@ public class ChallengeTest {
 	}
 	
 	public void sendChallengeOption(Client client) {
-		client.send(Presenter.options(new ArrayList<String>(
+		client.send(Presenter.extensions(new ArrayList<String>(
 				Arrays.asList(Presenter.challengeOpt()))));
 		SystemTestSuite.waitForProcessing();
 	}

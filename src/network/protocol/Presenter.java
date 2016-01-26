@@ -1,6 +1,7 @@
 package network.protocol;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,14 @@ public class Presenter implements Constants {
 		return new Message(WAITFOROPPONENT);
 	}
 	
+	public static Message cancel() {
+		return new Message(CANCEL);
+	}
+	
+	public static Message cancelled() {
+		return new Message(CANCELLED);
+	}
+	
 	public static Message gameStart(String opponent, int boardSize, Stone color) {
 		return new Message(GAMESTART, opponent, String.valueOf(boardSize), color(color));
 	}
@@ -73,6 +82,10 @@ public class Presenter implements Constants {
 		return new Message(MOVE, PASS);
 	}
 	
+	public static Message stopGame() {
+		return new Message(STOPGAME);
+	}
+	
 	public static Message victory() {
 		return new Message(GAMEOVER, VICTORY);
 	}
@@ -82,7 +95,7 @@ public class Presenter implements Constants {
 	}
 	
 	public static Message draw() {
-		return new Message(GAMEOVER, "DRAW");
+		return new Message(GAMEOVER, DRAW);
 	}
 	
 	public static Message challengableOpponentsList(List<ClientHandler> clients) {
@@ -114,12 +127,20 @@ public class Presenter implements Constants {
 		return new Message(YOURECHALLENGED, opponent);
 	}
 	
+	public static Message getExtensions() {
+		return new Message(GETEXTENSIONS);
+	}
+	
+	public static Message extensions(List<String> extensionList) {
+		return new Message(EXTENSIONS, extensionList.toArray(new String[]{}));
+	}
+	
 	public static Message getOptions() {
 		return new Message(GETOPTIONS);
 	}
 	
-	public static Message options(List<String> optionList) {
-		return new Message(OPTIONS, optionList.toArray(new String[]{}));
+	public static Message options(HashSet<String> commands) {
+		return new Message(OPTIONS, commands.toArray(new String[]{}));
 	}
 	
 	// Single terms from the protocol

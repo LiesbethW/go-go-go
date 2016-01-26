@@ -23,7 +23,7 @@ public class Server extends Thread {
 	public static final int MIN_BOARDSIZE = 3;
 	public static final int MAX_BOARDSIZE = 19; 
 	
-	public static final List<String> OPTIONS = new ArrayList<String>(
+	public static final List<String> EXTENSIONS = new ArrayList<String>(
 			Arrays.asList(Presenter.chatOpt(), Presenter.challengeOpt()));
 	
 	/**

@@ -62,30 +62,31 @@ public class CommandHandler extends Thread implements Constants {
 		
 		methodMap.put(NEWPLAYER, newPlayerCommand());
         methodMap.put(CHAT, chatCommand());
-        methodMap.put(OPTIONS, optionsCommand());
-        methodMap.put(GETOPTIONS, getOptionsCommand());
+        methodMap.put(EXTENSIONS, extensionsCommand());
+        methodMap.put(GETEXTENSIONS, getExtensionsCommand());
         methodMap.put(PLAY, playCommand());
+        methodMap.put(CANCEL, cancelCommand());
         methodMap.put(CHALLENGE, challengeCommand());
-        methodMap.put(CHALLENGEACCEPTED, challengeAcceptedCommand());   
-        methodMap.put(CHALLENGEDENIED, challengeDeniedCommand());       
+        methodMap.put(CHALLENGEACCEPTED, simpleDigest());   
+        methodMap.put(CHALLENGEDENIED, simpleDigest());       
 		methodMap.put(QUIT, quitCommand());
         
 	}
-
-	protected Command challengeDeniedCommand() {
+	
+	public static Command simpleDigest() {
 		return new Command() {
-        	public void runCommand(Message message) throws NotApplicableCommandException {
-        		message.author().digest(message);
-        	}
-        };
+			public void runCommand(Message message) throws NotApplicableCommandException {
+				message.author().digest(message);
+			}
+		};
 	}
 
-	protected Command challengeAcceptedCommand() {
+	public static Command cancelCommand() {
 		return new Command() {
-        	public void runCommand(Message message) throws NotApplicableCommandException {
-        		message.author().digest(message);
-        	}
-        };
+			public void runCommand(Message message) throws NotApplicableCommandException {
+				message.author().digest(Presenter.cancelled());
+			}
+		};
 	}
 
 	protected Command challengeCommand() {
@@ -129,18 +130,18 @@ public class CommandHandler extends Thread implements Constants {
         };
 	}
 
-	protected static Command getOptionsCommand() {
+	protected static Command getExtensionsCommand() {
 		return new Command() {
         	public void runCommand(Message message) throws GoException {
-        		message.author().send(Presenter.options(Server.OPTIONS));
+        		message.author().send(Presenter.extensions(Server.EXTENSIONS));
         	}
         };
 	}
 
-	protected static Command optionsCommand() {
+	protected static Command extensionsCommand() {
 		return new Command() {
         	public void runCommand(Message message) throws GoException {
-        		message.author().setOptions(Interpreter.options(message));
+        		message.author().setExtensions(Interpreter.extensions(message));
         	}
         };
 	}
@@ -172,8 +173,7 @@ public class CommandHandler extends Thread implements Constants {
 		return new Command() {
 			public void runCommand(Message message) throws GoException {
 				message.author().kill();
-				
-			}
+			};
 		};
 	}
 }

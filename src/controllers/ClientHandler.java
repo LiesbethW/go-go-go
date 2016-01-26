@@ -30,7 +30,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	private Server server;
 	private GameController gameController;
 	private String name;
-	private List<String> options;
+	private List<String> extensions;
 	private boolean alive;
 	private ClientHandler opponent;
 	
@@ -46,7 +46,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	public ClientHandler(Server server, Socket socket) throws IOException {
 		alive = true;
 		name = null;
-		options = new ArrayList<String>();
+		extensions = new ArrayList<String>();
 		this.clientCommunicator = new ClientCommunicator(this, socket);
 		clientCommunicator.start();
 		this.server = server;
@@ -183,15 +183,15 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * Gets this client's options.
 	 * @return
 	 */
-	public List<String> getOptions() {
-		return options;
+	public List<String> getExtensions() {
+		return extensions;
 	}
 	
 	/**
 	 * Set this client's options.
 	 * @param options
 	 */
-	public void setOptions(List<String> options) {
+	public void setExtensions(List<String> options) {
 		if (options.contains(Presenter.chatOpt())) {
 			enableChat();
 		}
@@ -205,7 +205,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * @return
 	 */
 	public boolean canChat() {
-		return options.contains(Presenter.chatOpt());
+		return extensions.contains(Presenter.chatOpt());
 	}
 	
 	/**
@@ -213,7 +213,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * @return
 	 */
 	public boolean canChallenge() {
-		return options.contains(Presenter.challengeOpt());
+		return extensions.contains(Presenter.challengeOpt());
 	}
 	
 	
@@ -257,16 +257,14 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		startPlaying = new StartPlaying(this);
 		playing = new Playing(this);
 		
-		HashSet<State> activeStates = new HashSet<>();
-		activeStates.addAll(Arrays.asList(readyToPlay, waitingForOpponent, 
+		HashSet<State> allStates = new HashSet<>();
+		allStates.addAll(Arrays.asList(newClient, readyToPlay, waitingForOpponent, 
 				waitForChallengeResponse, challenged, startPlaying, playing));
 		
-		activeStates.stream().forEach(state -> state.addCommand(GETOPTIONS));
-		activeStates.stream().forEach(state -> state.addCommand(OPTIONS));
-		
-		HashSet<State> allStates = new HashSet<>(activeStates);
-		allStates.add(newClient);
-		
+		allStates.stream().forEach(state -> state.addCommand(GETOPTIONS));
+		allStates.stream().forEach(state -> state.addCommand(OPTIONS));
+		allStates.stream().forEach(state -> state.addCommand(GETEXTENSIONS));
+		allStates.stream().forEach(state -> state.addCommand(EXTENSIONS));
 		allStates.stream().forEach(state -> state.addCommand(FAILURE));
 		allStates.stream().forEach(state -> state.addCommand(QUIT));
 		
@@ -276,6 +274,8 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		readyToPlay.addCommand(PLAY);
 		readyToPlay.addTransition(PLAY, waitingForOpponent);
 		
+		waitingForOpponent.addCommand(CANCEL);
+		waitingForOpponent.addTransition(CANCELLED, readyToPlay);
 		waitingForOpponent.addTransition(PLAY, startPlaying);
 		waitingForOpponent.addTransition(QUIT, readyToPlay);
 		
@@ -283,13 +283,13 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		
 		playing.addCommand(MOVE);
 		playing.addCommand(GETBOARD);
-		playing.addCommand(TERRITORYSCORING);
+		playing.addCommand(STOPGAME);
 		playing.addTransition(GAMEOVER, readyToPlay);
 	}
 	
 	public void enableChat() {
-		if (!options.contains(Presenter.chatOpt())) {
-			options.add(Presenter.chatOpt());
+		if (!extensions.contains(Presenter.chatOpt())) {
+			extensions.add(Presenter.chatOpt());
 		}
 		
 		HashSet<State> activeStates = new HashSet<>();
@@ -300,19 +300,22 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	}
 	
 	public void enableChallenge() {
-		if (!options.contains(Presenter.challengeOpt())) {
-			options.add(Presenter.challengeOpt());
+		if (!extensions.contains(Presenter.challengeOpt())) {
+			extensions.add(Presenter.challengeOpt());
 		}
 		
 		readyToPlay.addCommand(CHALLENGE);
 		readyToPlay.addTransition(YOUVECHALLENGED, waitForChallengeResponse);
 		readyToPlay.addTransition(YOURECHALLENGED, challenged);
 		
+		waitForChallengeResponse.addCommand(CANCEL);
+		waitForChallengeResponse.addTransition(CANCELLED, readyToPlay);
 		waitForChallengeResponse.addTransition(CHALLENGEACCEPTED, startPlaying);
 		waitForChallengeResponse.addTransition(CHALLENGEDENIED, readyToPlay);
 		
 		challenged.addCommand(CHALLENGEACCEPTED);
 		challenged.addCommand(CHALLENGEDENIED);
+		challenged.addTransition(CANCELLED, readyToPlay);
 		challenged.addTransition(CHALLENGEACCEPTED, startPlaying);
 		challenged.addTransition(CHALLENGEDENIED, readyToPlay);
 	}

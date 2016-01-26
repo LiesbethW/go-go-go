@@ -23,7 +23,7 @@ import userinterface.TUIView;
 import userinterface.View;
 
 public class ClientSideClientController implements FSM, Constants {
-	public static List<String> SUPPORTED_OPTIONS = new ArrayList<String>(
+	public static List<String> SUPPORTED_EXTENSIONS = new ArrayList<String>(
 			Arrays.asList(Presenter.chatOpt(), Presenter.challengeOpt()));
 	
 	private Client client;
@@ -145,16 +145,21 @@ public class ClientSideClientController implements FSM, Constants {
 		activeStates.addAll(Arrays.asList(readyToPlay, waitingForOpponent, 
 				waitForChallengeResponse, challenged, playing));
 		
-		activeStates.stream().forEach(state -> state.addTransition(OPTIONS, state));
 		activeStates.stream().forEach(state -> state.addTransition(CHAT, state));
 		
 		HashSet<State> allStates = new HashSet<>(activeStates);
 		allStates.add(newClient);
 		
+		allStates.stream().forEach(state -> state.addCommand(GETEXTENSIONS));
+		allStates.stream().forEach(state -> state.addCommand(EXTENSIONS));
 		allStates.stream().forEach(state -> state.addCommand(GETOPTIONS));
 		allStates.stream().forEach(state -> state.addCommand(OPTIONS));
 		allStates.stream().forEach(state -> state.addCommand(QUIT));
 		allStates.stream().forEach(state -> state.addTransition(FAILURE, state));
+		allStates.stream().forEach(state -> state.addTransition(EXTENSIONS, state));
+		allStates.stream().forEach(state -> state.addTransition(GETEXTENSIONS, state));
+		allStates.stream().forEach(state -> state.addTransition(OPTIONS, state));
+		allStates.stream().forEach(state -> state.addTransition(GETOPTIONS, state));
 		
 		newClient.addCommand(NEWPLAYER);
 		newClient.addTransition(NEWPLAYERACCEPTED, readyToPlay);
@@ -162,6 +167,7 @@ public class ClientSideClientController implements FSM, Constants {
 		readyToPlay.addCommand(PLAY);
 		readyToPlay.addTransition(WAITFOROPPONENT, waitingForOpponent);
 		
+		waitingForOpponent.addTransition(CANCELLED, readyToPlay);
 		waitingForOpponent.addTransition(GAMESTART, playing);
 		
 		playing.addCommand(MOVE);
@@ -188,13 +194,16 @@ public class ClientSideClientController implements FSM, Constants {
 		readyToPlay.addTransition(YOUVECHALLENGED, waitForChallengeResponse);
 		readyToPlay.addTransition(YOURECHALLENGED, challenged);
 		
+		waitForChallengeResponse.addCommand(CANCEL);
 		waitForChallengeResponse.addTransition(CHALLENGEDENIED, readyToPlay);
-		waitForChallengeResponse.addTransition(CHALLENGEACCEPTED, startPlaying);	
+		waitForChallengeResponse.addTransition(CHALLENGEACCEPTED, startPlaying);
+		waitForChallengeResponse.addTransition(CANCELLED, readyToPlay);
 		
 		challenged.addCommand(CHALLENGEACCEPTED);
 		challenged.addCommand(CHALLENGEDENIED);
 		challenged.addTransition(CHALLENGEDENIED, readyToPlay);
 		challenged.addTransition(CHALLENGEACCEPTED, startPlaying);
+		challenged.addTransition(CANCELLED, readyToPlay);
 		
 		startPlaying.addTransition(GAMESTART, playing);
 	}

@@ -117,17 +117,27 @@ public class GameController extends Thread implements Constants {
 	
 	private void initializeMethodMap() {
 		methodMap = new HashMap<String, Command>();
-
         methodMap.put(CHAT, chatCommand());
         methodMap.put(MOVE, moveCommand());
         methodMap.put(GETBOARD, getBoardCommand());
+        methodMap.put(STOPGAME, stopGameCommand());
         methodMap.put(QUIT, quitCommand());
-        methodMap.put(GETOPTIONS, CommandHandler.getOptionsCommand());
-        methodMap.put(OPTIONS, CommandHandler.optionsCommand());
+        methodMap.put(GETEXTENSIONS, CommandHandler.getExtensionsCommand());
+        methodMap.put(EXTENSIONS, CommandHandler.extensionsCommand());
 
 	}
 	
 	protected Command quitCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				((HumanPlayer) game.otherPlayer(getPlayer(message))).digest(Presenter.victory());
+				server.endGame(player1.client(), player2.client());
+				message.author().kill();
+			}
+		};
+	}
+
+	protected Command stopGameCommand() {
 		return new Command() {
 			public void runCommand(Message message) throws GoException {
 				message.author().digest(Presenter.defeat());
@@ -135,8 +145,8 @@ public class GameController extends Thread implements Constants {
 				server.endGame(player1.client(), player2.client());
 			}
 		};
-	}
-
+	}	
+	
 	protected Command chatCommand() {
 		return new Command() {
             public void runCommand(Message message) throws GoException { 

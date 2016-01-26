@@ -29,11 +29,7 @@ public abstract class AbstractServerSideClientState implements
 	
 	public abstract void enter(Message message);
 	
-	public void enter() {}
-	
 	public abstract void leave(Message message);
-	
-	public void leave() {}
 	
 	public boolean reachableState(State state) {
 		return reachableStates().stream().anyMatch(s -> s.equals(state));

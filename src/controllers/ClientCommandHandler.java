@@ -6,6 +6,7 @@ import java.util.HashMap;
 import exceptions.GoException;
 import exceptions.NotSupportedCommandException;
 import network.protocol.Constants;
+import network.protocol.Interpreter;
 import network.protocol.Message;
 import network.protocol.Presenter;
 import userinterface.View;
@@ -41,7 +42,9 @@ public class ClientCommandHandler implements Constants {
 		
 		methodMap.put(NEWPLAYERACCEPTED, simpleDigest());
         methodMap.put(CHAT, chatCommand());
-        methodMap.put(OPTIONS, setOptions());
+        methodMap.put(OPTIONS, optionCommand());
+        methodMap.put(EXTENSIONS, setExtensionsCommand());
+        methodMap.put(GETEXTENSIONS, getExtensionsCommand());
         methodMap.put(YOURECHALLENGED, simpleDigest());
         methodMap.put(YOUVECHALLENGED, simpleDigest());
         methodMap.put(CHALLENGEDENIED, simpleDigest());
@@ -59,6 +62,14 @@ public class ClientCommandHandler implements Constants {
         };
 	}
 	
+	protected Command optionCommand() {
+		return new Command() {
+			public void runCommand(Message message) {
+				view.showOptions(Interpreter.options(message));
+			}
+		};
+	}
+	
 	protected Command simpleDigest() {
 		return new Command() {
             public void runCommand(Message message) throws GoException { 
@@ -67,7 +78,7 @@ public class ClientCommandHandler implements Constants {
         };
 	}	
 	
-	protected Command setOptions() {
+	protected Command setExtensionsCommand() {
 		return new Command() {
 			public void runCommand(Message message) {
 				if (Arrays.asList(message.args()).contains(Presenter.chatOpt())) {
@@ -76,6 +87,14 @@ public class ClientCommandHandler implements Constants {
 				if (Arrays.asList(message.args()).contains(Presenter.challengeOpt())) {
 					client.enableChallenge();
 				}
+			}
+		};
+	}
+	
+	protected Command getExtensionsCommand() {
+		return new Command() {
+			public void runCommand(Message message) {
+				client.send(Presenter.extensions(client.SUPPORTED_EXTENSIONS));
 			}
 		};
 	}

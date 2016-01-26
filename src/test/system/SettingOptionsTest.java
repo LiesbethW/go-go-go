@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,27 +48,29 @@ public class SettingOptionsTest {
 	public void setOptions() {
 		letClientsSendNames();
 		handler1 = server.findClientByName(name1);
-		assertEquals(0, handler1.getOptions().size());
+		assertEquals(0, handler1.getExtensions().size());
 		
-		client1.send(new Message("OPTIONS", "CHAT", "CHALLENGE"));
+		client1.send(Presenter.extensions(new ArrayList<String>(Arrays.asList(
+				"CHAT", "CHALLENGE"))));
 		SystemTestSuite.waitForProcessing();
-		assertTrue(handler1.getOptions().contains("CHAT"));
-		assertTrue(handler1.getOptions().contains("CHALLENGE"));
-		assertEquals(2, handler1.getOptions().size());
+		assertTrue(handler1.getExtensions().contains("CHAT"));
+		assertTrue(handler1.getExtensions().contains("CHALLENGE"));
+		assertEquals(2, handler1.getExtensions().size());
 	}
 	
 	@Test
 	public void cannotSetRandomOptions() {
 		letClientsSendNames();
 		handler1 = server.findClientByName(name1);
-		assertEquals(0, handler1.getOptions().size());
+		assertEquals(0, handler1.getExtensions().size());
 		
-		client1.send(new Message("OPTIONS", "CHAT", "RANDOM", "CHALENGE"));
+		client1.send(Presenter.extensions(new ArrayList<String>(Arrays.asList(
+				"CHAT", "RANDOM", "CHALENGE"))));
 		SystemTestSuite.waitForProcessing();
-		assertTrue(handler1.getOptions().contains("CHAT"));
-		assertFalse(handler1.getOptions().contains("RANDOM"));
-		assertFalse(handler1.getOptions().contains("CHALENGE"));
-		assertEquals(1, handler1.getOptions().size());
+		assertTrue(handler1.getExtensions().contains("CHAT"));
+		assertFalse(handler1.getExtensions().contains("RANDOM"));
+		assertFalse(handler1.getExtensions().contains("CHALENGE"));
+		assertEquals(1, handler1.getExtensions().size());
 	}
 	
 	@Test

@@ -13,8 +13,8 @@ public class NewClient extends AbstractClientState {
 	
 	public void enter(Message message) { }
 	public void leave(Message message) {
-		client.send(Presenter.getOptions());
-		client.send(Presenter.options(ClientSideClientController.SUPPORTED_OPTIONS));
+		client.send(Presenter.getExtensions());
+		client.send(Presenter.extensions(ClientSideClientController.SUPPORTED_EXTENSIONS));
 	}
 
 }

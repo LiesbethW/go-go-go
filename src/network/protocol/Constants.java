@@ -30,14 +30,16 @@ package network.protocol;
  * At this moment, we end the game if two players consecutively pass. How to deal with an appropriate game ending has to
  * be further elaborated.
  *
+ * @author michiel.klitsie
+ * @author joris.vandijk
  * @author ron.weikamp
  * @author liesbeth.wijers
- * @version 0.6
+ * @version 1.0
  */
 
 public interface Constants {
     // General
-    public static final String VERSION = "VERSION 0.6";
+    public static final String VERSION = "VERSION 1.0";
     public static final int SERVER_PORT = 1929;
     public static final int TIMEOUTSECONDS = 60;
 
@@ -57,18 +59,28 @@ public interface Constants {
      * Examples of how the following constants are used:
      * - Client -> Server:  NEWPLAYER Jan
      * - Client <-> Server: GETOPTIONS
-     * - Client <-> Server: OPTIONS CHAT OBSERVE
+     * - Client <-> Server: OPTIONS PLAY
      * - Client -> Server:  PLAY
      * - Server -> Client:  WAITFOROPPONENT
      * - Server -> Server:  GAMESTART Jan 9 BLACK           (name, boardsize, clientcolor)
-     * - Client -> Server:  MOVE 3 4                        (x, y:  0 <= x && x <= boardsize)
+     * - Client -> Server:  MOVE 3 4                        (row, column:  0 <= r/c && r/c < boardsize)
      * - Server -> Client:  MOVE BLACK 3 4
      * - Client -> Server:  MOVE PASS
      * - Server -> Client:  MOVE BLACK PASS
      * - Client -> Server:  GETBOARD
-     * - Server -> Client:  BOARD EEEEEEBEEWWEE... 3 16     (board repr., black captives, white captives)
+     * - Server -> Client:  BOARD EEEEEEBEEWWEE... 3 16     (board repr., black captives , white captives)
      * - Client -> Server:  QUIT
      * - Server -> Client:  GAMEOVER
+     *
+     * A client should always say his name first using NEWPLAYER. If a Client sends NEWPLAYER, the SERVER
+     * should always respond with NEWPLAYERACCEPTED.
+     *
+     * A client can always send GETOPTIONS to the server, the server should then respond with OPTIONS plus
+     * all the commands that the client may send.
+     *
+     * A client can always send GETEXTENSIONS to the server, the server should respond with EXTENSIONS and
+     * the designated keywords of the things it responds. This also works vice versa. The server can always
+     * send GETEXTENSIONS, the client should respond with EXTENSIONS.
      *
      * The boardstring format is: starting in the upper left corner, traverse all the intersection of the board row by
      * row. Each white, black and empty intersection is represented by a designated constant.
@@ -77,15 +89,35 @@ public interface Constants {
     public static final String NEWPLAYERACCEPTED = "NEWPLAYERACCEPTED";
     public static final String GETOPTIONS = "GETOPTIONS";
     public static final String OPTIONS = "OPTIONS";
+    public static final String GETEXTENSIONS = "GETEXTENSIONS";
+    public static final String EXTENSIONS = "EXTENSIONS";
     public static final String PLAY = "PLAY";
     public static final String WAITFOROPPONENT = "WAITFOROPPONENT";
     public static final String GAMESTART = "GAMESTART";
     public static final String MOVE = "MOVE";
     public static final String PASS = "PASS";
     public static final String GETBOARD = "GETBOARD";
+    /**
+     * BOARD EEEEEEBEEWWEE... 3 16     (board repr., black captives , white captives)
+     * The black captives are the black stones captured by white.
+     * The white captives are the white stones captured by black.
+     */
     public static final String BOARD = "BOARD";
-    public static final String QUIT = "QUIT";
     public static final String GAMEOVER = "GAMEOVER";
+    /**
+     * Client -> Server QUIT: Close socket, game, everything.
+     *      If this happens while the quitting client is in the game,
+     *      the other player receives GAMEOVER VICTORY;
+     * Client -> Server STOPGAME: stop the current game (only allowed when playing a game)
+     *      The Server sends GAMEOVER VICTORY/DEFEAT appropriately.
+     * Client -> Server CANCEL: only allowed after 'PLAY' or 'CHALLENGE name'
+     *      Both the client that sent CANCEL and a possible opponent that is involved
+     *      in this actions, receive CANCELLED from the Server;
+     */
+    public static final String QUIT = "QUIT";
+    public static final String CANCEL = "CANCEL";
+    public static final String STOPGAME = "STOPGAME";
+    public static final String CANCELLED = "CANCELLED";
 
     /**
      * Strings used to denote color
@@ -94,14 +126,13 @@ public interface Constants {
     public static final String BLACK = "BLACK";
 
     /**
-     * Messages for ending game. For now, if two players pass consecutively, game stops (first implementation for now).
-     *
-     * Idea (Liesbeth) sending final score: Server -> Client: TERRITORYSCORING WWWBBBWWBWBWBWBWBW... 9 16
+     * Messages for ending game. If two players pass consecutively AND white is the last to pass,
+     * the game stops. The server sends GAMEOVER to both clients, followed by either VICTORY,
+     * DEFEAT or DRAW.
      */
-    public static final String TWOPASS = "TWOPASS";
-    public static final String TERRITORYSCORING = "TERRITORYSCORING";
     public static final String VICTORY = "VICTORY";
     public static final String DEFEAT = "DEFEAT";
+    public static final String DRAW = "DRAW";
 
     /**
      * Representation of the intersections when sending board.
@@ -112,7 +143,12 @@ public interface Constants {
 
     /**
      * Client -> Server:    CHAT blabla
-     * Server -> Client:    CHAT Jan blabla	
+     * Server -> Client:    CHAT Jan blabla
+     *
+     * If you CHAT and are not playing a game, all clients that are not playing a
+     * game, receive the message. If you are playing a game, only your opponent receives the message.
+     *
+     * If you are an observer, you cannot chat.
      */
     public static final String CHAT = "CHAT";
     public static final String CHALLENGE = "CHALLENGE";
@@ -138,6 +174,8 @@ public interface Constants {
      *
      * Alternatively in step 5. & 6. the answer of Client2 may be CHALLENGEDENIED,
      * and the server will pass this on to Client1.
+     *
+     * A client can only be challenged by 1 client simultaneously.
      */
     public static final String AVAILABLEPLAYERS = "AVAILABLEPLAYERS";
     public static final String YOUVECHALLENGED = "YOUVECHALLENGED";
@@ -152,8 +190,21 @@ public interface Constants {
     public static final String OBSERVEDGAME = "OBSERVEDGAME";
 
     // AI
+    /**
+     * Client -> Server PRACTICE: The client can say PRACTICE with or without a stategy.
+     * if the server supports multiple strategies, it sends:
+     * Server -> Client AVAILABLESTRATEGIES <strategy> <strategy>
+     * The Server sends a GAMESTART COMPUTER <boardsize> <COLOR>
+     */
     public static final String PRACTICE = "PRACTICE";
+    public static final String AVAILABLESTRATEGIES = "AVAILABLESTRATEGIES";
     public static final String COMPUTER = "COMPUTER";
+    /**
+     * HINT and GETHINT are optional. A client may send a GETHINT command,
+     * the server can respond with HINT 6 0, in the same format as a move.
+     */
+    public static final String GETHINT = "GETHINT";
+    public static final String HINT = "HINT";
 
     /**
      * If a client sends a command to the server, and the server cannot produce (one of the) expected response(s), it
@@ -189,6 +240,7 @@ public interface Constants {
      * If a client is non-responsive for more than the agreed TIMEOUTSECONDS, the server broadcasts this failure to
      * the clients and shuts down the game. We define a client as non-responsive if it does not respond for
      * TIMEOUTSECONDS while reaction is expected (e.g. when client is expected to move).
+     * The player that lets the timeouttime pass.
      */
     public static final String TIMEOUTEXCEEDED = "TimeOutExceeded";
 
@@ -197,7 +249,10 @@ public interface Constants {
     public static final String NAMENOTALLOWED = "NameNotAllowed";
     public static final String INVALIDMOVE = "InvalidMove";
     public static final String NOTYOURTURN = "NotYourTurn";
-    public static final String ILLEGALCHARACTERS = "IllegalCharacters";
+    /**
+     * If an argument is not valid for the given situation, the server can send a FAILURE IllegalArgument.
+     */
+    public static final String ILLEGALARGUMENT = "IllegalArgument";
     public static final String OTHERPLAYERCANNOTCHAT = "OtherPlayerCannotChat";
     public static final String PLAYERNOTAVAILABLE = "PlayerNotAvailable";
     public static final String GAMENOTPLAYING = "GameNotPlaying";
