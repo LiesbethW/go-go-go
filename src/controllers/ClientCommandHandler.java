@@ -12,11 +12,11 @@ import network.protocol.Presenter;
 import userinterface.View;
 
 public class ClientCommandHandler implements Constants {
-	private ClientSideClientController client;
+	private Client client;
 	private View view;
 	private HashMap<String, Command> methodMap;	
 	
-	public ClientCommandHandler(ClientSideClientController client, View view) {
+	public ClientCommandHandler(Client client, View view) {
 		this.client = client;
 		this.view = view;
 		initializeMethodMap();

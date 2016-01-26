@@ -1,12 +1,12 @@
 package controllers.states.clientside;
 
-import controllers.ClientSideClientController;
+import controllers.Client;
 import controllers.states.AbstractClientState;
 import network.protocol.Message;
 
 public class StartPlaying extends AbstractClientState {
 
-	public StartPlaying(ClientSideClientController client) {
+	public StartPlaying(Client client) {
 		super(client);
 		// TODO Auto-generated constructor stub
 	}

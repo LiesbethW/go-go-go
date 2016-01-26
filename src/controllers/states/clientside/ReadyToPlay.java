@@ -1,12 +1,12 @@
 package controllers.states.clientside;
 
-import controllers.ClientSideClientController;
+import controllers.Client;
 import controllers.states.AbstractClientState;
 import network.protocol.Message;
 
 public class ReadyToPlay extends AbstractClientState {
 
-	public ReadyToPlay(ClientSideClientController client) {
+	public ReadyToPlay(Client client) {
 		super(client);
 	}
 	

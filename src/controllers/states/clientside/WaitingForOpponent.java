@@ -2,14 +2,14 @@ package controllers.states.clientside;
 
 import java.util.HashMap;
 
-import controllers.ClientSideClientController;
+import controllers.Client;
 import controllers.states.AbstractClientState;
 import controllers.states.State;
 import network.protocol.Message;
 
 public class WaitingForOpponent extends AbstractClientState {
 	
-	public WaitingForOpponent(ClientSideClientController client) {
+	public WaitingForOpponent(Client client) {
 		super(client);
 	}
 	

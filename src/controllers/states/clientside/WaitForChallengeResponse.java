@@ -1,12 +1,12 @@
 package controllers.states.clientside;
 
-import controllers.ClientSideClientController;
+import controllers.Client;
 import controllers.states.AbstractClientState;
 import network.protocol.Message;
 
 public class WaitForChallengeResponse extends AbstractClientState {
 	
-	public WaitForChallengeResponse(ClientSideClientController client) {
+	public WaitForChallengeResponse(Client client) {
 		super(client);
 	}
 	

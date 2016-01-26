@@ -12,11 +12,12 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
+import controllers.Client;
 import controllers.ClientHandler;
-import network.Client;
 import network.Server;
 import network.protocol.Presenter;
 import test.helperclasses.TestNetworkSetup;
+
 public class ChallengeTest {
 	private TestNetworkSetup network;
 	private Server server;

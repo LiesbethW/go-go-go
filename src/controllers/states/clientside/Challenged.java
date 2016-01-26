@@ -1,12 +1,12 @@
 package controllers.states.clientside;
 
-import controllers.ClientSideClientController;
+import controllers.Client;
 import controllers.states.AbstractClientState;
 import network.protocol.Message;
 
 public class Challenged extends AbstractClientState {
 
-	public Challenged(ClientSideClientController client) {
+	public Challenged(Client client) {
 		super(client);
 	}
 

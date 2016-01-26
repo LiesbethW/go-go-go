@@ -2,7 +2,7 @@ package controllers.states.clientside;
 
 import java.util.HashMap;
 
-import controllers.ClientSideClientController;
+import controllers.Client;
 import controllers.states.AbstractClientState;
 import controllers.states.State;
 import exceptions.InvalidArgumentException;
@@ -15,7 +15,7 @@ public class Playing extends AbstractClientState {
 	public Stone color;
 	public int boardSize;
 	
-	public Playing(ClientSideClientController client) {
+	public Playing(Client client) {
 		super(client);
 	}
 	

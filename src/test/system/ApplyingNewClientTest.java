@@ -13,8 +13,8 @@ import java.net.UnknownHostException;
 import org.junit.Before;
 import org.junit.Test;
 
+import controllers.Client;
 import controllers.ClientHandler;
-import network.Client;
 import network.Server;
 import network.protocol.Presenter;
 import test.helperclasses.TestNetworkSetup;

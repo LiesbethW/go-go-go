@@ -5,8 +5,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import controllers.Client;
 import controllers.ClientHandler;
-import network.Client;
 import network.Server;
 
 public class TestNetworkSetup extends Thread {
@@ -30,34 +30,19 @@ public class TestNetworkSetup extends Thread {
 
 	public Client addClient() throws UnknownHostException, IOException {
 		Client newClient = new Client(InetAddress.getByName("localhost"), server().getPort());
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-			
-		}
-		newClient.start();
+		waitForMagicToHappen();
 		return newClient;
 	}
 	
 	public DummyClient addDummyClient() throws UnknownHostException, IOException {
 		DummyClient newClient = new DummyClient(InetAddress.getByName("localhost"), server().getPort());
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-			
-		}
-		newClient.start();
+		waitForMagicToHappen();
 		return newClient;
 	}
 
 	public DummyClient addDummyClient(List<String> inputLog) throws UnknownHostException, IOException {
 		DummyClient newClient = new DummyClient(InetAddress.getByName("localhost"), server().getPort(), inputLog);
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-			
-		}
-		newClient.start();
+		waitForMagicToHappen();
 		return newClient;
 	}
 	
@@ -84,6 +69,14 @@ public class TestNetworkSetup extends Thread {
 	
 	public ClientHandler clientHandler() {
 		return clientHandler;
+	}
+	
+	public void waitForMagicToHappen() {
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			
+		}		
 	}
 
 }

@@ -5,7 +5,8 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import network.Client;
+import controllers.Client;
+import network.protocol.Message;
 
 public class DummyClient extends Client {
 	private List<String> receivedInput;
@@ -20,9 +21,8 @@ public class DummyClient extends Client {
 		receivedInput = inputStack;
 	}
 	
-	@Override
-	public void handle(String messageString) {
-		receivedInput.add(messageString);
+	public void process(Message message) {
+		receivedInput.add(message.toString());
 	}
 
 }

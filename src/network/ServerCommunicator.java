@@ -8,7 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import controllers.ClientSideClientController;
+import controllers.Client;
 import exceptions.GoException;
 import exceptions.NotApplicableCommandException;
 import exceptions.UnknownCommandException;
@@ -16,18 +16,18 @@ import network.protocol.Interpreter;
 import network.protocol.Message;
 import network.protocol.Presenter;
 
-public class Client extends Thread {
+public class ServerCommunicator extends Thread {
 	
 	private Socket socket;
 	private BufferedReader in;
 	private BufferedWriter out;
-	private ClientSideClientController controller;
+	private Client controller;
 
-	public Client(InetAddress host, int port) throws IOException {
+	public ServerCommunicator(InetAddress host, int port, Client controller) throws IOException {
 		socket = new Socket(host, port);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-		controller = new ClientSideClientController(this);
+		this.controller = controller;
 	}
 	
 	public void run() {

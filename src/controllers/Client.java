@@ -1,5 +1,7 @@
 package controllers;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -15,18 +17,19 @@ import controllers.states.clientside.WaitForChallengeResponse;
 import controllers.states.clientside.WaitingForOpponent;
 import exceptions.NotApplicableCommandException;
 import game.Stone;
-import network.Client;
+import network.ServerCommunicator;
 import network.protocol.Constants;
 import network.protocol.Message;
 import network.protocol.Presenter;
 import userinterface.TUIView;
 import userinterface.View;
 
-public class ClientSideClientController implements FSM, Constants {
+public class Client implements FSM, Constants {
 	public static List<String> SUPPORTED_EXTENSIONS = new ArrayList<String>(
 			Arrays.asList(Presenter.chatOpt(), Presenter.challengeOpt()));
 	
-	private Client client;
+	// Client attributes
+	private ServerCommunicator communicator;
 	private State state;
 	private View view;
 	private List<String> enabledOptions;
@@ -46,13 +49,14 @@ public class ClientSideClientController implements FSM, Constants {
 	private State startPlaying;
 	private State playing;
 	
-	public ClientSideClientController(Client client) {
-		this.client = client;
+	public Client(InetAddress host, int port) throws IOException {
+		this.communicator = new ServerCommunicator(host, port, this);
 		initializeStates();
 		state = newClient;
 		enabledOptions = new ArrayList<String>();
 		view = new TUIView(System.out);
 		commandHandler = new ClientCommandHandler(this, view);
+		communicator.start();
 	}
 
 	@Override
@@ -72,7 +76,7 @@ public class ClientSideClientController implements FSM, Constants {
 	}
 	
 	public void send(Message message) {
-		client.send(message);
+		communicator.send(message);
 	}
 
 	@Override
