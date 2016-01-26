@@ -16,7 +16,7 @@ import controllers.ClientHandler;
 import network.Client;
 import network.Server;
 import network.protocol.Presenter;
-import test.network.TestNetworkSetup;
+import test.helperclasses.TestNetworkSetup;
 public class ChallengeTest {
 	private TestNetworkSetup network;
 	private Server server;
@@ -32,8 +32,8 @@ public class ChallengeTest {
 	public void setUp() throws UnknownHostException, IOException {
 		network = TestNetworkSetup.newNetwork();
 		server = network.server();
-		client1 = network.client();
-		client2 = network.addClient();
+		client1 = network.addDummyClient();
+		client2 = network.addDummyClient();
 		letClientsSendNames();
 		handler1 = server.findClientByName(name1);
 		handler2 = server.findClientByName(name2);
@@ -126,7 +126,7 @@ public class ChallengeTest {
 		assertTrue(handler1.waitingForChallengeResponse());
 		
 		// Client2 can deny the challenge
-		client2.send(Presenter.challengeDenied());
+		client2.send(Presenter.challengeAccepted());
 		SystemTestSuite.waitForProcessing();
 		SystemTestSuite.waitForProcessing();
 		assertTrue(handler1.canStartPlaying() || handler1.isPlaying());

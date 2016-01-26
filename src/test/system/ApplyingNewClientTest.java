@@ -17,7 +17,7 @@ import controllers.ClientHandler;
 import network.Client;
 import network.Server;
 import network.protocol.Presenter;
-import test.network.TestNetworkSetup;
+import test.helperclasses.TestNetworkSetup;
 
 public class ApplyingNewClientTest {
 	private TestNetworkSetup network;

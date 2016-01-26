@@ -112,7 +112,7 @@ public interface Constants {
 
     /**
      * Client -> Server:    CHAT blabla
-     * Server -> Client:    CHAT Jan blabla
+     * Server -> Client:    CHAT Jan blabla	
      */
     public static final String CHAT = "CHAT";
     public static final String CHALLENGE = "CHALLENGE";

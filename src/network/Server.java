@@ -121,6 +121,7 @@ public class Server extends Thread {
 		while(true) {
 			try {
 				ClientHandler newClient = new ClientHandler(this, serverSocket.accept());
+				System.out.println("A new client has applied.");
 				addClient(newClient);
 			} catch (IOException e) {
 				System.out.println("An error occured while waiting for a connection");
@@ -196,6 +197,10 @@ public class Server extends Thread {
 	public void endGame(ClientHandler client1, ClientHandler client2) {
 		addClient(client1);
 		addClient(client2);
+	}
+	
+	public void disconnectClient(ClientHandler client1) {
+		
 	}
 
 }

@@ -14,6 +14,7 @@ import controllers.states.clientside.StartPlaying;
 import controllers.states.clientside.WaitForChallengeResponse;
 import controllers.states.clientside.WaitingForOpponent;
 import exceptions.NotApplicableCommandException;
+import game.Stone;
 import network.Client;
 import network.protocol.Constants;
 import network.protocol.Message;
@@ -30,6 +31,11 @@ public class ClientSideClientController implements FSM, Constants {
 	private View view;
 	private List<String> enabledOptions;
 	private ClientCommandHandler commandHandler;
+	
+	// Player attributes
+	private String name;
+	private Stone color;
+	private int boardSize;
 	
 	// The states
 	private State newClient;
@@ -101,6 +107,30 @@ public class ClientSideClientController implements FSM, Constants {
 	public boolean isPlaying() {
 		return currentState().equals(playing);
 	}	
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public Stone getColor() {
+		return color;
+	}
+	
+	public void setColor(Stone color) {
+		this.color = color;
+	}
+	
+	public int boardSize() {
+		return this.boardSize;
+	}
+	
+	public void setBoardSize(int size) {
+		this.boardSize = size;
+	}
 
 	public void initializeStates() {
 		newClient = new NewClient(this);

@@ -1,8 +1,9 @@
-package test.network;
+package test.helperclasses;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import controllers.ClientHandler;
 import network.Client;
@@ -29,6 +30,28 @@ public class TestNetworkSetup extends Thread {
 
 	public Client addClient() throws UnknownHostException, IOException {
 		Client newClient = new Client(InetAddress.getByName("localhost"), server().getPort());
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			
+		}
+		newClient.start();
+		return newClient;
+	}
+	
+	public DummyClient addDummyClient() throws UnknownHostException, IOException {
+		DummyClient newClient = new DummyClient(InetAddress.getByName("localhost"), server().getPort());
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			
+		}
+		newClient.start();
+		return newClient;
+	}
+
+	public DummyClient addDummyClient(List<String> inputLog) throws UnknownHostException, IOException {
+		DummyClient newClient = new DummyClient(InetAddress.getByName("localhost"), server().getPort(), inputLog);
 		try {
 			Thread.sleep(200);
 		} catch (InterruptedException e) {

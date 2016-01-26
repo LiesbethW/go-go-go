@@ -68,7 +68,7 @@ public class CommandHandler extends Thread implements Constants {
         methodMap.put(CHALLENGE, challengeCommand());
         methodMap.put(CHALLENGEACCEPTED, challengeAcceptedCommand());   
         methodMap.put(CHALLENGEDENIED, challengeDeniedCommand());       
-		
+		methodMap.put(QUIT, quitCommand());
         
 	}
 
@@ -166,5 +166,14 @@ public class CommandHandler extends Thread implements Constants {
             		}
             	};
         };
+	}
+	
+	protected Command quitCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				message.author().kill();
+				
+			}
+		};
 	}
 }

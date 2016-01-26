@@ -32,6 +32,7 @@ public class GameController extends Thread implements Constants {
 		player1 = new HumanPlayer(client1);
 		player2 = new HumanPlayer(client2);
 		game = new Game(player1, player2, boardSize);
+		this.server = server;
 	}
 	
 	public void run() {
@@ -49,6 +50,7 @@ public class GameController extends Thread implements Constants {
 			}
 		}	
 		sendGameOver();
+		server.endGame(player1.client(), player2.client());
 	}
 	
 	public void process(Message message) {
@@ -99,7 +101,18 @@ public class GameController extends Thread implements Constants {
 			player1.digest(Presenter.draw());
 			player2.digest(Presenter.draw());
 		}
-		server.endGame(player1.client(), player2.client());
+	}
+	
+	public void sendMove(Player player, int row, int col) {
+		Message moveMessage = Presenter.serverMove(player.getColor(), row, col);
+		player1.send(moveMessage);
+		player2.send(moveMessage);
+	}
+	
+	public void sendPass(Player player) {
+		Message passMessage = Presenter.serverPass(player.getColor());
+		player1.send(passMessage);
+		player2.send(passMessage);
 	}
 	
 	private void initializeMethodMap() {
@@ -140,16 +153,21 @@ public class GameController extends Thread implements Constants {
 	protected Command moveCommand() {
 		return new Command() {
         	public void runCommand(Message message) throws GoException {
-        		if (message.equals(Presenter.clientPass())) {
-        			game.pass(getPlayer(message));
-        		} else {
-        			try {
-            			game.makeMove(getPlayer(message), Interpreter.integer(message.args()[0]), 
-            					Interpreter.integer(message.args()[1]));
-        			} catch (IndexOutOfBoundsException e) {
-        				throw new ArgumentsMissingException("USAGE: \"MOVE int int\" or \"MOVE PASS\"");
-        			}
-        		}
+        		try {
+            		if (message.args()[0].equals(Presenter.PASS)) {
+            			game.pass(getPlayer(message));
+            			sendPass(getPlayer(message));
+            		} else {
+        				Player player = getPlayer(message);
+        				int row = Interpreter.integer(message.args()[0]);
+        				int col = Interpreter.integer(message.args()[1]);
+            			game.makeMove(player, row, col);
+            			sendMove(player, row, col);
+            		}        			
+        		} catch (IndexOutOfBoundsException e) {
+    				throw new ArgumentsMissingException("USAGE: \"MOVE int int\" or \"MOVE PASS\"");
+    			}
+
         	}
         };
 	}

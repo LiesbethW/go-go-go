@@ -130,6 +130,10 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		this.gameController = gameController;
 	}
 	
+	/**
+	 * Set the gamecontroller to null (when client
+	 * leaves the playing state).
+	 */
 	public void removeGameController() {
 		gameController = null;
 	}

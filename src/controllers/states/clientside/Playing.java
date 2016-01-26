@@ -26,8 +26,8 @@ public class Playing extends AbstractClientState {
 	public void enter(Message message) {
 		opponent = message.args()[0];
 		try {
-			boardSize = Interpreter.integer(message.args()[1]);
-			color = Interpreter.color(message.args()[2]);
+			client.setBoardSize(Interpreter.integer(message.args()[1]));
+			client.setColor(Interpreter.color(message.args()[2]));
 		} catch (InvalidArgumentException e) {
 			System.err.println(e.getMessage());
 		}

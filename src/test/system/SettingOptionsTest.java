@@ -1,5 +1,6 @@
 package test.system;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -14,7 +15,7 @@ import network.Client;
 import network.Server;
 import network.protocol.Message;
 import network.protocol.Presenter;
-import test.network.TestNetworkSetup;
+import test.helperclasses.TestNetworkSetup;
 
 public class SettingOptionsTest {
 	private TestNetworkSetup network;
@@ -31,8 +32,8 @@ public class SettingOptionsTest {
 	public void setUp() throws UnknownHostException, IOException {
 		network = TestNetworkSetup.newNetwork();
 		server = network.server();
-		client1 = network.client();
-		client2 = network.addClient();
+		client1 = network.addDummyClient();
+		client2 = network.addDummyClient();
 	}
 	
 	public void letClientsSendNames() {
@@ -45,23 +46,27 @@ public class SettingOptionsTest {
 	public void setOptions() {
 		letClientsSendNames();
 		handler1 = server.findClientByName(name1);
+		assertEquals(0, handler1.getOptions().size());
 		
 		client1.send(new Message("OPTIONS", "CHAT", "CHALLENGE"));
 		SystemTestSuite.waitForProcessing();
 		assertTrue(handler1.getOptions().contains("CHAT"));
 		assertTrue(handler1.getOptions().contains("CHALLENGE"));
+		assertEquals(2, handler1.getOptions().size());
 	}
 	
 	@Test
 	public void cannotSetRandomOptions() {
 		letClientsSendNames();
 		handler1 = server.findClientByName(name1);
+		assertEquals(0, handler1.getOptions().size());
 		
 		client1.send(new Message("OPTIONS", "CHAT", "RANDOM", "CHALENGE"));
 		SystemTestSuite.waitForProcessing();
 		assertTrue(handler1.getOptions().contains("CHAT"));
 		assertFalse(handler1.getOptions().contains("RANDOM"));
 		assertFalse(handler1.getOptions().contains("CHALENGE"));
+		assertEquals(1, handler1.getOptions().size());
 	}
 	
 	@Test

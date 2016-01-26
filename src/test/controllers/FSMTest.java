@@ -19,7 +19,7 @@ import exceptions.NotApplicableCommandException;
 import network.Client;
 import network.Server;
 import network.protocol.Message;
-import test.network.TestNetworkSetup;
+import test.helperclasses.TestNetworkSetup;
 
 public class FSMTest {
 	private FSM stateMachine;

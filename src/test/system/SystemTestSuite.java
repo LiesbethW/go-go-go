@@ -9,7 +9,7 @@ import org.junit.runners.Suite;
   SettingOptionsTest.class,
   ChallengeTest.class,
   ChatTest.class,
-  StartGameTest.class
+  BasicGameTest.class
 })
 
 public class SystemTestSuite {
