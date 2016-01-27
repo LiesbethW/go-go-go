@@ -50,6 +50,7 @@ public class ClientCommandHandler implements Constants {
         methodMap.put(CHALLENGEDENIED, simpleDigest());
         methodMap.put(CHALLENGEACCEPTED, simpleDigest());
         methodMap.put(WAITFOROPPONENT, simpleDigest());
+        methodMap.put(CANCELLED, simpleDigest());
         methodMap.put(GAMESTART, simpleDigest());
         methodMap.put(FAILURE, failureCommand());
 	}

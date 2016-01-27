@@ -32,6 +32,10 @@ public class BasicGameTest {
 	private String name2 = "Piet";
 	private List<String> receivedInput2;
 	
+	private Client client3;
+	private ClientHandler handler3;
+	private String name3 = "Els";
+	
 	private Client black;
 	private Client white;
 	
@@ -43,14 +47,17 @@ public class BasicGameTest {
 		receivedInput2 = new ArrayList<String>();
 		client1 = network.addDummyClient(receivedInput1);
 		client2 = network.addDummyClient(receivedInput2);
+		client3 = network.addClient();
 		letClientsSendNames();
 		handler1 = server.findClientByName(name1);
 		handler2 = server.findClientByName(name2);
+		handler3 = server.findClientByName(name3);
 	}
 	
 	public void letClientsSendNames() {
 		client1.send(Presenter.newPlayer(name1));
 		client2.send(Presenter.newPlayer(name2));
+		client3.send(Presenter.newPlayer(name3));
 		SystemTestSuite.waitForProcessing();
 		SystemTestSuite.waitForProcessing();
 	}
@@ -138,12 +145,17 @@ public class BasicGameTest {
 	
 	@Test
 	public void cancelWaitingForOpponentTest() {
-		client1.send(Presenter.play());
+		client3.send(Presenter.play());
 		SystemTestSuite.waitForProcessing();
-		assertTrue(handler1.waitingForOpponent());
-		client1.send(Presenter.cancel());
+		assertTrue(handler3.waitingForOpponent());
 		SystemTestSuite.waitForProcessing();
-		assertTrue(handler1.readyToPlay());
+		assertTrue(client3.waitingForOpponent());
+		
+		client3.send(Presenter.cancel());
+		SystemTestSuite.waitForProcessing();
+		assertTrue(handler3.readyToPlay());
+		SystemTestSuite.waitForProcessing();
+		assertTrue(client3.readyToPlay());
 	}
 	
 	@Test
