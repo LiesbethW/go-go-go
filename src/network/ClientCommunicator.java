@@ -66,10 +66,6 @@ public class ClientCommunicator extends Thread {
 		}
 	}
 	
-	public String name() {
-		return controller.name();
-	}
-	
 	private void shutdown() {
 		try {
 			socket.close();

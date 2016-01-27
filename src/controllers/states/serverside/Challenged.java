@@ -4,6 +4,7 @@ import controllers.ClientHandler;
 import controllers.states.AbstractServerSideClientState;
 import exceptions.NotApplicableCommandException;
 import network.protocol.Message;
+import network.protocol.Presenter;
 
 public class Challenged extends AbstractServerSideClientState {
 
@@ -18,12 +19,15 @@ public class Challenged extends AbstractServerSideClientState {
 	}
 	
 	public void leave(Message message) { 
-		try {
-			client.getOpponent().digest(message);
-		} catch (NotApplicableCommandException e) {
-			System.err.println(e.getMessage());
+		if (message.command().equals(Presenter.challengeAccepted().toString()) || message.command().equals(Presenter.challengeDenied().toString())) {
+			try {
+				client.getOpponent().digest(message);
+			} catch (NotApplicableCommandException e) {
+				System.err.println(e.getMessage());
+			}
+		} else if (message.command().equals(Presenter.cancelled().toString())) {
+			client.send(message);
 		}
 	}
-
 
 }

@@ -12,17 +12,13 @@ public class WaitingForOpponent extends AbstractServerSideClientState {
 	}
 
 	public void enter(Message message) { 
-		enter();
-	}
-	
-	public void leave(Message message) { 
-		leave();
-	}
-
-	public void enter() { 
 		client.send(Presenter.waitForOpponent());
 	}
 	
-	public void leave() { }
+	public void leave(Message message) { 
+		if (message.command().equals(Presenter.cancelled().toString())) {
+			client.send(message);
+		}
+	}
 
 }

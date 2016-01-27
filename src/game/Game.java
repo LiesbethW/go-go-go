@@ -112,7 +112,7 @@ public class Game {
 	public boolean validMove(Stone stone, int row, int col) {
 		Board boardCopy = board.deepCopy();
 		try {
-			board.layStone(stone, row, col);
+			boardCopy.layStone(stone, row, col);
 		} catch (InvalidMoveException e) {
 			return false;
 		}
@@ -125,9 +125,9 @@ public class Game {
 	
 	public void checkIfGameHasEnded() {
 		if (consecutivePasses >= 2 && playerOnTurn == black) {
-			gameOver = true;
 			determineWinner();
 			playerOnTurn = null;
+			gameOver = true;
 		}
 	}
 	

@@ -20,10 +20,6 @@ public class CommandHandler extends Thread implements Constants {
 	private ConcurrentLinkedQueue<Message> commandQueue;
 	private HashMap<String, Command> methodMap;
 	
-	public interface Command {
-		public void runCommand(Message message) throws GoException;
-	}
-	
 	public CommandHandler(Server server, ConcurrentLinkedQueue<Message> commandQueue) {
 		this.server = server;
 		this.commandQueue = commandQueue;
@@ -66,29 +62,31 @@ public class CommandHandler extends Thread implements Constants {
 		
 		methodMap.put(NEWPLAYER, newPlayerCommand());
         methodMap.put(CHAT, chatCommand());
-        methodMap.put(OPTIONS, optionsCommand());
-        methodMap.put(GETOPTIONS, getOptionsCommand());
+        methodMap.put(EXTENSIONS, extensionsCommand());
+        methodMap.put(GETEXTENSIONS, getExtensionsCommand());
         methodMap.put(PLAY, playCommand());
+        methodMap.put(CANCEL, cancelCommand());
         methodMap.put(CHALLENGE, challengeCommand());
-        methodMap.put(CHALLENGEACCEPTED, challengeAcceptedCommand());   
-        methodMap.put(CHALLENGEDENIED, challengeDeniedCommand());       
-		
+        methodMap.put(CHALLENGEACCEPTED, simpleDigest());   
+        methodMap.put(CHALLENGEDENIED, simpleDigest());       
+		methodMap.put(QUIT, quitCommand());
+        
+	}
+	
+	public static Command simpleDigest() {
+		return new Command() {
+			public void runCommand(Message message) throws NotApplicableCommandException {
+				message.author().digest(message);
+			}
+		};
 	}
 
-	protected Command challengeDeniedCommand() {
+	public static Command cancelCommand() {
 		return new Command() {
-        	public void runCommand(Message message) throws NotApplicableCommandException {
-        		message.author().digest(message);
-        	}
-        };
-	}
-
-	protected Command challengeAcceptedCommand() {
-		return new Command() {
-        	public void runCommand(Message message) throws NotApplicableCommandException {
-        		message.author().digest(message);
-        	}
-        };
+			public void runCommand(Message message) throws NotApplicableCommandException {
+				message.author().digest(Presenter.cancelled());
+			}
+		};
 	}
 
 	protected Command challengeCommand() {
@@ -132,18 +130,18 @@ public class CommandHandler extends Thread implements Constants {
         };
 	}
 
-	protected Command getOptionsCommand() {
+	protected static Command getExtensionsCommand() {
 		return new Command() {
         	public void runCommand(Message message) throws GoException {
-        		message.author().send(Presenter.options(server.OPTIONS));
+        		message.author().send(Presenter.extensions(Server.EXTENSIONS));
         	}
         };
 	}
 
-	protected Command optionsCommand() {
+	protected static Command extensionsCommand() {
 		return new Command() {
         	public void runCommand(Message message) throws GoException {
-        		message.author().setOptions(Interpreter.options(message));
+        		message.author().setExtensions(Interpreter.extensions(message));
         	}
         };
 	}
@@ -169,5 +167,13 @@ public class CommandHandler extends Thread implements Constants {
             		}
             	};
         };
+	}
+	
+	protected Command quitCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				message.author().kill();
+			};
+		};
 	}
 }

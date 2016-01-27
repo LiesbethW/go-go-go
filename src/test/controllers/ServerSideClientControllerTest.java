@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import controllers.ClientHandler;
 import network.Server;
-import test.network.TestNetworkSetup;
+import test.helperclasses.TestNetworkSetup;
 
 public class ServerSideClientControllerTest {
 	private Server server;

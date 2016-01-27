@@ -72,16 +72,20 @@ public class Interpreter implements Constants {
 		return new Board(stones, blackCaptives, whiteCaptives);
 	}
 
-	public static List<String> options(Message message) {
-		List<String> possibleOptions = new ArrayList<String>(Arrays.asList(CHAT, 
+	public static List<String> extensions(Message message) {
+		List<String> possibleExtensions = new ArrayList<String>(Arrays.asList(CHAT, 
 				CHALLENGE, OBSERVER, COMPUTERPLAYER));
 		List<String> options = new ArrayList<String>();
 		for (String optionString : message.args()) {
-			if (possibleOptions.stream().anyMatch(s -> s.equals(optionString))) {
+			if (possibleExtensions.stream().anyMatch(s -> s.equals(optionString))) {
 				options.add(optionString);
 			}
 		}
 		return options;
+	}
+	
+	public static List<String> options(Message message) {
+		return Arrays.asList(message.args());
 	}
 	
 }

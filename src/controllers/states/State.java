@@ -1,5 +1,7 @@
 package controllers.states;
 
+import java.util.HashSet;
+
 import exceptions.NotApplicableCommandException;
 import network.protocol.Message;
 
@@ -16,5 +18,7 @@ public interface State {
 	public void addCommand(String command);
 	
 	public void addTransition(String command, State state);
+	
+	public HashSet<String> applicableCommands();
 	
 }

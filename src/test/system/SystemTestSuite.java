@@ -7,7 +7,9 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
   ApplyingNewClientTest.class,
   SettingOptionsTest.class,
-  ChatTest.class
+  ChallengeTest.class,
+  ChatTest.class,
+  BasicGameTest.class
 })
 
 public class SystemTestSuite {
