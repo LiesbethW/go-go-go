@@ -3,37 +3,33 @@ package controllers.states;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import controllers.ServerSideClientController;
-import exceptions.NotApplicableCommandException;
+import controllers.ClientHandler;
 import network.protocol.Message;
 
 public abstract class AbstractServerSideClientState implements 
 								State, network.protocol.Constants {
 	protected HashMap<String, State> transitionMap;
 	protected HashSet<String> applicableCommands;
-	protected ServerSideClientController client;
+	protected ClientHandler client;
 	
-	public AbstractServerSideClientState(ServerSideClientController client) {
+	public AbstractServerSideClientState(ClientHandler client) {
 		this.client = client;
 		applicableCommands = new HashSet<String>();
 		transitionMap = new HashMap<String, State>();
 	}
 
 	@Override
-	public State accept(Message message) throws NotApplicableCommandException {
-		if (!applicable(message.command())) {
-			throw new NotApplicableCommandException();
+	public State accept(Message message) {
+		if (!transitionMap().containsKey(message.command())) {
+			System.err.println(String.format("Server should not try to send command "
+					+ "%s to client in state %s", message.command(), this.toString()));
 		}
-		return transitionMap.get(message.command());
+		return transitionMap().get(message.command());
 	}
 	
 	public abstract void enter(Message message);
 	
-	public void enter() {}
-	
 	public abstract void leave(Message message);
-	
-	public void leave() {}
 	
 	public boolean reachableState(State state) {
 		return reachableStates().stream().anyMatch(s -> s.equals(state));
@@ -66,12 +62,16 @@ public abstract class AbstractServerSideClientState implements
 		applicableCommands.add(command);
 	}
 	
-	protected HashSet<String> applicableCommands() {
+	public HashSet<String> applicableCommands() {
 		return applicableCommands;
 	}
 	
 	protected HashSet<State> reachableStates() {
 		return new HashSet<State>(transitionMap.values());
+	}
+	
+	protected HashMap<String, State> transitionMap() {
+		return transitionMap;
 	}
 
 }

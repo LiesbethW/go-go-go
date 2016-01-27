@@ -1,27 +1,20 @@
 package controllers.states.clientside;
 
-import java.util.HashMap;
-
+import controllers.Client;
 import controllers.states.AbstractClientState;
-import controllers.states.State;
+import network.protocol.Message;
+import network.protocol.Presenter;
 
 public class NewClient extends AbstractClientState {
-	private static HashMap<String, State> transitionMap = new HashMap<>();
-	static 
-	{
-		transitionMap.put(FAILURE, new NewClient());
-		transitionMap.put(NEWPLAYERACCEPTED, new ReadyToPlay());		
+	
+	public NewClient(Client client) {
+		super(client);
 	}
 	
-	public NewClient() {
-
+	public void enter(Message message) { }
+	public void leave(Message message) {
+		client.send(Presenter.getExtensions());
+		client.send(Presenter.extensions(Client.SUPPORTED_EXTENSIONS));
 	}
-	
-	protected HashMap<String, State> transitionMap() {
-		return transitionMap;
-	}
-	
-	public void enter() { }
-	public void leave() { }
 
 }

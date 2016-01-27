@@ -31,6 +31,28 @@ public class Board {
 	}
 	
 	/**
+	 * Create a board from a two dimensional Stone
+	 * array and given numbers of captives. (To be
+	 * used after receiving the board as per the
+	 * protocol.)
+	 * @param stones
+	 * @param blackCaptives
+	 * @param whiteCaptives
+	 * @requires stones is square.
+	 */
+	public Board(Stone[][] stones, int blackCaptives, int whiteCaptives) {
+		this(stones.length);
+		this.blackCaptives = blackCaptives;
+		this.whiteCaptives = whiteCaptives;
+		
+		for (int i = 0, n = stones.length; i < n; i++) {
+			for (int j = 0, m = stones.length; j < m; j++) {
+				this.grid[i][j].layStone(stones[i][j]);
+			}
+		}
+	}
+	
+	/**
 	 * The board size. Keep in mind that the board
 	 * is always square: a 'size' of 9 means that the
 	 * board is 9x9.

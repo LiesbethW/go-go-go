@@ -24,7 +24,9 @@ public class Game {
 	 */
 	public Game(Player player1, Player player2, int boardSize) {
 		black = player1;
+		player1.setColor(Stone.BLACK);
 		white = player2;
+		player2.setColor(Stone.WHITE);
 		board = new Board(boardSize);
 		gameOver = false;
 		playerOnTurn = black;
@@ -110,7 +112,7 @@ public class Game {
 	public boolean validMove(Stone stone, int row, int col) {
 		Board boardCopy = board.deepCopy();
 		try {
-			board.layStone(stone, row, col);
+			boardCopy.layStone(stone, row, col);
 		} catch (InvalidMoveException e) {
 			return false;
 		}
@@ -123,12 +125,16 @@ public class Game {
 	
 	public void checkIfGameHasEnded() {
 		if (consecutivePasses >= 2 && playerOnTurn == black) {
-			gameOver = true;
 			determineWinner();
 			playerOnTurn = null;
+			gameOver = true;
 		}
 	}
 	
+	public Board getBoard() {
+		return board.deepCopy();
+	}
+
 	public void determineWinner() {
 //		board.getTerritories();
 	}

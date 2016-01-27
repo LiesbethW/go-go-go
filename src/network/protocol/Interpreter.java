@@ -1,7 +1,13 @@
 package network.protocol;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
 import exceptions.InvalidArgumentException;
 import exceptions.UnknownCommandException;
+import game.Board;
 import game.Stone;
 
 public class Interpreter implements Constants {
@@ -34,13 +40,52 @@ public class Interpreter implements Constants {
 		}
 	}
 	
-	public static int coordinate(String string) throws InvalidArgumentException {
+	public static int integer(String string) throws InvalidArgumentException {
 		try {
 			return Integer.parseInt(string);
 		} catch (NumberFormatException e) {
 			throw new InvalidArgumentException(
 					String.format("A number was expected, %s was given", string));
 		}
+	}
+	
+	public static Board board(Message message) throws InvalidArgumentException {
+		HashMap<String, Stone> toStone = new HashMap<>();
+		toStone.put(B, Stone.BLACK);
+		toStone.put(W, Stone.WHITE);
+		toStone.put(E, Stone.NONE);
+		
+		int size = (int) Math.sqrt(message.args()[0].length());
+		int blackCaptives = integer(message.args()[1]);
+		int whiteCaptives = integer(message.args()[2]);
+		Stone[][] stones = new Stone[size][size];
+		
+		String[] letters = message.args()[0].split("");
+		int index = 0;
+		
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				stones[i][j] = toStone.get(letters[index]);
+				index++;
+			}
+		}
+		return new Board(stones, blackCaptives, whiteCaptives);
+	}
+
+	public static List<String> extensions(Message message) {
+		List<String> possibleExtensions = new ArrayList<String>(Arrays.asList(CHAT, 
+				CHALLENGE, OBSERVER, COMPUTERPLAYER));
+		List<String> options = new ArrayList<String>();
+		for (String optionString : message.args()) {
+			if (possibleExtensions.stream().anyMatch(s -> s.equals(optionString))) {
+				options.add(optionString);
+			}
+		}
+		return options;
+	}
+	
+	public static List<String> options(Message message) {
+		return Arrays.asList(message.args());
 	}
 	
 }

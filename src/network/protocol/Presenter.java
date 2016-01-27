@@ -1,23 +1,58 @@
 package network.protocol;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import controllers.ClientHandler;
 import exceptions.GoException;
 import game.Board;
 import game.Stone;
 
 public class Presenter implements Constants {
 
+	// Messages
+	
 	public static Message exceptionMessage(GoException e) {
-		return new Message(FAILURE, CommandSet.exceptionCommand(e));
+		return new Message(FAILURE, CommandSet.exceptionCommand(e), e.getMessage());
+	}
+	
+	public static Message newPlayer(String name) {
+		return new Message(NEWPLAYER, name);
 	}
 	
 	public static Message newPlayerAccepted() {
 		return new Message(NEWPLAYERACCEPTED);
 	}
 	
+	public static Message play() {
+		return new Message(PLAY);
+	}
+	
+	public static Message chat(String author, String[] chatArgs) {
+		String chatMessage = String.join(DELIMITER, chatArgs);
+		return new Message(CHAT, author + ":", chatMessage);
+	}
+	
+	public static Message chat(String chatMessage) {
+		return new Message(CHAT, chatMessage);
+	}
+
+	public static Message chat(String[] chatMessage) {
+		return new Message(CHAT, chatMessage);
+	}	
+	
 	public static Message waitForOpponent() {
 		return new Message(WAITFOROPPONENT);
+	}
+	
+	public static Message cancel() {
+		return new Message(CANCEL);
+	}
+	
+	public static Message cancelled() {
+		return new Message(CANCELLED);
 	}
 	
 	public static Message gameStart(String opponent, int boardSize, Stone color) {
@@ -47,6 +82,27 @@ public class Presenter implements Constants {
 		return new Message(MOVE, PASS);
 	}
 	
+	public static Message stopGame() {
+		return new Message(STOPGAME);
+	}
+	
+	public static Message victory() {
+		return new Message(GAMEOVER, VICTORY);
+	}
+	
+	public static Message defeat() {
+		return new Message(GAMEOVER, DEFEAT);
+	}
+	
+	public static Message draw() {
+		return new Message(GAMEOVER, DRAW);
+	}
+	
+	public static Message challengableOpponentsList(List<ClientHandler> clients) {
+		String[] players = clients.stream().map(c -> c.name()).collect(Collectors.toList()).toArray(new String[]{});
+		return new Message(AVAILABLEPLAYERS, players);
+	}
+	
 	public static Message challengeAccepted() {
 		return new Message(CHALLENGEACCEPTED);
 	}
@@ -67,6 +123,44 @@ public class Presenter implements Constants {
 		return new Message(YOUVECHALLENGED, opponent);
 	}
 	
+	public static Message youreChallenged(String opponent) {
+		return new Message(YOURECHALLENGED, opponent);
+	}
+	
+	public static Message getExtensions() {
+		return new Message(GETEXTENSIONS);
+	}
+	
+	public static Message extensions(List<String> extensionList) {
+		return new Message(EXTENSIONS, extensionList.toArray(new String[]{}));
+	}
+	
+	public static Message getOptions() {
+		return new Message(GETOPTIONS);
+	}
+	
+	public static Message options(HashSet<String> commands) {
+		return new Message(OPTIONS, commands.toArray(new String[]{}));
+	}
+	
+	// Single terms from the protocol
+	
+	public static String chatOpt() {
+		return CHAT;
+	}
+	
+	public static String challengeOpt() {
+		return CHALLENGE;
+	}
+	
+	public static String observerOpt() {
+		return OBSERVER;
+	}
+	
+	public static String AIOpt() {
+		return COMPUTERPLAYER;
+	}
+	
 	public static String board(Board board) {
 		HashMap<Stone, String> protocolStoneRepr = new HashMap<>();
 		protocolStoneRepr.put(Stone.BLACK, B);
@@ -79,7 +173,7 @@ public class Presenter implements Constants {
 			}
 		}
 		return String.join("", nodes);
-	}	
+	}
 
 	public static String color(Stone stone) {
 		return stone.name();

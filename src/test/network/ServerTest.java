@@ -11,7 +11,7 @@ public class ServerTest {
 	
 	@Test
 	public void setUp() {
-		Server server = new Server(port, Server.BOARDSIZE);
+		Server server = new Server(0, Server.BOARDSIZE);
 		assertNotNull(server);
 	}
 

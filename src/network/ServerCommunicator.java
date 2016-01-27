@@ -8,26 +8,26 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import controllers.ClientSideClientController;
+import controllers.Client;
 import exceptions.GoException;
 import exceptions.NotApplicableCommandException;
 import exceptions.UnknownCommandException;
+import network.protocol.Interpreter;
 import network.protocol.Message;
 import network.protocol.Presenter;
-import network.protocol.Interpreter;
 
-public class Client extends Thread {
+public class ServerCommunicator extends Thread {
 	
 	private Socket socket;
 	private BufferedReader in;
 	private BufferedWriter out;
-	private ClientSideClientController controller;
+	private Client controller;
 
-	public Client(InetAddress host, int port) throws IOException {
+	public ServerCommunicator(InetAddress host, int port, Client controller) throws IOException {
 		socket = new Socket(host, port);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-		controller = new ClientSideClientController(this);
+		this.controller = controller;
 	}
 	
 	public void run() {
@@ -38,6 +38,7 @@ public class Client extends Thread {
 				if (messageString == null) {
 					throw new IOException();
 				}
+				System.out.println("Client received: " + messageString);
 				handle(messageString);
 			} catch(IOException e) {
 				System.out.println("Could not read incoming messages.");
@@ -49,7 +50,7 @@ public class Client extends Thread {
 	public void handle(String messageString) {
 		try {
 			Message message = Interpreter.digest(messageString);
-			controller.digest(message);
+			controller.process(message);
 		} catch (UnknownCommandException | NotApplicableCommandException e) {
 			handleException(e);
 		}
@@ -57,11 +58,12 @@ public class Client extends Thread {
 	}
 	
 	public void handleException(GoException e) {
-		send(Presenter.exceptionMessage(e));
+		System.err.println(Presenter.exceptionMessage(e));
 	}
 	
 	public void send(Message message) {
 		try {
+			System.out.println("Client sends: " + message.toString());
 			out.write(message.toString());
 			out.newLine();
 			out.flush();

@@ -2,28 +2,22 @@ package controllers.states.clientside;
 
 import java.util.HashMap;
 
+import controllers.Client;
 import controllers.states.AbstractClientState;
 import controllers.states.State;
+import network.protocol.Message;
 
 public class WaitingForOpponent extends AbstractClientState {
-	private static HashMap<String, State> transitionMap = new HashMap<String, State>();
-	static {
-		transitionMap.put(GAMESTART, new Playing());
-		transitionMap.put(CHAT, new WaitingForOpponent());
-		transitionMap.put(OPTIONS, new WaitingForOpponent());
-		transitionMap.put(GETOPTIONS, new WaitingForOpponent());
-		transitionMap.put(QUIT, new WaitingForOpponent());
-	}
 	
-	public WaitingForOpponent() {
-
+	public WaitingForOpponent(Client client) {
+		super(client);
 	}
 	
 	protected HashMap<String, State> transitionMap() {
 		return transitionMap;
 	}
 	
-	public void enter() { }
-	public void leave() { }
+	public void enter(Message message) { }
+	public void leave(Message message) { }
 
 }

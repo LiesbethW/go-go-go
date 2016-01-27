@@ -1,7 +1,7 @@
 package userinterface;
 
 import java.io.PrintStream;
-import java.util.HashSet;
+import java.util.List;
 
 import game.Board;
 
@@ -16,7 +16,7 @@ public class TUIView implements View {
 		//TODO
 	}
 	
-	public void showOptions(HashSet<String> options) {
+	public void showOptions(List<String> options) {
 		//TODO		
 	}
 	
