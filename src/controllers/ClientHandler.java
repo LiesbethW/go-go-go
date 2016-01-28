@@ -222,8 +222,8 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * The 'living' status of this client.
 	 * @return
 	 */
-	public boolean alive() {
-		return alive;
+	public boolean dead() {
+		return !alive;
 	}
 	
 	/**

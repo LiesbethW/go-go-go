@@ -98,6 +98,7 @@ public class Server extends Thread {
 		while(true) {
 			try {
 				checkForGamesToStart();
+				checkForDeadClientsToRemove();
 			} catch (CorruptedStateException e) {
 				System.err.println(e.getMessage());
 			}
@@ -158,6 +159,10 @@ public class Server extends Thread {
 		return clients().stream().filter(c -> c.canStartPlaying()).collect(Collectors.toList());
 	}
 	
+	public List<ClientHandler> deadClients() {
+		return clients().stream().filter(c -> c.dead()).collect(Collectors.toList());
+	}
+	
 	/**
 	 * Find clientHandler by client name.
 	 * @param name
@@ -199,8 +204,18 @@ public class Server extends Thread {
 		addClient(client2);
 	}
 	
-	public void disconnectClient(ClientHandler client1) {
-		
+	public void checkForDeadClientsToRemove() {
+		if (deadClients().size() > 0) {
+			for (ClientHandler client : deadClients()) {
+				disconnectClient(client);
+			}
+		}
+	}
+	
+	public void disconnectClient(ClientHandler client) {
+		client.clientCommunicator().shutdown();
+		System.out.printf("Client %s has disconnected.%n", client.name());
+		removeClient(client);
 	}
 
 }

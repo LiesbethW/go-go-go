@@ -66,7 +66,7 @@ public class ClientCommunicator extends Thread {
 		}
 	}
 	
-	private void shutdown() {
+	public void shutdown() {
 		try {
 			socket.close();
 			in.close();

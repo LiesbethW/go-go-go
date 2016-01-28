@@ -18,6 +18,7 @@ import controllers.states.clientside.ReadyToPlay;
 import controllers.states.clientside.StartPlaying;
 import controllers.states.clientside.WaitForChallengeResponse;
 import controllers.states.clientside.WaitingForOpponent;
+import exceptions.GoException;
 import exceptions.NotApplicableCommandException;
 import game.Board;
 import game.Stone;
@@ -291,6 +292,10 @@ public class Client extends Observable implements FSM, Constants {
 	public void addChatMessage(String chatMessage) {
 		this.chatMessages.add(chatMessage);
 	}
+	
+	public void handleException(GoException e) {
+		System.err.println(e.getMessage());
+	}
 
 	public void initializeStates() {
 		newClient = new NewClient(this);
@@ -303,7 +308,7 @@ public class Client extends Observable implements FSM, Constants {
 		
 		HashSet<State> activeStates = new HashSet<>();
 		activeStates.addAll(Arrays.asList(readyToPlay, waitingForOpponent, 
-				waitForChallengeResponse, challenged, playing));
+				waitForChallengeResponse, challenged, startPlaying, playing));
 		
 		activeStates.stream().forEach(state -> state.addTransition(CHAT, state));
 		
@@ -344,7 +349,7 @@ public class Client extends Observable implements FSM, Constants {
 		
 		HashSet<State> activeStates = new HashSet<>();
 		activeStates.addAll(Arrays.asList(readyToPlay, waitingForOpponent, 
-				waitForChallengeResponse, challenged, playing));	
+				waitForChallengeResponse, challenged, startPlaying, playing));	
 		
 		activeStates.stream().forEach(state -> state.addCommand(CHAT));		
 	}

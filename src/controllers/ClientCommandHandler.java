@@ -6,6 +6,7 @@ import java.util.HashMap;
 import exceptions.GoException;
 import exceptions.InvalidArgumentException;
 import exceptions.NotSupportedCommandException;
+import game.Stone;
 import network.protocol.Constants;
 import network.protocol.Interpreter;
 import network.protocol.Message;
@@ -33,7 +34,7 @@ public class ClientCommandHandler implements Constants {
 			}
 			methodMap.get(message.command()).runCommand(message);
 		} catch (GoException e) {
-			message.author().handleException(e);
+			client.handleException(e);
 		}
 		
 	}
@@ -106,7 +107,19 @@ public class ClientCommandHandler implements Constants {
 				if (message.user() != null) {
 					client.send(message);
 				} else {
-					// Parse move
+					if (message.args()[0].equals(Presenter.PASS)) {
+						client.setWhosTurnItIs(Interpreter.color(message.args()[0]).opponent());
+					} else {
+						try {
+							Stone color = Interpreter.color(message.args()[0]);
+	        				int row = Interpreter.integer(message.args()[1]);
+	        				int col = Interpreter.integer(message.args()[2]);
+	        				client.getBoard().layStone(color, row, col);
+	        				client.setWhosTurnItIs(Interpreter.color(message.args()[0]).opponent());
+						} catch (InvalidArgumentException e) {
+							client.handleException(e);
+						}						
+					}
 				}
 			}
 		};
@@ -131,7 +144,7 @@ public class ClientCommandHandler implements Constants {
 	protected Command chatCommand() {
 		return new Command() {
             public void runCommand(Message message) { 
-            	if (message.user().equals(client)) {
+            	if (message.user() != null) {
             		client.send(message);
             	} else {
             		client.addChatMessage(String.join(DELIMITER, message.args()));
@@ -159,10 +172,10 @@ public class ClientCommandHandler implements Constants {
 	protected Command setExtensionsCommand() {
 		return new Command() {
 			public void runCommand(Message message) {
-				if (Arrays.asList(message.args()).contains(Presenter.chatOpt())) {
+				if (Arrays.asList(message.args()).contains(Presenter.chatOpt().toString())) {
 					client.enableChat();
 				}
-				if (Arrays.asList(message.args()).contains(Presenter.challengeOpt())) {
+				if (Arrays.asList(message.args()).contains(Presenter.challengeOpt().toString())) {
 					client.enableChallenge();
 				}
 			}

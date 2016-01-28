@@ -100,6 +100,8 @@ public class TUIView implements View, Constants {
 			return "Your challenge was accepted!";
 		} else if (message.command().equals(Presenter.challengeDenied().toString())) {
 			return "Your challenge was declined.";
+		} else if (message.command().equals(MOVE) && message.args()[1].equals(PASS)) {
+			return "Pass.";
 		}
 		return null;
 	}
@@ -140,6 +142,7 @@ public class TUIView implements View, Constants {
 	public void initializeOptionRender() {
 		optionRender = new HashMap<String, String>();
 		
+		optionRender.put(NEWPLAYER, "N - Enter your name");
 		optionRender.put(MOVE, "M - Make a move");
 		optionRender.put(CHAT, "C - Send a chat message");
 		optionRender.put(PLAY, "P - Play with a random opponent");
