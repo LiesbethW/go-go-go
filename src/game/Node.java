@@ -13,6 +13,7 @@ public class Node {
 	Stone stone;
 	Board board;
 	List<Node> neighbours;
+	Stone territory;
 	
 	/**
 	 * Create a new Node on a board with the
@@ -137,6 +138,61 @@ public class Node {
 		myGroup.add(this);
 		return group(myGroup);
 	}
+	
+	/**
+	 * Update the territories of all adjacent nodes.
+	 * (Useful after laying a Stone on this place).
+	 */
+	public void updateTerritories() {
+		for (Node node : neighbours()) {
+			node.setTerritory();
+		}
+	}
+	
+	/**
+	 * Get the territory that this Node is assigned to.
+	 * @return
+	 */
+	public Stone getTerritory() {
+		return territory;
+	}
+	
+	/**
+	 * Set the territory of this Node.
+	 */
+	public void setTerritory() {
+		this.territory = determineTerritory();
+	}
+	
+	/**
+	 * Determine the territory to which this node belongs.
+	 */
+	public Stone determineTerritory() {
+		if (getStone().equals(Stone.BLACK) || getStone().equals(Stone.WHITE)) {
+			return Stone.NONE;
+		} else {
+			boolean whiteNeighbours = false;
+			boolean blackNeighbours = false;
+			for (Node node : group()) {
+				for (Node neighbour : node.neighbours()) {
+					if (neighbour.getStone() == Stone.WHITE) {
+						whiteNeighbours = true;
+					} else if (neighbour.getStone() == Stone.BLACK) {
+						blackNeighbours = true;
+					}
+					if (blackNeighbours && whiteNeighbours)  {
+						return Stone.NONE;
+					}
+				}
+			}
+			if (whiteNeighbours) {
+				return Stone.WHITE;
+			} else if (blackNeighbours) {
+				return Stone.BLACK;
+			}
+			return Stone.NONE;
+		}
+	}
 
 	/**
 	 * For each of this nodes neighbours, add
@@ -157,7 +213,7 @@ public class Node {
 	}
 	
 	/**
-	 * 
+	 * The free adjacent nodes of this node and his group.
 	 * @return
 	 */
 	private Set<Node> freeAdjacentNodes() {
