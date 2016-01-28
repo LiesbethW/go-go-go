@@ -10,7 +10,9 @@ public class WaitForChallengeResponse extends AbstractClientState {
 		super(client);
 	}
 	
-	public void enter(Message message) { }
+	public void enter(Message message) { 
+		client.setOpponent(message.args()[0]);
+	}
 	public void leave(Message message) { }
 
 }

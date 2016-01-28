@@ -2,10 +2,12 @@ package network.protocol;
 
 import static network.protocol.Constants.DELIMITER;
 
+import controllers.Client;
 import controllers.ClientHandler;
 
 public class Message {
 	private ClientHandler author;
+	private Client user;
 	private String command;
 	private String[] args;
 	
@@ -47,8 +49,16 @@ public class Message {
 		return author;
 	}
 	
+	public Client user() {
+		return user;
+	}
+	
 	public void setAuthor(ClientHandler author) {
 		this.author = author;
+	}
+	
+	public void setUser(Client user) {
+		this.user = user;
 	}
 	
 	public String toString() {

@@ -33,11 +33,14 @@ public class BoardView {
 				stones[j] = board.stoneAt(i, j).toString();
 			}
 			String intersections = String.join(HORIZONTALLINE, stones);
-			rows[i] = String.join("  ", row(i), 
-					intersections, row(i));
+			String leftAlignedDigit = String.format("%1$-3s", String.valueOf(row(i)));
+			String rigthAlignedDigit = String.format("%1$3s", String.valueOf(row(i)));
+			rows[i] = String.join("", leftAlignedDigit, 
+					intersections, rigthAlignedDigit);
 		}
 		String allRows = String.join(rowDistanceKeeper(), rows);
-		return String.join("\n", columnIndicators(), allRows, columnIndicators());
+		return String.join("\n\n   ", DISTANCEKEEPER, columnIndicators(), 
+				allRows, columnIndicators(), "\n");
 	}
 	
 	public String rowDistanceKeeper() {
@@ -45,8 +48,8 @@ public class BoardView {
 			String[] verticals = new String[board.size()];
 			java.util.Arrays.fill(verticals, VERTICALLINE);
 			rowDistanceKeeper = String.join(DISTANCEKEEPER, verticals);
-			rowDistanceKeeper = String.join("", "\n", DISTANCEKEEPER, 
-					rowDistanceKeeper, DISTANCEKEEPER, "\n");
+			rowDistanceKeeper = String.join("", "\n   ", DISTANCEKEEPER, 
+					rowDistanceKeeper, DISTANCEKEEPER, "\n   ");
 		}
 		return rowDistanceKeeper;
 	}

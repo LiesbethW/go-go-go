@@ -30,6 +30,8 @@ public class TestNetworkSetup extends Thread {
 
 	public Client addClient() throws UnknownHostException, IOException {
 		Client newClient = new Client(InetAddress.getByName("localhost"), server().getPort());
+		Thread clientThread = new Thread(newClient);
+		clientThread.start();
 		waitForMagicToHappen();
 		return newClient;
 	}

@@ -18,6 +18,10 @@ public class Presenter implements Constants {
 		return new Message(FAILURE, CommandSet.exceptionCommand(e), e.getMessage());
 	}
 	
+	public static Message quit() {
+		return new Message(QUIT);
+	}
+	
 	public static Message newPlayer(String name) {
 		return new Message(NEWPLAYER, name);
 	}
@@ -57,6 +61,10 @@ public class Presenter implements Constants {
 	
 	public static Message gameStart(String opponent, int boardSize, Stone color) {
 		return new Message(GAMESTART, opponent, String.valueOf(boardSize), color(color));
+	}
+	
+	public static Message getBoard() {
+		return new Message(GETBOARD);
 	}
 
 	public static Message boardMessage(Board board) {

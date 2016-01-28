@@ -42,9 +42,9 @@ public enum Stone {
 		if (this == WHITE) {
 			return "O";
 		} else if (this == BLACK) {
-			return "X";
+			return String.format("%c", (char) 0x2588);
 		} else {
-			return "+";
+			return String.format("%c", (char) 0x00B7);
 		}
 	}
 	

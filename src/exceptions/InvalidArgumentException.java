@@ -3,7 +3,7 @@ package exceptions;
 public class InvalidArgumentException extends UnknownCommandException {
 
 	public InvalidArgumentException() {
-		// TODO Auto-generated constructor stub
+		this("The arguments given were not valid.");
 	}
 
 	public InvalidArgumentException(String message) {

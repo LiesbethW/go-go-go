@@ -3,7 +3,7 @@ package exceptions;
 public class OtherPlayerCannotChatException extends GoException {
 
 	public OtherPlayerCannotChatException() {
-		// TODO Auto-generated constructor stub
+		this("The other player cannot receive chat messages.");
 	}
 
 	public OtherPlayerCannotChatException(String message) {

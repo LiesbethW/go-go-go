@@ -143,6 +143,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * @param message
 	 */
 	public void send(Message message) {
+		System.out.printf("Send to %s: %s%n", name(), message.toString());
 		clientCommunicator.send(message);
 	}
 	
@@ -222,8 +223,8 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * The 'living' status of this client.
 	 * @return
 	 */
-	public boolean alive() {
-		return alive;
+	public boolean dead() {
+		return !alive;
 	}
 	
 	/**
@@ -232,6 +233,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 	 * execution.
 	 */
 	public void kill() {
+		System.out.printf("Client %s has been killed.%n", name());
 		alive = false;
 	}
 	

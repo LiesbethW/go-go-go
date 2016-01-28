@@ -30,15 +30,28 @@ public class ClientCommunicator extends Thread {
 	}
 	
 	public void run() {
-    	String messageString;
-        try {
-        	while ((messageString = in.readLine()) != null) {
-        		handle(messageString);
-        	}
-        } catch (IOException e) {
-        	System.err.println(e.getMessage());
-        	shutdown();
-        }
+		while (!controller.dead()) {
+			String messageString;
+			try {
+				messageString = in.readLine();
+				if (messageString == null) {
+					throw new IOException();
+				}
+				handle(messageString);
+			} catch(IOException e) {
+				System.out.println("Could not read incoming messages.");
+				shutdown();
+			}
+		}
+//    	String messageString;
+//        try {
+//        	while ((messageString = in.readLine()) != null) {
+//        		handle(messageString);
+//        	}
+//        } catch (IOException e) {
+//        	System.err.println(e.getMessage());
+//        	shutdown();
+//        }
 	}
 	
 	public void handle(String messageString) {
@@ -66,7 +79,7 @@ public class ClientCommunicator extends Thread {
 		}
 	}
 	
-	private void shutdown() {
+	public void shutdown() {
 		try {
 			socket.close();
 			in.close();

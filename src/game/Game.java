@@ -143,6 +143,11 @@ public class Game {
 		return winner;
 	}
 	
+	public void endGameEarly(Player player) {
+		this.gameOver = true;
+		this.winner = otherPlayer(player);
+	}
+	
 	public boolean gameOver() {
 		return gameOver;
 	}

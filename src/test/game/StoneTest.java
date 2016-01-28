@@ -40,9 +40,9 @@ public class StoneTest {
 	
 	@Test
 	public void toStringTest() {
-		assertEquals("X", stone.toString());
+		assertEquals(String.format("%c", (char) 0x2588), stone.toString());
 		assertEquals("O", Stone.WHITE.toString());
-		assertEquals("+", noStone.toString());
+		assertEquals(String.format("%c", (char) 0x00B7), noStone.toString());
 	}
 	
 	@Test

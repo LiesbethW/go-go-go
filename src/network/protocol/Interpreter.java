@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import exceptions.GoException;
 import exceptions.InvalidArgumentException;
 import exceptions.UnknownCommandException;
 import game.Board;
@@ -86,6 +87,22 @@ public class Interpreter implements Constants {
 	
 	public static List<String> options(Message message) {
 		return Arrays.asList(message.args());
+	}
+	
+	public static GoException exception(Message message) throws InvalidArgumentException {
+		if (message.command().equals(Presenter.FAILURE) 
+				&& CommandSet.knownException(message.args()[0])) {
+			String exceptionName = String.join("", "exceptions.", message.args()[0], "Exception");
+			try {
+				Class<?> exceptionClass = Class.forName(exceptionName);
+				GoException clsInstance = (GoException) exceptionClass.newInstance();
+				return clsInstance;
+			} catch(ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+				throw new InvalidArgumentException(message.args()[0]);
+			}
+		} else {
+			return null;
+		}
 	}
 	
 }

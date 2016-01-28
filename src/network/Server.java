@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import controllers.ClientHandler;
@@ -88,7 +89,7 @@ public class Server extends Thread {
 			System.out.println("ERROR: could not create a server socket on port " + port);
 			System.exit(0);
 		}
-		clients = new ArrayList<ClientHandler>();
+		clients = new CopyOnWriteArrayList<ClientHandler>();
 		commandQueue = new ConcurrentLinkedQueue<Message>();
 		commandHandler = new CommandHandler(this, commandQueue);
 	}
@@ -98,6 +99,7 @@ public class Server extends Thread {
 		while(true) {
 			try {
 				checkForGamesToStart();
+				checkForDeadClientsToRemove();
 			} catch (CorruptedStateException e) {
 				System.err.println(e.getMessage());
 			}
@@ -111,6 +113,14 @@ public class Server extends Thread {
 	
 	public void enqueue(Message message) {
 		commandQueue.add(message);
+	}
+	
+	public void setBoardSize(int boardSize) {
+		this.boardSize = boardSize;
+	}
+	
+	public int boardsize() {
+		return boardSize;
 	}
 	
 	public int getPort() {
@@ -158,6 +168,10 @@ public class Server extends Thread {
 		return clients().stream().filter(c -> c.canStartPlaying()).collect(Collectors.toList());
 	}
 	
+	public List<ClientHandler> deadClients() {
+		return clients().stream().filter(c -> c.dead()).collect(Collectors.toList());
+	}
+	
 	/**
 	 * Find clientHandler by client name.
 	 * @param name
@@ -181,17 +195,17 @@ public class Server extends Thread {
 				throw new CorruptedStateException();
 			} else {
 				startNewGame(client1, client2);
-				removeClient(client1);
-				removeClient(client2);
 			}
 		}
 	}
 	
 	public void startNewGame(ClientHandler client1, ClientHandler client2) {
-		GameController gameController = new GameController(client1, client2, this, BOARDSIZE);
+		GameController gameController = new GameController(client1, client2, this, boardsize());
 		client1.setGameController(gameController);
 		client2.setGameController(gameController);
 		gameController.start();
+		removeClient(client1);
+		removeClient(client2);
 	}
 	
 	public void endGame(ClientHandler client1, ClientHandler client2) {
@@ -199,8 +213,16 @@ public class Server extends Thread {
 		addClient(client2);
 	}
 	
-	public void disconnectClient(ClientHandler client1) {
-		
+	public void checkForDeadClientsToRemove() {
+		if (deadClients().size() > 0) {
+			disconnectClient(deadClients().get(0));
+		}
+	}
+	
+	public void disconnectClient(ClientHandler client) {
+		client.clientCommunicator().shutdown();
+		System.out.printf("Client %s has disconnected.%n", client.name());
+		removeClient(client);
 	}
 
 }

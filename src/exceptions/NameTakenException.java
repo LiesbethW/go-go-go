@@ -3,7 +3,7 @@ package exceptions;
 public class NameTakenException extends NameException {
 
 	public NameTakenException() {
-		// TODO Auto-generated constructor stub
+		this("This name is already taken.");
 	}
 
 	public NameTakenException(String message) {

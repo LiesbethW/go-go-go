@@ -162,7 +162,6 @@ public class CommandHandler extends Thread implements Constants {
             		if (server.findClientByName(message.args()[0]) != null) {
             			throw new NameTakenException();
             		} else {
-            			System.out.println("Digesting..");
             			message.author().digest(message);
             		}
             	};

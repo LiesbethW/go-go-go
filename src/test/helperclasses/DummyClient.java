@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import controllers.Client;
+import exceptions.NotApplicableCommandException;
 import network.protocol.Message;
 
 public class DummyClient extends Client {
@@ -21,8 +22,16 @@ public class DummyClient extends Client {
 		receivedInput = inputStack;
 	}
 	
-	public void process(Message message) {
+	@Override
+	public void process(Message message) throws NotApplicableCommandException {
 		receivedInput.add(message.toString());
+		
+	}
+	
+	@Override
+	public void enqueue(Message message) {
+		receivedInput.add(message.toString());
+		
 	}
 
 }

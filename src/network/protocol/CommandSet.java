@@ -9,13 +9,13 @@ public class CommandSet implements Constants {
 	public static HashSet<String> supportedCommands = new HashSet<String>(Arrays.asList(VERSION, 
 			NEWPLAYER, NEWPLAYERACCEPTED, GETOPTIONS, OPTIONS, GETEXTENSIONS, EXTENSIONS, PLAY,
 			WAITFOROPPONENT, GAMESTART, MOVE, GETBOARD, BOARD, QUIT, GAMEOVER, CANCEL, STOPGAME,
-			CHAT, CHALLENGE, AVAILABLEPLAYERS, YOUVECHALLENGED, YOURECHALLENGED, CANCELLED,
-			GETHINT, HINT, AVAILABLESTRATEGIES, CHALLENGEACCEPTED, CHALLENGEDENIED, FAILURE));
+			CHAT, CHALLENGE, AVAILABLEPLAYERS, YOUVECHALLENGED, YOURECHALLENGED, CANCELLED, HINT,
+			CHALLENGEACCEPTED, CHALLENGEDENIED, FAILURE));
 	public static HashSet<String> supportedArguments = new HashSet<String>(Arrays.asList(WHITE, 
 			BLACK, PASS, VICTORY, DEFEAT, DRAW, W, B, E, CHAT, CHALLENGE, OBSERVER, COMPUTERPLAYER));
 	public static HashSet<String> notSupportedSet = new HashSet<String>(Arrays.asList(OBSERVER,
-			COMPUTERPLAYER, OBSERVE, NOGAMESPLAYING, CURRENTGAMES, OBSERVEDGAME,
-			PRACTICE, COMPUTER));
+			COMPUTERPLAYER, OBSERVE, NOGAMESPLAYING, CURRENTGAMES, OBSERVEDGAME, GETHINT,
+			PRACTICE, AVAILABLESTRATEGIES, COMPUTER));
 	public static HashSet<String> errors = new HashSet<String>(Arrays.asList(UNKNOWNCOMMAND,
 			NOTAPPLICABLECOMMAND, ARGUMENTSMISSING, NOTSUPPORTEDCOMMAND,
 			INVALIDNAME, NAMETAKEN, NAMENOTALLOWED, INVALIDMOVE, NOTYOURTURN,
@@ -38,6 +38,10 @@ public class CommandSet implements Constants {
 	
 	public static String exceptionCommand(GoException e) {
 		return errors.stream().filter(s -> e.toString().contains(s)).findFirst().orElse("");
+	}
+	
+	public static boolean knownException(String exceptionArg) {
+		return errors.contains(exceptionArg);
 	}
 	
 	public static HashSet<String> commandSet() {
