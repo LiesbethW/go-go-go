@@ -10,7 +10,9 @@ public class ReadyToPlay extends AbstractClientState {
 		super(client);
 	}
 	
-	public void enter(Message message) { }
+	public void enter(Message message) { 
+		client.setOpponent(null);
+	}
 	public void leave(Message message) { }
 
 }

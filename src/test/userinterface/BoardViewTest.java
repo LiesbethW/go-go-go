@@ -29,7 +29,7 @@ public class BoardViewTest {
 	public void testBoardView() {
 		assertNotNull(boardView);
 		assertEquals(boardView.rowDistanceKeeper(), 
-				"\n   |   |   |   |   |   |   |   |   |   \n");
+				"\n      |   |   |   |   |   |   |   |   |   \n   ");
 		assertEquals(boardView.columnIndicators(),
 				"   A   B   C   D   E   F   G   H   I   ");
 	}
@@ -37,7 +37,7 @@ public class BoardViewTest {
 	@Test
 	public void testSizes() {
 		BoardView b5 = new BoardView(new Board(5));
-		assertEquals(b5.rowDistanceKeeper(), "\n   |   |   |   |   |   \n");
+		assertEquals(b5.rowDistanceKeeper(), "\n      |   |   |   |   |   \n   ");
 		assertEquals(b5.columnIndicators(), "   A   B   C   D   E   ");
 		System.out.println(b5.render());
 	}
@@ -47,6 +47,14 @@ public class BoardViewTest {
 		System.out.println(boardView.render());
 		board.layStone(Stone.BLACK, 3, 4);
 		board.layStone(Stone.WHITE, 3, 5);
+		System.out.println(boardView.render());
+	}
+	
+	@Test
+	public void bigBoard() {
+		int boardSize = 19;
+		Board board = new Board(boardSize);
+		BoardView boardView = new BoardView(board);
 		System.out.println(boardView.render());
 	}
 	

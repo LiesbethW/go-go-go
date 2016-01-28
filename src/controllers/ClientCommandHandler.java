@@ -9,16 +9,16 @@ import network.protocol.Constants;
 import network.protocol.Interpreter;
 import network.protocol.Message;
 import network.protocol.Presenter;
-import userinterface.View;
+import userinterface.InteractionController;
 
 public class ClientCommandHandler implements Constants {
 	private Client client;
-	private View view;
+	private InteractionController interactionController;
 	private HashMap<String, Command> methodMap;	
 	
-	public ClientCommandHandler(Client client, View view) {
+	public ClientCommandHandler(Client client, InteractionController interactionController) {
 		this.client = client;
-		this.view = view;
+		this.interactionController = interactionController;
 		initializeMethodMap();
 	}
 	
@@ -58,7 +58,7 @@ public class ClientCommandHandler implements Constants {
 	protected Command chatCommand() {
 		return new Command() {
             public void runCommand(Message message) { 
-            	view.showMessage(String.join(DELIMITER, message.args()));
+            	client.addChatMessage(String.join(DELIMITER, message.args()));
             }
         };
 	}
@@ -66,7 +66,7 @@ public class ClientCommandHandler implements Constants {
 	protected Command optionCommand() {
 		return new Command() {
 			public void runCommand(Message message) {
-				view.showOptions(Interpreter.options(message));
+				interactionController.showOptions(Interpreter.options(message));
 			}
 		};
 	}
