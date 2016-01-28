@@ -48,6 +48,7 @@ public class ClientCommandHandler implements Constants {
         methodMap.put(OPTIONS, optionCommand());
         methodMap.put(EXTENSIONS, setExtensionsCommand());
         methodMap.put(GETEXTENSIONS, getExtensionsCommand());
+        methodMap.put(AVAILABLEPLAYERS, setAvailablePlayersCommand());
         methodMap.put(YOURECHALLENGED, simpleDigest());
         methodMap.put(YOUVECHALLENGED, simpleDigest());
         methodMap.put(CHALLENGEDENIED, challengeDeniedCommand());
@@ -64,6 +65,8 @@ public class ClientCommandHandler implements Constants {
         methodMap.put(NEWPLAYER, newPlayerCommand());
         methodMap.put(PLAY, playCommand());
         methodMap.put(CANCEL, cancelCommand());
+        methodMap.put(CHALLENGE, challengeCommand());
+        methodMap.put(GETOPTIONS, getOptionsCommand());
 	}
 	
 	protected Command gameOverCommand() {
@@ -80,7 +83,15 @@ public class ClientCommandHandler implements Constants {
 				client.send(message);
 			}
 		};
-	}		
+	}
+	
+	protected Command challengeCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				client.send(message);
+			}
+		};
+	}	
 	
 	protected Command cancelCommand() {
 		return new Command() {
@@ -161,7 +172,7 @@ public class ClientCommandHandler implements Constants {
 	protected Command optionCommand() {
 		return new Command() {
 			public void runCommand(Message message) {
-				interactionController.showOptions(Interpreter.options(message));
+				interactionController.showMenu(Interpreter.options(message));
 			}
 		};
 	}
@@ -214,6 +225,22 @@ public class ClientCommandHandler implements Constants {
 				}
 			}
 		};
-	}	
+	}
+	
+	protected Command setAvailablePlayersCommand() {
+		return new Command() {
+			public void runCommand(Message message) {
+				client.setAvailableOpponents(Arrays.asList(message.args()));
+			}
+		};
+	}
+	
+	protected Command getOptionsCommand() {
+		return new Command() {
+			public void runCommand(Message message) {
+				client.send(Presenter.getOptions());
+			}
+		};
+	}
 
 }

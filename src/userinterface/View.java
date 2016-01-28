@@ -1,5 +1,6 @@
 package userinterface;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import controllers.Client;
@@ -8,9 +9,9 @@ import network.protocol.Message;
 
 public interface View {
 	
-	public void showMenu();
+	public void showOptions(HashMap<Integer, String> options);
 	
-	public void showOptions(HashSet<String> options);
+	public void showMenu(HashSet<String> menuItems);
 	
 	public void showMessage(String message);
 	

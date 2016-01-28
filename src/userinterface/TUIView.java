@@ -40,7 +40,7 @@ public class TUIView implements View, Constants {
 			spacing();
 		}
 		
-		showOptions(client.getOptions());
+		showMenu(client.getOptions());
 		spacing();
 		
 		if (message != null && renderMessage(message) != null) {
@@ -48,6 +48,10 @@ public class TUIView implements View, Constants {
 		} else {
 			show(stateMessage(client));
 		}
+		
+		spacing();
+		showOptions(client);
+		
 	}
 	
 	
@@ -63,20 +67,24 @@ public class TUIView implements View, Constants {
 		show("-----------------------------------------------------------------------------");
 	}
 	
-	public void showMenu() {
+	public void showOptions(Client client) {
+
+	}
+	
+	public void showOptions(HashMap<Integer, String> options) {
 		//TODO
 	}
 	
-	public void showOptions(HashSet<String> options) {
+	public void showMenu(HashSet<String> menuItems) {
 		String[] menu = new String[8];
 		Arrays.fill(menu, "");
 		menu[0] = "----------------------------------- MENU ------------------------------------";
 		menu[7] = "-----------------------------------------------------------------------------";
 		menu[6] = optionRender.get(QUIT);
-		options.remove(QUIT);
+		menuItems.remove(QUIT);
 		int i = 1;
-		for (String option : options) {
-			menu[i] = optionRender.get(option);
+		for (String item : menuItems) {
+			menu[i] = optionRender.get(item);
 			i++;
 		}
 		show(String.join("\n", menu));

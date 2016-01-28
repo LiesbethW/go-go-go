@@ -28,7 +28,7 @@ import network.protocol.Message;
 import network.protocol.Presenter;
 import userinterface.InteractionController;
 
-public class Client extends Observable implements FSM, Constants {
+public class Client extends Observable implements FSM, Constants, Runnable {
 	public static List<String> SUPPORTED_EXTENSIONS = new ArrayList<String>(
 			Arrays.asList(Presenter.chatOpt(), Presenter.challengeOpt()));
 	private static final String USAGE
@@ -93,6 +93,7 @@ public class Client extends Observable implements FSM, Constants {
 	private Board board;
 	private Stone whosTurn;
 	private List<String> chatMessages;
+	private List<String> availableOpponents;
 	
 	public Client(InetAddress host, int port) throws IOException {
 		this.communicator = new ServerCommunicator(host, port, this);
@@ -103,6 +104,7 @@ public class Client extends Observable implements FSM, Constants {
 		addObserver(interactionController);
 		commandQueue = new ConcurrentLinkedQueue<Message>();
 		commandHandler = new ClientCommandHandler(this, interactionController);
+		communicator.start();
 	}
 	
 	/**
@@ -110,7 +112,6 @@ public class Client extends Observable implements FSM, Constants {
 	 * be processed by the commandhandler and notify observers.
 	 */
 	public void run() {
-		communicator.start();
 		interactionController.start();
 		setChanged();
 		notifyObservers(null);
@@ -289,6 +290,14 @@ public class Client extends Observable implements FSM, Constants {
 		}
 	}
 	
+	public List<String> availableOpponents() {
+		return availableOpponents;
+	}
+	
+	public void setAvailableOpponents(List<String> opponents) {
+		availableOpponents = opponents;
+	}
+	
 	public void addChatMessage(String chatMessage) {
 		this.chatMessages.add(chatMessage);
 	}
@@ -331,6 +340,7 @@ public class Client extends Observable implements FSM, Constants {
 		
 		readyToPlay.addCommand(PLAY);
 		readyToPlay.addTransition(WAITFOROPPONENT, waitingForOpponent);
+		readyToPlay.addTransition(AVAILABLEPLAYERS, readyToPlay);
 		
 		waitingForOpponent.addCommand(CANCEL);
 		waitingForOpponent.addTransition(CANCELLED, readyToPlay);

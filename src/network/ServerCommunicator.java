@@ -10,7 +10,6 @@ import java.net.Socket;
 
 import controllers.Client;
 import exceptions.GoException;
-import exceptions.NotApplicableCommandException;
 import exceptions.UnknownCommandException;
 import network.protocol.Interpreter;
 import network.protocol.Message;
@@ -51,8 +50,8 @@ public class ServerCommunicator extends Thread {
 	public void handle(String messageString) {
 		try {
 			Message message = Interpreter.digest(messageString);
-			controller.process(message);
-		} catch (UnknownCommandException | NotApplicableCommandException e) {
+			controller.enqueue(message);
+		} catch (UnknownCommandException e) {
 			handleException(e);
 		}
 		
