@@ -10,6 +10,7 @@ import controllers.Client;
 import game.Board;
 import network.protocol.Constants;
 import network.protocol.Message;
+import network.protocol.Presenter;
 
 public class TUIView implements View, Constants {
 	private PrintStream out;
@@ -86,15 +87,32 @@ public class TUIView implements View, Constants {
 	}
 	
 	public String renderMessage(Message message) {
+		if (message.command().equals(Presenter.FAILURE)) {
+
+		}
 		return null;
 	}
 	
 	public String stateMessage(Client client) {
 		if (client.newClient()) {
 			return "Welcome! Please enter your name";
+		} else if (client.readyToPlay()) {
+			return "Are you ready to start playing a game?";
+		} else if (client.waitingForOpponent()) {
+			return "Wait for another player to play against you.";
+		} else if (client.isChallenged()) {
+			return String.format("You've been challenged by %s, do you want to accept or decline?", client.opponent());
+		} else if (client.waitingForChallengeResponse()) {
+			return (String.format("You've challenged %s, wait for his/her response.", client.opponent()));
+		} else if (client.canStartPlaying()) {
+			return "Starting game...";
+		} else if (client.isPlaying() && client.myTurn()) {
+			return "Your turn! Make a move.";
+		} else if (client.isPlaying() && !client.myTurn()) {
+			return String.format("Wait for %s to make a move.", client.opponent());
+		} else {
+			return "What would you like to do?";
 		}
-		
-		return "What would you like to do?";
 	}
 	
 	public void cleanSlate() {

@@ -152,6 +152,10 @@ public class Client extends Observable implements FSM, Constants {
 		return currentState().equals(challenged);
 	}
 	
+	public boolean canStartPlaying() {
+		return currentState().equals(startPlaying);
+	}
+	
 	public boolean isPlaying() {
 		return currentState().equals(playing);
 	}

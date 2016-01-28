@@ -22,8 +22,7 @@ public class InteractionController extends Thread implements Observer {
 		if (observable instanceof Client && object instanceof Message) {
 			Client client = (Client) observable;
 			Message message = (Message) object;
-			
-			view.showMessage(message.toString());
+			view.renderState(client, message);
 		} else {
 			System.err.println("The InteractionController should receive a Message.");
 		}
