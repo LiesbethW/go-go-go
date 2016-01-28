@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import controllers.states.State;
 import controllers.states.clientside.Challenged;
@@ -43,14 +44,14 @@ public class Client extends Observable implements FSM, Constants {
 		int port = 0;
 	
 		try {
-			host = InetAddress.getByName(args[1]);
+			host = InetAddress.getByName(args[0]);
 		} catch (UnknownHostException e) {
 			System.out.println("ERROR: no valid hostname!");
 			System.exit(0);
 		}
 	
 		try {
-			port = Integer.parseInt(args[2]);
+			port = Integer.parseInt(args[1]);
 		} catch (NumberFormatException e) {
 			System.out.println("ERROR: no valid portnummer!");
 			System.exit(0);
@@ -58,6 +59,7 @@ public class Client extends Observable implements FSM, Constants {
 	
 		try {
 			Client client = new Client(host, port);
+			client.run();
 		} catch (IOException e) {
 			System.out.println("ERROR: couldn't construct a client object!");
 			System.exit(0);
@@ -68,6 +70,7 @@ public class Client extends Observable implements FSM, Constants {
 	// Client attributes
 	private ServerCommunicator communicator;
 	private State state;
+	private ConcurrentLinkedQueue<Message> commandQueue;
 	private ClientCommandHandler commandHandler;
 	private InteractionController interactionController;
 	private List<String> enabledExtensions;
@@ -97,8 +100,32 @@ public class Client extends Observable implements FSM, Constants {
 		enabledExtensions = new ArrayList<String>();
 		interactionController = new InteractionController(this);
 		addObserver(interactionController);
+		commandQueue = new ConcurrentLinkedQueue<Message>();
 		commandHandler = new ClientCommandHandler(this, interactionController);
+	}
+	
+	/**
+	 * Check the queue for new commands. If there is a command, let it
+	 * be processed by the commandhandler and notify observers.
+	 */
+	public void run() {
 		communicator.start();
+		interactionController.start();
+		setChanged();
+		notifyObservers(null);
+		while (true) {
+			if (commandQueue.peek() != null) {
+				Message message = commandQueue.poll();
+				commandHandler.process(message);
+				setChanged();
+				notifyObservers(message);
+			}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				
+			}
+		}
 	}
 
 	@Override
@@ -108,21 +135,40 @@ public class Client extends Observable implements FSM, Constants {
 		currentState().enter(message);			
 	}
 	
+	/**
+	 * Check if the message is applicable in the current state, then
+	 * place it on the queue for the commandhandler.
+	 * @param message
+	 * @throws NotApplicableCommandException
+	 */
 	public void process(Message message) throws NotApplicableCommandException {
 		if (!currentState().applicable(message.command())) {
 			throw new NotApplicableCommandException(message.command(), 
 					currentState());
 		} else {
-			commandHandler.process(message);
-			setChanged();
-			notifyObservers(message);
+			enqueue(message);
 		}
 	}
 	
+	/**
+	 * Enqueue a new message for the command handler.
+	 * @param message
+	 */
+	public void enqueue(Message message) {
+		commandQueue.add(message);
+	}
+	
+	/**
+	 * Send a message to the server.
+	 * @param message
+	 */
 	public void send(Message message) {
 		communicator.send(message);
 	}
 
+	/**
+	 * Return the current State of the application.
+	 */
 	@Override
 	public State currentState() {
 		return state;
@@ -160,10 +206,14 @@ public class Client extends Observable implements FSM, Constants {
 		return currentState().equals(playing);
 	}
 	
+	/**
+	 * Get the options for the user.
+	 * @return
+	 */
 	public HashSet<String> getOptions() {
 		HashSet<String> allCommands = currentState().applicableCommands();
 		allCommands.remove(Presenter.EXTENSIONS);
-		allCommands.remove(Presenter.EXTENSIONS);
+		allCommands.remove(Presenter.GETEXTENSIONS);
 		allCommands.remove(Presenter.OPTIONS);
 		allCommands.remove(Presenter.GETOPTIONS);
 		allCommands.remove(Presenter.FAILURE);
@@ -231,7 +281,11 @@ public class Client extends Observable implements FSM, Constants {
 	}
 	
 	public List<String> latestChatMessages() {
-		return chatMessages.subList(chatMessages.size() - 5, chatMessages.size());
+		if (chatMessages.size() < 5) {
+			return chatMessages;
+		} else {
+			return chatMessages.subList(chatMessages.size() - 5, chatMessages.size());			
+		}
 	}
 	
 	public void addChatMessage(String chatMessage) {

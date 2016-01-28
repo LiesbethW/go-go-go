@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import exceptions.GoException;
+import exceptions.InvalidArgumentException;
 import exceptions.NotSupportedCommandException;
 import network.protocol.Constants;
 import network.protocol.Interpreter;
@@ -35,7 +36,7 @@ public class ClientCommandHandler implements Constants {
 			message.author().handleException(e);
 		}
 		
-	}	
+	}
 	
 	public void initializeMethodMap() {
 		methodMap = new HashMap<String, Command>();
@@ -47,18 +48,94 @@ public class ClientCommandHandler implements Constants {
         methodMap.put(GETEXTENSIONS, getExtensionsCommand());
         methodMap.put(YOURECHALLENGED, simpleDigest());
         methodMap.put(YOUVECHALLENGED, simpleDigest());
-        methodMap.put(CHALLENGEDENIED, simpleDigest());
-        methodMap.put(CHALLENGEACCEPTED, simpleDigest());
+        methodMap.put(CHALLENGEDENIED, challengeDeniedCommand());
+        methodMap.put(CHALLENGEACCEPTED, challengeAcceptedCommand());
         methodMap.put(WAITFOROPPONENT, simpleDigest());
         methodMap.put(CANCELLED, simpleDigest());
         methodMap.put(GAMESTART, simpleDigest());
+        methodMap.put(GAMEOVER, gameOverCommand());
         methodMap.put(FAILURE, failureCommand());
+        
+        methodMap.put(MOVE, moveCommand());
+        
+        methodMap.put(NEWPLAYER, newPlayerCommand());
+        methodMap.put(PLAY, playCommand());
+        methodMap.put(CANCEL, cancelCommand());
+	}
+	
+	protected Command gameOverCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				client.send(message);
+			}
+		};
+	}	
+	
+	protected Command playCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				client.send(message);
+			}
+		};
+	}		
+	
+	protected Command cancelCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				client.send(message);
+			}
+		};
+	}
+	
+	protected Command newPlayerCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				if (message.args().length != 1) {
+					throw new InvalidArgumentException("Choose a name without spaces.");
+				} else {
+					client.setPlayerName(message.args()[0]);
+					client.send(message);
+				}
+			}
+		};
+	}
+	
+	protected Command moveCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				if (message.user() != null) {
+					client.send(message);
+				} else {
+					// Parse move
+				}
+			}
+		};
+	}
+	
+	protected Command challengeDeniedCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				client.digest(message);
+			}
+		};
+	}
+	
+	protected Command challengeAcceptedCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				client.digest(message);
+			}
+		};
 	}
 	
 	protected Command chatCommand() {
 		return new Command() {
             public void runCommand(Message message) { 
-            	client.addChatMessage(String.join(DELIMITER, message.args()));
+            	if (message.user().equals(client)) {
+            		client.send(message);
+            	} else {
+            		client.addChatMessage(String.join(DELIMITER, message.args()));
+            	}
             }
         };
 	}

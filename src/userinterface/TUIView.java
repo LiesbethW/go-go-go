@@ -7,8 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 
 import controllers.Client;
+import exceptions.InvalidArgumentException;
 import game.Board;
 import network.protocol.Constants;
+import network.protocol.Interpreter;
 import network.protocol.Message;
 import network.protocol.Presenter;
 
@@ -66,13 +68,14 @@ public class TUIView implements View, Constants {
 	
 	public void showOptions(HashSet<String> options) {
 		String[] menu = new String[8];
+		Arrays.fill(menu, "");
 		menu[0] = "----------------------------------- MENU ------------------------------------";
 		menu[7] = "-----------------------------------------------------------------------------";
 		menu[6] = optionRender.get(QUIT);
 		options.remove(QUIT);
 		int i = 1;
 		for (String option : options) {
-			menu[i] = option;
+			menu[i] = optionRender.get(option);
 			i++;
 		}
 		show(String.join("\n", menu));
@@ -88,7 +91,15 @@ public class TUIView implements View, Constants {
 	
 	public String renderMessage(Message message) {
 		if (message.command().equals(Presenter.FAILURE)) {
-
+			try {
+				return Interpreter.exception(message).getMessage();
+			} catch (InvalidArgumentException e) {
+				return null;
+			}
+		} else if (message.command().equals(Presenter.challengeAccepted().toString())) {
+			return "Your challenge was accepted!";
+		} else if (message.command().equals(Presenter.challengeDenied().toString())) {
+			return "Your challenge was declined.";
 		}
 		return null;
 	}

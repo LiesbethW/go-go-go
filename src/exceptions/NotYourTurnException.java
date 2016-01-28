@@ -3,7 +3,7 @@ package exceptions;
 public class NotYourTurnException extends GoException {
 
 	public NotYourTurnException() {
-		// TODO Auto-generated constructor stub
+		this("It is not your turn!");
 	}
 
 	public NotYourTurnException(String message) {

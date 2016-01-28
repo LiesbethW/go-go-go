@@ -5,6 +5,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 import controllers.Client;
+import exceptions.GoException;
+import network.protocol.Interpreter;
 import network.protocol.Message;
 
 public class InteractionController extends Thread implements Observer {
@@ -19,7 +21,7 @@ public class InteractionController extends Thread implements Observer {
 	}
 	
 	public void update(Observable observable, Object object) {
-		if (observable instanceof Client && object instanceof Message) {
+		if (observable instanceof Client && (object == null || object instanceof Message)) {
 			Client client = (Client) observable;
 			Message message = (Message) object;
 			view.renderState(client, message);
@@ -41,6 +43,14 @@ public class InteractionController extends Thread implements Observer {
 	}
 	
 	public void processUserInput(String input) {
+		try {
+			Message message = Interpreter.digest(input);
+			message.setUser(client);
+			client.process(message);
+		} catch (GoException e) {
+			System.out.print(e.toString());
+			System.out.println(e.getMessage());
+		}
 		
 	}
 	

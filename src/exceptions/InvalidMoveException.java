@@ -3,7 +3,7 @@ package exceptions;
 public class InvalidMoveException extends GoException {
 
 	public InvalidMoveException() {
-		// TODO Auto-generated constructor stub
+		this("The move you try to make is not a valid move.");
 	}
 
 	public InvalidMoveException(String message) {
