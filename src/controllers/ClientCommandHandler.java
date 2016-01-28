@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import exceptions.GoException;
 import exceptions.InvalidArgumentException;
+import exceptions.InvalidMoveException;
 import exceptions.NotSupportedCommandException;
 import game.Stone;
 import network.protocol.Constants;
@@ -56,6 +57,7 @@ public class ClientCommandHandler implements Constants {
         methodMap.put(GAMESTART, simpleDigest());
         methodMap.put(GAMEOVER, gameOverCommand());
         methodMap.put(FAILURE, failureCommand());
+        methodMap.put(BOARD, boardCommand());
         
         methodMap.put(MOVE, moveCommand());
         
@@ -67,7 +69,7 @@ public class ClientCommandHandler implements Constants {
 	protected Command gameOverCommand() {
 		return new Command() {
 			public void runCommand(Message message) throws GoException {
-				client.send(message);
+				client.digest(message);
 			}
 		};
 	}	
@@ -114,11 +116,14 @@ public class ClientCommandHandler implements Constants {
 							Stone color = Interpreter.color(message.args()[0]);
 	        				int row = Interpreter.integer(message.args()[1]);
 	        				int col = Interpreter.integer(message.args()[2]);
-	        				client.getBoard().layStone(color, row, col);
 	        				client.setWhosTurnItIs(Interpreter.color(message.args()[0]).opponent());
+	        				client.getBoard().layStone(color, row, col);
 						} catch (InvalidArgumentException e) {
 							client.handleException(e);
-						}						
+						} catch (InvalidMoveException e) {
+							System.err.println("Received an invalid move. Retreiving correct board from the server.");
+							client.send(Presenter.getBoard());
+						}
 					}
 				}
 			}
@@ -197,5 +202,18 @@ public class ClientCommandHandler implements Constants {
 			}
 		};
 	}
+	
+	protected Command boardCommand() {
+		return new Command() {
+			public void runCommand(Message message) {
+				try {
+					client.setBoard(Interpreter.board(message));
+					client.setBoardSize(client.getBoard().size());
+				} catch (InvalidArgumentException e) {
+					System.err.println("The received board message was invalid. This server is mad!");
+				}
+			}
+		};
+	}	
 
 }

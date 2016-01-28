@@ -22,23 +22,24 @@ public class ServerCommunicator extends Thread {
 	private BufferedReader in;
 	private BufferedWriter out;
 	private Client controller;
+	private boolean alive;
 
 	public ServerCommunicator(InetAddress host, int port, Client controller) throws IOException {
 		socket = new Socket(host, port);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 		this.controller = controller;
+		alive = true;
 	}
 	
 	public void run() {
-		while(true) {
+		while(alive) {
 			String messageString;
 			try {
 				messageString = in.readLine();
 				if (messageString == null) {
 					throw new IOException();
 				}
-				System.out.println("Client received: " + messageString);
 				handle(messageString);
 			} catch(IOException e) {
 				System.out.println("Could not read incoming messages.");
@@ -63,7 +64,6 @@ public class ServerCommunicator extends Thread {
 	
 	public void send(Message message) {
 		try {
-			System.out.println("Client sends: " + message.toString());
 			out.write(message.toString());
 			out.newLine();
 			out.flush();
@@ -76,7 +76,10 @@ public class ServerCommunicator extends Thread {
 		try {
 			socket.close();
 			in.close();
-			out.close();			
+			out.close();
+			alive = false;
+			System.out.print("The connection to the server has closed. Shutting down the programm.");
+			System.exit(0);
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			System.exit(0);

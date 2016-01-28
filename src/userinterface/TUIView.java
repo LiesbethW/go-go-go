@@ -41,6 +41,7 @@ public class TUIView implements View, Constants {
 		}
 		
 		showOptions(client.getOptions());
+		spacing();
 		
 		if (message != null && renderMessage(message) != null) {
 			show(renderMessage(message));
@@ -102,6 +103,14 @@ public class TUIView implements View, Constants {
 			return "Your challenge was declined.";
 		} else if (message.command().equals(MOVE) && message.args()[1].equals(PASS)) {
 			return "Pass.";
+		} else if (message.command().equals(GAMEOVER)) {
+			if (message.args()[0].equals(VICTORY)) {
+				return "Game over. You've won!";
+			} else if (message.args()[0].equals(DEFEAT)) {
+				return "Game over. You've lost.";
+			} else {
+				return "Game over. It's a draw!";
+			}
 		}
 		return null;
 	}
@@ -120,7 +129,7 @@ public class TUIView implements View, Constants {
 		} else if (client.canStartPlaying()) {
 			return "Starting game...";
 		} else if (client.isPlaying() && client.myTurn()) {
-			return "Your turn! Make a move.";
+			return String.format("Your turn! Make a move. (You play with %s)", client.getColor().toString());
 		} else if (client.isPlaying() && !client.myTurn()) {
 			return String.format("Wait for %s to make a move.", client.opponent());
 		} else {

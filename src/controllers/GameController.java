@@ -40,6 +40,7 @@ public class GameController extends Thread implements Constants {
 		initializeMethodMap();
 		sendGameStart();
 		while (!game.gameOver()) {
+			checkClientsAreLiving();
 			if (commandQueue.peek() != null) {
 				process(commandQueue.poll());
 			}
@@ -75,6 +76,14 @@ public class GameController extends Thread implements Constants {
 			throw new CorruptedAuthorException();
 		} else {
 			commandQueue.add(message);
+		}
+	}
+	
+	public void checkClientsAreLiving() {
+		if (player1.client().dead()) {
+			game.endGameEarly(player1);
+		} else if (player2.client().dead()) {
+			game.endGameEarly(player2);
 		}
 	}
 	
@@ -130,8 +139,7 @@ public class GameController extends Thread implements Constants {
 	protected Command quitCommand() {
 		return new Command() {
 			public void runCommand(Message message) throws GoException {
-				((HumanPlayer) game.otherPlayer(getPlayer(message))).digest(Presenter.victory());
-				server.endGame(player1.client(), player2.client());
+				game.endGameEarly(getPlayer(message));
 				message.author().kill();
 			}
 		};
@@ -140,9 +148,7 @@ public class GameController extends Thread implements Constants {
 	protected Command stopGameCommand() {
 		return new Command() {
 			public void runCommand(Message message) throws GoException {
-				message.author().digest(Presenter.defeat());
-				((HumanPlayer) game.otherPlayer(getPlayer(message))).digest(Presenter.victory());
-				server.endGame(player1.client(), player2.client());
+				game.endGameEarly(getPlayer(message));
 			}
 		};
 	}	
