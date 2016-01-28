@@ -105,12 +105,15 @@ public class TUIView implements View, Constants {
 			} catch (InvalidArgumentException e) {
 				return null;
 			}
-		} else if (message.command().equals(Presenter.challengeAccepted().toString())) {
+		} else if (message.command().equals(Presenter.challengeAccepted().toString()) 
+				&& message.user() == null) {
 			return "Your challenge was accepted!";
-		} else if (message.command().equals(Presenter.challengeDenied().toString())) {
+		} else if (message.command().equals(Presenter.challengeDenied().toString()) 
+				&& message.user() == null) {
 			return "Your challenge was declined.";
-		} else if (message.command().equals(MOVE) && message.args()[1].equals(PASS)) {
-			return "Pass.";
+		} else if (message.command().equals(MOVE) && message.args().length > 1 
+				&& message.args()[1].equals(PASS)) {
+			return String.format("%s passed.", message.args()[0].toLowerCase());
 		} else if (message.command().equals(GAMEOVER)) {
 			if (message.args()[0].equals(VICTORY)) {
 				return "Game over. You've won!";
@@ -153,7 +156,7 @@ public class TUIView implements View, Constants {
 	}
 	
 	public void spacing() {
-		show("\n\n");
+		show("\n");
 	}	
 	
 	public void initializeOptionRender() {

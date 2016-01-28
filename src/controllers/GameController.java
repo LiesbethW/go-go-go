@@ -27,6 +27,13 @@ public class GameController extends Thread implements Constants {
 	private ConcurrentLinkedQueue<Message> commandQueue;
 	private HashMap<String, Command> methodMap;
 	
+	/**
+	 * Create a new game controller.
+	 * @param client1
+	 * @param client2
+	 * @param server
+	 * @param boardSize
+	 */
 	public GameController(ClientHandler client1, ClientHandler client2, Server server, int boardSize) {
 		commandQueue = new ConcurrentLinkedQueue<Message>();
 		player1 = new HumanPlayer(client1);
@@ -35,6 +42,12 @@ public class GameController extends Thread implements Constants {
 		this.server = server;
 	}
 	
+	/**
+	 * Play the game: send gamestart message to players,
+	 * handle commands while the game is playing. Send
+	 * game over when the game ends and hand the clients
+	 * back to the server.
+	 */
 	public void run() {
 		System.out.println("Game has started");
 		initializeMethodMap();
@@ -54,6 +67,10 @@ public class GameController extends Thread implements Constants {
 		server.endGame(player1.client(), player2.client());
 	}
 	
+	/**
+	 * Select the method for a certain command and run it.
+	 * @param message
+	 */
 	public void process(Message message) {
 		System.out.println("GameController: processing " + message.toString());
 		try {
@@ -69,6 +86,11 @@ public class GameController extends Thread implements Constants {
 		
 	}
 	
+	/**
+	 * Put the message on the queue for the commmand handler.
+	 * @param message
+	 * @throws CorruptedAuthorException
+	 */
 	public void enqueue(Message message) throws CorruptedAuthorException {
 		if (getPlayer(message) == null) {
 			System.err.println("This can never happen, only clients that are in this game can"
@@ -79,6 +101,10 @@ public class GameController extends Thread implements Constants {
 		}
 	}
 	
+	/**
+	 * Check the connection state of the players.
+	 * End the game if one of them is no longer connected.
+	 */
 	public void checkClientsAreLiving() {
 		if (player1.client().dead()) {
 			game.endGameEarly(player1);
@@ -87,6 +113,11 @@ public class GameController extends Thread implements Constants {
 		}
 	}
 	
+	/**
+	 * Get the player that sent this message.
+	 * @param message
+	 * @return
+	 */
 	private Player getPlayer(Message message) {
 		if (message.author() == player1.client()) {
 			return player1;
@@ -97,11 +128,17 @@ public class GameController extends Thread implements Constants {
 		}
 	}
 	
+	/**
+	 * Send a GAMESTART message to both players.
+	 */
 	public void sendGameStart() {
 		player1.digest(Presenter.gameStart(player2.getName(), game.getBoard().size(), player1.getColor()));
 		player2.digest(Presenter.gameStart(player1.getName(), game.getBoard().size(), player2.getColor()));
 	}
 	
+	/**
+	 * Send GAMEOVER message to the players.
+	 */
 	public void sendGameOver() {
 		if (game.winner() != null) {
 			((HumanPlayer) game.winner()).digest(Presenter.victory());
@@ -112,18 +149,31 @@ public class GameController extends Thread implements Constants {
 		}
 	}
 	
+	/**
+	 * Send a move to both players
+	 * @param player that made the move
+	 * @param row
+	 * @param col
+	 */
 	public void sendMove(Player player, int row, int col) {
 		Message moveMessage = Presenter.serverMove(player.getColor(), row, col);
 		player1.send(moveMessage);
 		player2.send(moveMessage);
 	}
 	
+	/**
+	 * Send a pass to both players
+	 * @param player that made the pass.
+	 */
 	public void sendPass(Player player) {
 		Message passMessage = Presenter.serverPass(player.getColor());
 		player1.send(passMessage);
 		player2.send(passMessage);
 	}
 	
+	/**
+	 * Create the mapping from protocol command to executable Command.
+	 */
 	private void initializeMethodMap() {
 		methodMap = new HashMap<String, Command>();
         methodMap.put(CHAT, chatCommand());

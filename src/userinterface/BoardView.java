@@ -39,7 +39,8 @@ public class BoardView {
 					intersections, rigthAlignedDigit);
 		}
 		String allRows = String.join(rowDistanceKeeper(), rows);
-		return String.join("\n   ", DISTANCEKEEPER, columnIndicators(), allRows, columnIndicators());
+		return String.join("\n\n   ", DISTANCEKEEPER, columnIndicators(), 
+				allRows, columnIndicators(), "\n");
 	}
 	
 	public String rowDistanceKeeper() {

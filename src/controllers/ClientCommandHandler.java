@@ -19,12 +19,21 @@ public class ClientCommandHandler implements Constants {
 	private InteractionController interactionController;
 	private HashMap<String, Command> methodMap;	
 	
+	/**
+	 * Create a new commandHandler for this client.
+	 * @param client
+	 * @param interactionController
+	 */
 	public ClientCommandHandler(Client client, InteractionController interactionController) {
 		this.client = client;
 		this.interactionController = interactionController;
 		initializeMethodMap();
 	}
 	
+	/**
+	 * Select the method for a certain command and run it.
+	 * @param message
+	 */
 	public void process(Message message) {
 		System.out.println("ClientCommandHandler: processing " + message.toString());
 		try {
@@ -39,7 +48,10 @@ public class ClientCommandHandler implements Constants {
 		}
 		
 	}
-	
+
+	/**
+	 * Create the mapping from protocol command to executable Command.
+	 */
 	public void initializeMethodMap() {
 		methodMap = new HashMap<String, Command>();
 		
