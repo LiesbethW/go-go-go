@@ -136,7 +136,17 @@ public class Game {
 	}
 
 	public void determineWinner() {
-//		board.getTerritories();
+		black.setScore(board.territory(black.getColor()) 
+				- board.captives(black.getColor()));
+		white.setScore(board.territory(white.getColor()) 
+				- board.captives(white.getColor()));
+		if (black.getScore() > white.getScore()) {
+			winner = black;
+		} else if (white.getScore() > black.getScore()) {
+			winner = white;
+		} else {
+			winner = null;
+		}
 	}
 	
 	public Player winner() {

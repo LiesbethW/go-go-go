@@ -5,6 +5,7 @@ import network.protocol.Message;
 public abstract class Player {
 	private String name;
 	private Stone color;
+	private int score;
 	
 	/**
 	 * Create a new player with the given
@@ -13,6 +14,7 @@ public abstract class Player {
 	 */
 	public Player(String name) {
 		this.name = name;
+		score = 0;
 	}
 	
 	/**
@@ -26,6 +28,14 @@ public abstract class Player {
 	public abstract void send(Message message);
 	
 	public abstract void takeTurn(Game game);
+	
+	public int getScore() {
+		return score;
+	}
+	
+	public void setScore(int score) {
+		this.score = score;
+	}
 	
 	public Stone getColor() {
 		return color;
