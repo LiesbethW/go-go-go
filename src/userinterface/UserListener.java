@@ -3,7 +3,8 @@ package userinterface;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import exceptions.InvalidArgumentException;
 
@@ -26,27 +27,25 @@ public class UserListener {
 	}
 	
 	public static int readInt(String input) throws InvalidArgumentException {
-        int integer; 
-//        @SuppressWarnings("resource")
-        try (Scanner scannerLine = new Scanner(input);) {
-            if (scannerLine.hasNextInt()) {
-                integer = scannerLine.nextInt();
+		int integer;
+		String pattern = "([\\d]+)"; 
+		Matcher matcher = Pattern.compile(pattern).matcher(input); 
+            if (matcher.find()) {
+                integer = Integer.valueOf(matcher.group(1));
             } else {
-            	throw new InvalidArgumentException();
+            	throw new InvalidArgumentException("There is no integer");
             }
-        }
         return integer;
     }
 
 	public static char readChar(String input) throws InvalidArgumentException {
-        char character; 
-//        @SuppressWarnings("resource")
-        try (Scanner scannerLine = new Scanner(input);) {
-            if (scannerLine.hasNext("[A-Za-z]+")) {
-                character = scannerLine.next("[A-Za-z]+").charAt(0);
-            } else {
-            	throw new InvalidArgumentException();
-            }
+        char character;
+        String pattern = "[A-Za-z]";
+		Matcher matcher = Pattern.compile(pattern).matcher(input); 
+        if (matcher.find()) {
+            character = matcher.group(0).toUpperCase().charAt(0);
+        } else {
+        	throw new InvalidArgumentException("There is no character.");
         }
         return character;
     }

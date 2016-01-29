@@ -16,10 +16,12 @@ import network.protocol.Presenter;
 
 public class TUIView implements View, Constants {
 	private PrintStream out;
+	private InteractionController interactionController;
 	private HashMap<String, String> optionRender;
 	
-	public TUIView(PrintStream out) {
+	public TUIView(PrintStream out, InteractionController interactionController) {
 		this.out = out;
+		this.interactionController = interactionController;
 		initializeOptionRender();
 	}
 	
@@ -40,7 +42,7 @@ public class TUIView implements View, Constants {
 			spacing();
 		}
 		
-		showMenu(client.getOptions());
+		showMenu(interactionController.menuOptions());
 		spacing();
 		
 		if (message != null && renderMessage(message) != null) {
@@ -148,6 +150,9 @@ public class TUIView implements View, Constants {
 		}
 	}
 	
+	/**
+	 * A lot of empty lines to get a 'clean' command line.
+	 */
 	public void cleanSlate() {
 		String[] newlines = new String[50];
 		Arrays.fill(newlines, "\n");
@@ -155,25 +160,44 @@ public class TUIView implements View, Constants {
 		show(space);
 	}
 	
+	/**
+	 * A new line
+	 */
 	public void spacing() {
 		show("\n");
 	}	
 	
+	/**
+	 * Make hash for how options are displayed.
+	 */
 	public void initializeOptionRender() {
 		optionRender = new HashMap<String, String>();
 		
-		optionRender.put(NEWPLAYER, "N - Enter your name");
-		optionRender.put(MOVE, "M - Make a move");
-		optionRender.put(CHAT, "C - Send a chat message");
-		optionRender.put(PLAY, "P - Play with a random opponent");
-		optionRender.put(CHALLENGE, "S - select an opponent to challenge");
-		optionRender.put(CHALLENGEACCEPTED, "A - Accept the challenge");
-		optionRender.put(CHALLENGEDENIED, "D - Decline the challenge");
-		optionRender.put(CANCEL, "R - Return, stop waiting for opponent");
-		optionRender.put(STOPGAME, "E - End this game");
-		optionRender.put(QUIT, "Q - Quit");
+//		optionRender.put(NEWPLAYER, "N - Enter your name");
+//		optionRender.put(MOVE, "M - Make a move");
+//		optionRender.put(CHAT, "C - Send a chat message");
+//		optionRender.put(PLAY, "P - Play with a random opponent");
+//		optionRender.put(CHALLENGE, "S - select an opponent to challenge");
+//		optionRender.put(CHALLENGEACCEPTED, "A - Accept the challenge");
+//		optionRender.put(CHALLENGEDENIED, "D - Decline the challenge");
+//		optionRender.put(CANCEL, "R - Return, stop waiting for opponent");
+//		optionRender.put(STOPGAME, "E - End this game");
+//		optionRender.put(QUIT, "Q - Quit");
+//		optionRender.put(PASS, "P - Pass");
+//		optionRender.put(HINT, "H - Get a hint.");
 		
-		
+		optionRender.put(NEWPLAYER, "NEWPLAYER <name> - (Give your name to start)");
+		optionRender.put(MOVE, "MOVE <row> <col> - (Give the coordinates of your move)");
+		optionRender.put(CHAT, "CHAT <message> - (Send a chat message)");
+		optionRender.put(PLAY, "PLAY - (Play with a random opponent)");
+		optionRender.put(CHALLENGE, "CHALLENGE <name> - (Select an opponent to challenge)");
+		optionRender.put(CHALLENGEACCEPTED, "CHALLENGEACCEPTED - (Accept the challenge)");
+		optionRender.put(CHALLENGEDENIED, "CHALLENGEDENIED - (Decline the challenge)");
+		optionRender.put(CANCEL, "CANCEL - (Return, stop waiting for opponent)");
+		optionRender.put(STOPGAME, "STOPGAME - (End this game)");
+		optionRender.put(QUIT, "QUIT - (Quit)");
+		optionRender.put(PASS, "MOVE PASS - (Pass your turn)");
+		optionRender.put(HINT, "HINT - (Get a hint)");
 	}
 
 }
