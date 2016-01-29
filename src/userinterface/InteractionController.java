@@ -62,7 +62,6 @@ public class InteractionController extends Thread implements Observer, Constants
 			client.process(message);
 		} catch (GoException e) {
 			System.out.print(e.toString());
-			System.out.println(e.getMessage());
 		}
 		
 	}

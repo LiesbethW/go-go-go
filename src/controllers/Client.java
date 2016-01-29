@@ -334,6 +334,7 @@ public class Client extends Observable implements FSM, Constants, Runnable {
 		allStates.stream().forEach(state -> state.addTransition(GETEXTENSIONS, state));
 		allStates.stream().forEach(state -> state.addTransition(OPTIONS, state));
 		allStates.stream().forEach(state -> state.addTransition(GETOPTIONS, state));
+		allStates.stream().forEach(state -> state.addTransition(QUIT, state));
 		
 		newClient.addCommand(NEWPLAYER);
 		newClient.addTransition(NEWPLAYERACCEPTED, readyToPlay);
@@ -343,6 +344,7 @@ public class Client extends Observable implements FSM, Constants, Runnable {
 		readyToPlay.addTransition(AVAILABLEPLAYERS, readyToPlay);
 		
 		waitingForOpponent.addCommand(CANCEL);
+		waitingForOpponent.addTransition(CANCEL, waitingForOpponent);
 		waitingForOpponent.addTransition(CANCELLED, readyToPlay);
 		waitingForOpponent.addTransition(GAMESTART, playing);
 		
@@ -375,6 +377,7 @@ public class Client extends Observable implements FSM, Constants, Runnable {
 		waitForChallengeResponse.addTransition(CHALLENGEDENIED, readyToPlay);
 		waitForChallengeResponse.addTransition(CHALLENGEACCEPTED, startPlaying);
 		waitForChallengeResponse.addTransition(CANCELLED, readyToPlay);
+		waitForChallengeResponse.addTransition(CANCEL, waitForChallengeResponse);
 		
 		challenged.addCommand(CHALLENGEACCEPTED);
 		challenged.addCommand(CHALLENGEDENIED);
