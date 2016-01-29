@@ -79,6 +79,7 @@ public class ClientCommandHandler implements Constants {
         methodMap.put(CANCEL, cancelCommand());
         methodMap.put(CHALLENGE, challengeCommand());
         methodMap.put(GETOPTIONS, getOptionsCommand());
+        methodMap.put(QUIT, quitCommand());
 	}
 	
 	protected Command gameOverCommand() {
@@ -251,6 +252,14 @@ public class ClientCommandHandler implements Constants {
 		return new Command() {
 			public void runCommand(Message message) {
 				client.send(Presenter.getOptions());
+			}
+		};
+	}
+	
+	protected Command quitCommand() {
+		return new Command() {
+			public void runCommand(Message message) {
+				client.send(Presenter.quit());
 			}
 		};
 	}

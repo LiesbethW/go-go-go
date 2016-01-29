@@ -29,7 +29,7 @@ public abstract class AbstractClientState implements State, network.protocol.Con
 
 	@Override
 	public boolean applicable(String command) {
-		return transitionMap().containsKey(command) || applicableCommands.contains(command);
+		return transitionMap().containsKey(command) || applicableCommands().contains(command);
 	}
 	
 	public boolean inducesStateChange(String command) {

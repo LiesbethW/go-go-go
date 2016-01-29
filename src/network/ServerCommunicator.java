@@ -41,7 +41,6 @@ public class ServerCommunicator extends Thread {
 				}
 				handle(messageString);
 			} catch(IOException e) {
-				System.out.println("Could not read incoming messages.");
 				shutdown();
 			}
 		}
