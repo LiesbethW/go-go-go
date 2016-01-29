@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import exceptions.GoException;
+import exceptions.InvalidArgumentException;
 import exceptions.NameTakenException;
 import exceptions.NotApplicableCommandException;
 import exceptions.NotSupportedCommandException;
@@ -160,6 +161,9 @@ public class CommandHandler extends Thread implements Constants {
 	protected Command newPlayerCommand() {
 		return new Command() {
             public void runCommand(Message message) throws GoException { 
+            		if (message.args().length != 1) {
+            			throw new InvalidArgumentException();
+            		}
             		if (server.findClientByName(message.args()[0]) != null) {
             			throw new NameTakenException();
             		} else {
