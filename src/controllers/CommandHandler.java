@@ -64,6 +64,7 @@ public class CommandHandler extends Thread implements Constants {
         methodMap.put(CHAT, chatCommand());
         methodMap.put(EXTENSIONS, extensionsCommand());
         methodMap.put(GETEXTENSIONS, getExtensionsCommand());
+        methodMap.put(GETOPTIONS, getOptionsCommand());
         methodMap.put(PLAY, playCommand());
         methodMap.put(CANCEL, cancelCommand());
         methodMap.put(CHALLENGE, challengeCommand());
@@ -173,6 +174,15 @@ public class CommandHandler extends Thread implements Constants {
 			public void runCommand(Message message) throws GoException {
 				message.author().kill();
 			};
+		};
+	}
+	
+	protected Command getOptionsCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				message.author().send(Presenter.options(message.author().
+						currentState().applicableCommands()));
+			}
 		};
 	}
 }
