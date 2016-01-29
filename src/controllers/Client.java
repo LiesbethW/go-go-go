@@ -299,7 +299,9 @@ public class Client extends Observable implements FSM, Constants, Runnable {
 	}
 	
 	public void addChatMessage(String chatMessage) {
-		this.chatMessages.add(chatMessage);
+		if (canChat()) {
+			this.chatMessages.add(chatMessage);
+		}
 	}
 	
 	public void handleException(GoException e) {

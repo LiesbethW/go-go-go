@@ -176,7 +176,9 @@ public class ClientCommandHandler implements Constants {
             	if (message.user() != null) {
             		client.send(message);
             	} else {
-            		client.addChatMessage(String.join(DELIMITER, message.args()));
+            		if (message.args().length > 0) {
+            			client.addChatMessage(String.join(DELIMITER, message.args()));
+            		}
             	}
             }
         };
