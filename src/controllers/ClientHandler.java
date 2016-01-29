@@ -277,6 +277,7 @@ public class ClientHandler implements FSM, network.protocol.Constants {
 		readyToPlay.addTransition(PLAY, waitingForOpponent);
 		
 		waitingForOpponent.addCommand(CANCEL);
+		waitingForOpponent.addCommand(PLAY);
 		waitingForOpponent.addTransition(CANCELLED, readyToPlay);
 		waitingForOpponent.addTransition(PLAY, startPlaying);
 		waitingForOpponent.addTransition(QUIT, readyToPlay);

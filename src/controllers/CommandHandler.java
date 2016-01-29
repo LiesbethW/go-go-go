@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import exceptions.GoException;
+import exceptions.InvalidArgumentException;
 import exceptions.NameTakenException;
 import exceptions.NotApplicableCommandException;
 import exceptions.NotSupportedCommandException;
@@ -64,6 +65,7 @@ public class CommandHandler extends Thread implements Constants {
         methodMap.put(CHAT, chatCommand());
         methodMap.put(EXTENSIONS, extensionsCommand());
         methodMap.put(GETEXTENSIONS, getExtensionsCommand());
+        methodMap.put(GETOPTIONS, getOptionsCommand());
         methodMap.put(PLAY, playCommand());
         methodMap.put(CANCEL, cancelCommand());
         methodMap.put(CHALLENGE, challengeCommand());
@@ -159,6 +161,9 @@ public class CommandHandler extends Thread implements Constants {
 	protected Command newPlayerCommand() {
 		return new Command() {
             public void runCommand(Message message) throws GoException { 
+            		if (message.args().length != 1) {
+            			throw new InvalidArgumentException();
+            		}
             		if (server.findClientByName(message.args()[0]) != null) {
             			throw new NameTakenException();
             		} else {
@@ -173,6 +178,15 @@ public class CommandHandler extends Thread implements Constants {
 			public void runCommand(Message message) throws GoException {
 				message.author().kill();
 			};
+		};
+	}
+	
+	protected Command getOptionsCommand() {
+		return new Command() {
+			public void runCommand(Message message) throws GoException {
+				message.author().send(Presenter.options(message.author().
+						currentState().applicableCommands()));
+			}
 		};
 	}
 }

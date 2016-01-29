@@ -342,6 +342,7 @@ public class Client extends Observable implements FSM, Constants, Runnable {
 		readyToPlay.addCommand(PLAY);
 		readyToPlay.addTransition(WAITFOROPPONENT, waitingForOpponent);
 		readyToPlay.addTransition(AVAILABLEPLAYERS, readyToPlay);
+		readyToPlay.addTransition(GAMESTART, playing);
 		
 		waitingForOpponent.addCommand(CANCEL);
 		waitingForOpponent.addTransition(CANCEL, waitingForOpponent);
